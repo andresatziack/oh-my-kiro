@@ -1,10 +1,10 @@
-# Knowledge Auto-Evolution — Automatic Distillation, Archival & Recall
+# Auto-Evolução de Knowledge - Destilação Automática, Arquivamento e Recall
 
-**Goal:** Make the knowledge system self-evolving: episodes auto-distill into rules, stale episodes auto-archive, and rules auto-inject with severity-based fidelity — all triggered by existing hooks with zero manual intervention.
+**Objetivo:** Make the knowledge system self-evolving: episodes auto-distill into rules, stale episodes auto-archive, and rules auto-inject with severity-based fidelity - all triggered by existing hooks with zero manual intervention.
 
-**Non-Goals:** LLM-based semantic distillation (bash sufficient for current scale). Vector/embedding-based retrieval (keyword matching sufficient). MCP search tools or SQLite storage. Age-based decay (observe buffer usage first). Modifying `.claude/rules/` content (human-curated, out of scope).
+**Não-Objetivos:** LLM-based semantic distillation (bash sufficient for current scale). Vector/embedding-based retrieval (keyword matching sufficient). MCP search tools or SQLite storage. Age-based decay (observe buffer usage first). Modifying `.claude/rules/` content (human-curated, out of scope).
 
-**Architecture:** Three-layer change on the existing hook pipeline: (1) `distill.sh` — new library script that scans episodes for distillation candidates, writes rules to `knowledge/rules.md` with severity prefix, and archives promoted episodes. (2) `context-enrichment.sh` — expanded to run distillation on kb-changed flag, inject rules by keyword match every message, and output episode index hints. (3) `session-init.sh` — simplified to cold-start archival + health report only (rules injection moved out). Auto-capture pipeline enhanced with severity tracking via correction flag file.
+**Arquitetura:** Three-layer change on the existing hook pipeline: (1) `distill.sh` - new library script that scans episodes for distillation candidates, writes rules to `knowledge/rules.md` with severity prefix, and archives promoted episodes. (2) `context-enrichment.sh` - expanded to run distillation on kb-changed flag, inject rules by keyword match every message, and output episode index hints. (3) `session-init.sh` - simplified to cold-start archival + health report only (rules injection moved out). Auto-capture pipeline enhanced with severity tracking via correction flag file.
 
 **Tech Stack:** Bash, awk, grep (hooks layer only — no Python, per shell.md language boundary)
 
@@ -32,11 +32,11 @@
 4. **kb-changed flag as dirty check** — 99% of messages skip distillation entirely (no flag = no scan). Only messages after a new episode triggers the full pipeline.
 5. **Section cap 5 instead of LLM merge** — When a keyword section exceeds 5 rules, oldest is removed. Simplified Ebbinghaus curve: old rules naturally decay as new ones arrive.
 
-## Tasks
+## Tarefas
 
-### Task 1: Distillation Engine
+### Tarefa 1: Distillation Engine
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/_lib/distill.sh`
 - Create: `tests/knowledge/test-distill.sh`
 
@@ -50,13 +50,13 @@
 
 3. `section_cap_enforce` — For each section in rules.md with >5 rules, remove oldest until ≤5.
 
-**Tests:** D1: freq ≥2 triggers distillation with correct severity. D2: keyword in .claude/rules/ → promoted, no rule written. D3: keyword in rules.md → no duplicate. D4: promoted → archive. D5: resolved → archive. D6: archive append-only. D7: section cap (6th evicts 1st). D8: severity: "禁止" → 🔴, no action words → 🟡.
+**Testes:** D1: freq ≥2 triggers distillation with correct severity. D2: keyword in .claude/rules/ → promoted, no rule written. D3: keyword in rules.md → no duplicate. D4: promoted → archive. D5: resolved → archive. D6: archive append-only. D7: section cap (6th evicts 1st). D8: severity: "禁止" → 🔴, no action words → 🟡.
 
-**Verify:** `bash tests/knowledge/test-distill.sh`
+**Verificação:** `bash tests/knowledge/test-distill.sh`
 
-### Task 2: Auto-Capture Severity Tracking
+### Tarefa 2: Auto-Capture Severity Tracking
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/auto-capture.sh`
 - Modify: `hooks/feedback/correction-detect.sh`
 - Create: `tests/knowledge/test-severity-tracking.sh`
@@ -67,13 +67,13 @@ correction-detect touches `/tmp/kb-correction-<WS_HASH>-$$.flag` (PID-scoped to 
 
 Also fix auto-capture Gate 4: change `grep -c "$DATE_PATTERN"` to `grep -cE '\| (active|resolved|promoted) \|'` for accurate episode counting.
 
-**Tests:** S1: correction-detect sets flag before auto-capture. S2: auto-capture appends [correction] when flag exists. S3: flag cleaned up after capture. S4: non-correction capture has no marker. G1: Gate 4 correctly blocks at capacity 30.
+**Testes:** S1: correction-detect sets flag before auto-capture. S2: auto-capture appends [correction] when flag exists. S3: flag cleaned up after capture. S4: non-correction capture has no marker. G1: Gate 4 correctly blocks at capacity 30.
 
-**Verify:** `bash tests/knowledge/test-severity-tracking.sh`
+**Verificação:** `bash tests/knowledge/test-severity-tracking.sh`
 
-### Task 3: Context-Enrichment Expansion
+### Tarefa 3: Context-Enrichment Expansion
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 - Modify: `hooks/feedback/session-init.sh`
 - Create: `tests/knowledge/test-enrichment-v2.sh`
@@ -94,13 +94,13 @@ Expand context-enrichment.sh:
 
 Simplify session-init.sh: remove inject_rules function. Keep promoted cleanup (cold-start fallback), promotion count, health report.
 
-**Tests:** E1: kb-changed flag triggers distillation. E2: 🟡 rules injected with 📚 on keyword match. E3: 🔴 rules always injected with ⚠️. E4: episode hints for matching keywords. E5: archive hint when dir exists. E6: session-init no longer outputs rules. E7: session-init still does cleanup + health. E8: no distillation when flag absent.
+**Testes:** E1: kb-changed flag triggers distillation. E2: 🟡 rules injected with 📚 on keyword match. E3: 🔴 rules always injected with ⚠️. E4: episode hints for matching keywords. E5: archive hint when dir exists. E6: session-init no longer outputs rules. E7: session-init still does cleanup + health. E8: no distillation when flag absent.
 
-**Verify:** `bash tests/knowledge/test-enrichment-v2.sh`
+**Verificação:** `bash tests/knowledge/test-enrichment-v2.sh`
 
-### Task 4: Integration Test & Scaffold
+### Tarefa 4: Integration Test & Scaffold
 
-**Files:**
+**Arquivos:**
 - Create: `knowledge/archive/.gitkeep`
 - Modify: `knowledge/rules.md`
 - Create: `tests/knowledge/test-integration.sh`
@@ -119,11 +119,11 @@ Simplify session-init.sh: remove inject_rules function. Keep promoted cleanup (c
 
 3. End-to-end integration test: setup temp workspace → write episodes with shared keyword → touch kb-changed → run context-enrichment → verify rule in rules.md + output contains rule + episodes promoted → run session-init → verify archive populated.
 
-**Verify:** `bash tests/knowledge/test-integration.sh`
+**Verificação:** `bash tests/knowledge/test-integration.sh`
 
-### Task 5: Existing Test Regression
+### Tarefa 5: Existing Test Regression
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/knowledge/l1-rules-injection.sh` (adapt to new injection source)
 - Modify: `tests/knowledge/l1-corruption-recall.sh` (adapt to new cleanup location)
 
@@ -134,22 +134,22 @@ Existing knowledge tests expect rules injection from session-init. After Task 3,
 - `run_session_init` calls should NOT return rules output
 - Promoted cleanup tests should verify both session-init (cold-start) and context-enrichment (hot-path) paths
 
-**Verify:** `bash tests/knowledge/l1-rules-injection.sh && bash tests/knowledge/l1-corruption-recall.sh`
+**Verificação:** `bash tests/knowledge/l1-rules-injection.sh && bash tests/knowledge/l1-corruption-recall.sh`
 
-### Task 6: Hook Compatibility Verification
+### Tarefa 6: Hook Compatibility Verification
 
-**Files:**
+**Arquivos:**
 - (no new files — verification only)
 
 **What to implement:**
 
 Run existing hook compatibility tests to ensure changes don't break Kiro/CC hook format expectations. Fix any failures.
 
-**Verify:** `bash tests/hooks/test-kiro-compat.sh`
+**Verificação:** `bash tests/hooks/test-kiro-compat.sh`
 
-### Task 7: Review Quality — Specific Questions + Canary Verification
+### Tarefa 7: Review Quality - Specific Questions + Canary Verification
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 - Modify: `skills/reviewing/SKILL.md`
 
@@ -174,7 +174,7 @@ Q: [question only answerable by reading specific source file]
 
 3. **Pre-review checklist in reviewing SKILL.md** — Add to "Plan Review" section: before dispatching, main agent must identify 2-3 specific risk points from the plan and formulate them as questions. This is the "pre-review" step that focuses reviewer attention.
 
-**Verify:** `grep -q 'Specific Questions' skills/planning/SKILL.md && grep -q 'Source Reading Canary' skills/planning/SKILL.md && grep -q 'pre-review' skills/reviewing/SKILL.md`
+**Verificação:** `grep -q 'Specific Questions' skills/planning/SKILL.md && grep -q 'Source Reading Canary' skills/planning/SKILL.md && grep -q 'pre-review' skills/reviewing/SKILL.md`
 
 ## Review
 

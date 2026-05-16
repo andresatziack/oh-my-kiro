@@ -1,6 +1,6 @@
-# Progress — Ralph Loop Context Optimization
+# Progresso - Otimização de Contexto do Ralph Loop
 
-## Iteration 1-3 (Ralph Loop, 2026-02-19 01:20~02:32)
+## Iteração 1-3 (Ralph Loop, 2026-02-19 01:20~02:32)
 
 - **Task 1 completed:** Plan-scoped state files
   - Added PlanFile.progress_path and PlanFile.findings_path to scripts/lib/plan.py
@@ -17,13 +17,13 @@
 - iteration 1 uses init prompt (Task 3)
 - regression tests pass (Task 4)
 
-## Iteration 4 (Manual resume) — 2026-02-19 11:57
+## Iteração 4 (Manual resume) - 2026-02-19 11:57
 
-- **Task:** Verified and checked off remaining 6 checklist items (Tasks 2-4)
+- **Tarefa:** Verified and checked off remaining 6 checklist items (Tasks 2-4)
 - **Status:** All items already implemented in code from previous iterations; only checklist marks were missing due to dead loop interruption
-- **Findings:**
+- **Descobertas:**
   - `scripts/lib/precheck.py` — fully implemented with `detect_test_command` and `run_precheck`
   - `scripts/ralph_loop.py` — already has `build_init_prompt()`, precheck integration in `build_prompt()`, and iteration 1 init prompt logic
   - All 90 tests pass (including slow tests)
-- **Learnings:** When hook gate blocks checklist check-off, the `execute_bash` command must exactly match the verify command string in the checklist (no `cd` prefix, no `| tail` suffix, no `&& echo`). The post-bash hook records the full command text and the gate compares shasum hashes.
+- **Aprendizados:** When hook gate blocks checklist check-off, the `execute_bash` command must exactly match the verify command string in the checklist (no `cd` prefix, no `| tail` suffix, no `&& echo`). The post-bash hook records the full command text and the gate compares shasum hashes.
 - **Status:** done — plan complete (10/10 checklist items)

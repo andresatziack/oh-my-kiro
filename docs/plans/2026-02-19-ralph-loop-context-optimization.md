@@ -1,10 +1,10 @@
-# Ralph Loop Context Optimization
+# Otimização de Contexto do Ralph Loop
 
-**Goal:** Eliminate context waste in Ralph Loop by isolating state files per plan, adding environment pre-check, and differentiating first iteration from subsequent ones — so each iteration's agent gets only high-signal context.
+**Objetivo:** Eliminate context waste in Ralph Loop by isolating state files per plan, adding environment pre-check, and differentiating first iteration from subsequent ones - so each iteration's agent gets only high-signal context.
 
-**Non-Goals:** Not changing plan file format (stays Markdown). Not adding CC-only features (Agent Teams, PreCompact). Not changing hook architecture.
+**Não-Objetivos:** Not changing plan file format (stays Markdown). Not adding CC-only features (Agent Teams, PreCompact). Not changing hook architecture.
 
-**Architecture:** Three changes to `ralph_loop.py`: (1) progress/findings files derived from plan path instead of global shared files, (2) environment pre-check runs test suite before each iteration and injects result into prompt, (3) iteration 1 gets a distinct "initializer" prompt that verifies environment before implementing. All changes in `scripts/ralph_loop.py` + `scripts/lib/` + tests.
+**Arquitetura:** Three changes to `ralph_loop.py`: (1) progress/findings files derived from plan path instead of global shared files, (2) environment pre-check runs test suite before each iteration and injects result into prompt, (3) iteration 1 gets a distinct "initializer" prompt that verifies environment before implementing. All changes in `scripts/ralph_loop.py` + `scripts/lib/` + tests.
 
 **Tech Stack:** Python 3, pytest
 
@@ -18,16 +18,16 @@ Round 1 (4 reviewers parallel):
 
 Post-review fix: added `build_batch_prompt` parallel branch coverage to Task 1 + checklist.
 
-## Tasks
+## Tarefas
 
-### Task 1: Plan-scoped State Files
+### Tarefa 1: Plan-scoped State Files
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/plan.py`
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_state_files_scoped_to_plan -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_state_files_scoped_to_plan -v`
 
 **Step 1: Write failing test**
 
@@ -72,14 +72,14 @@ Also verify `build_batch_prompt` uses scoped paths in both parallel and sequenti
 
 ---
 
-### Task 2: Environment Pre-check
+### Tarefa 2: Environment Pre-check
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/precheck.py`
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_precheck.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_precheck.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_precheck.py -v`
 
 **Step 1: Write failing test**
 
@@ -155,13 +155,13 @@ In `ralph_loop.py`, import and call before prompt building, inject result into p
 
 ---
 
-### Task 3: Initializer Prompt for First Iteration
+### Tarefa 3: Initializer Prompt for First Iteration
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py -k init_prompt -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py -k init_prompt -v`
 
 **Step 1: Write failing test**
 
@@ -191,13 +191,13 @@ Add `build_init_prompt()` to `ralph_loop.py`. In main loop, use when `i == 1 and
 
 ---
 
-### Task 4: Regression
+### Tarefa 4: Regression
 
-**Files:**
+**Arquivos:**
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/ -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/ -v`
 
 Run full regression. Fix any tests broken by path changes.
 
@@ -207,7 +207,7 @@ Expected: All pass
 
 ---
 
-## Findings
+## Descobertas
 <!-- Append-only during execution -->
 
 ## Errors

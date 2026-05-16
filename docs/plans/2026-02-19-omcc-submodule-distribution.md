@@ -1,17 +1,17 @@
-> **ABANDONED** — 未执行，已关闭
+> **ABANDONED** - 未执行，已关闭
 
-# Plan: OMCC Submodule Distribution for china-poetry-app
+# Plano: Distribuição do OMCC como Submodule para china-poetry-app
 
-> Goal: Apply oh-my-claude-code (OMCC) framework v3 to china-poetry-app (CPA) via git submodule + symlink, preserving all CPA project-specific knowledge/rules/skills, with one-command sync for future updates.
+> Objetivo: aplicar o framework oh-my-claude-code (OMCC) v3 ao china-poetry-app (CPA) via git submodule + symlink, preservando todo o knowledge/rules/skills específicos do CPA, com sync de um comando para atualizações futuras.
 
-## Context
+## Contexto
 
 - OMCC: agent framework with hooks (security/gate/feedback), skills (planning/reviewing/etc), scripts (generate_configs.py, ralph_loop.py), commands, rules
 - CPA: Expo/RN poetry app with project-specific knowledge (16 files), enforcement rules (R-BG/R-DEV/R-TRUTH/R-DESIGN/R-LAYOUT/R1-R10), hooks (5 scripts), skills (8 project-specific + 22 old Kiro built-in)
 - CPA's old hooks are functionally superseded by OMCC's layered hook system
 - CPA has project-specific skills in `.agents/skills/` (8 dirs: mobile-design, ios-simulator, etc.)
 
-## Design Decisions
+## Decisões de Design
 
 1. **Git submodule at `.omcc/`** — CPA repo stores only a commit pointer, not framework code
 2. **Sub-directory symlinks** (not whole-directory) for hooks/ and skills/ — allows project-specific additions alongside framework content
@@ -22,9 +22,9 @@
 7. **CPA keeps its own `plans/` directory** (not `docs/plans/`) — too much existing content to move
 8. **AGENTS.md upgraded to v3 format** — preserves MoXun identity, adds Skill Routing + Authority Matrix
 
-## Steps
+## Passos
 
-### Task 1: [OMCC repo] Extend generate_configs.py with `--project-root` and overlay support
+### Tarefa 1: [OMCC repo] Extend generate_configs.py with `--project-root` and overlay support
 
 > This task modifies the OMCC framework itself. Must be committed to OMCC repo first, then CPA's submodule will pick it up.
 
@@ -47,9 +47,9 @@
 - Validation: overlay hooks must point to files that exist on disk (relative to project root)
 - Backward compatible: running without `--project-root` or `--overlay` behaves exactly as before
 
-**Test:** Run `python scripts/generate_configs.py` in OMCC repo — output unchanged. Run with `--project-root /tmp/test --overlay /tmp/test/overlay.json` — generates configs with merged hooks.
+**Teste:** Run `python scripts/generate_configs.py` in OMCC repo - output unchanged. Run with `--project-root /tmp/test --overlay /tmp/test/overlay.json` - generates configs with merged hooks.
 
-### Task 2: [CPA repo] Add submodule and create directory structure
+### Tarefa 2: [CPA repo] Add submodule and create directory structure
 
 **Do:**
 - `git submodule add git@github.com:KaimingWan/oh-my-claude-code.git .omcc` in CPA
@@ -67,9 +67,9 @@
 - Preserve `.kiro/settings/lsp.json` — do NOT touch `.kiro/settings/` directory
 - Update CPA `.gitignore`: add `.omcc/**` exclusion for build tools (note: git submodule content is already not tracked by parent repo, but this prevents accidental `git add .omcc/`)
 
-**Verify:** `ls -la hooks/security/block-dangerous.sh` shows content. `hooks/project/enforce-code-quality.sh` exists. `.kiro/settings/lsp.json` unchanged. `.claude/rules/shell.md` resolves.
+**Verificação:** `ls -la hooks/security/block-dangerous.sh` shows content. `hooks/project/enforce-code-quality.sh` exists. `.kiro/settings/lsp.json` unchanged. `.claude/rules/shell.md` resolves.
 
-### Task 3: [CPA repo] Migrate skills — framework symlinks + project-specific preservation
+### Tarefa 3: [CPA repo] Migrate skills - framework symlinks + project-specific preservation
 
 **Do:**
 - Create top-level `skills/` directory
@@ -81,9 +81,9 @@
 - Recreate `.kiro/skills → ../skills`, `.claude/skills → ../skills`
 - Remove `.agents/` directory (contents migrated)
 
-**Verify:** `ls skills/planning/SKILL.md` resolves. `ls skills/mobile-design/` shows project content. `ls skills/ios-simulator-skill/` shows project content.
+**Verificação:** `ls skills/planning/SKILL.md` resolves. `ls skills/mobile-design/` shows project content. `ls skills/ios-simulator-skill/` shows project content.
 
-### Task 4: [CPA repo] Create `.omcc-overlay.json` and `tools/sync-omcc.sh`
+### Tarefa 4: [CPA repo] Create `.omcc-overlay.json` and `tools/sync-omcc.sh`
 
 **Do:**
 - Create `.omcc-overlay.json` with CPA's project-specific hook (enforce-code-quality.sh)
@@ -98,9 +98,9 @@
   ```
 - `chmod +x tools/sync-omcc.sh`
 
-**Verify:** File exists and is executable.
+**Verificação:** File exists and is executable.
 
-### Task 5: [CPA repo] Generate configs and verify hook resolution
+### Tarefa 5: [CPA repo] Generate configs and verify hook resolution
 
 **Do:**
 - Run `python3 .omcc/scripts/generate_configs.py --project-root . --overlay .omcc-overlay.json`
@@ -112,9 +112,9 @@
 - Verify generated `.claude/settings.json` has equivalent Claude Code hook config
 - Replace CPA's old minimal `.claude/settings.json` with generated version
 
-**Verify:** `jq '.hooks.preToolUse[] | select(.command | contains("enforce-code-quality"))' .kiro/agents/default.json` returns a result. `jq '.hooks.preToolUse[] | select(.command | contains("block-dangerous"))' .kiro/agents/default.json` returns a result.
+**Verificação:** `jq '.hooks.preToolUse[] | select(.command | contains("enforce-code-quality"))' .kiro/agents/default.json` returns a result. `jq '.hooks.preToolUse[] | select(.command | contains("block-dangerous"))' .kiro/agents/default.json` returns a result.
 
-### Task 6: [CPA repo] Upgrade AGENTS.md to v3 format
+### Tarefa 6: [CPA repo] Upgrade AGENTS.md to v3 format
 
 **Do:**
 - Rewrite CPA's `AGENTS.md` in OMCC v3 format:
@@ -123,9 +123,9 @@
   - Remove: old 3-Layer Architecture header (replaced by v3 structure), old custom commands section (moved to commands/)
 - Update `CLAUDE.md` to match (same content, different filename for Claude Code compatibility)
 
-**Verify:** `wc -l AGENTS.md` ≤ 200 lines. File contains `## Skill Routing` and `## Authority Matrix` sections.
+**Verificação:** `wc -l AGENTS.md` ≤ 200 lines. File contains `## Skill Routing` and `## Authority Matrix` sections.
 
-### Task 7: [CPA repo] Clean up old CPA agent artifacts
+### Tarefa 7: [CPA repo] Clean up old CPA agent artifacts
 
 **Do:**
 - Remove old hooks: `.kiro/hooks/deny-commands.sh`, `.kiro/hooks/enforce-research.sh`, `.kiro/hooks/three-rules-check.sh`, `.kiro/hooks/check-persist.sh`, `.kiro/hooks/violation-log.jsonl` (note: `.kiro/hooks` is now a symlink to `../hooks`, so these files should already be gone after Task 2; verify and clean up any remnants)
@@ -134,9 +134,9 @@
 - Verify `.kiro/rules/enforcement.md`, `.kiro/rules/reference.md`, `.kiro/rules/commands.md` are preserved (project-specific content)
 - Verify `knowledge/` directory is completely untouched
 
-**Verify:** `git diff --stat -- knowledge/` shows no changes. Old hook files don't exist. `.kiro/rules/enforcement.md` exists and contains R-BG rule.
+**Verificação:** `git diff --stat -- knowledge/` shows no changes. Old hook files don't exist. `.kiro/rules/enforcement.md` exists and contains R-BG rule.
 
-### Task 8: [CPA repo] Verify symlink resolution for hooks with relative paths
+### Tarefa 8: [CPA repo] Verify symlink resolution for hooks with relative paths
 
 **Do:**
 - Test that hooks using `source "$(dirname "$0")/../_lib/common.sh"` resolve correctly through symlinks
@@ -144,9 +144,9 @@
 - Test with proper JSON input: `echo '{"tool_name":"fs_write","tool_input":{"file_path":"test.txt","new_str":"x"}}' | bash hooks/feedback/post-write.sh 2>&1`
 - If any hook fails to source _lib, debug the symlink chain
 
-**Verify:** Hook scripts can source `_lib/common.sh` and `_lib/distill.sh` without "No such file" errors.
+**Verificação:** Hook scripts can source `_lib/common.sh` and `_lib/distill.sh` without "No such file" errors.
 
-### Task 9: [CPA repo] End-to-end smoke test
+### Tarefa 9: [CPA repo] End-to-end smoke test
 
 **Do:**
 - From CPA directory:
@@ -157,7 +157,7 @@
   5. `diff <(git show HEAD:knowledge/INDEX.md) knowledge/INDEX.md` — unchanged (or `git status --porcelain -- knowledge/` shows clean)
   6. `git status --porcelain -- moxun/ worker/` — empty (no business code changes)
 
-**Verify:** All 6 checks pass. Zero changes to business code.
+**Verificação:** All 6 checks pass. Zero changes to business code.
 
 ## Review
 

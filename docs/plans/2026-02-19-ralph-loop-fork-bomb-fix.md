@@ -1,10 +1,10 @@
-# Ralph Loop Fork Bomb & Orphan Process Fix
+# Correção de Fork Bomb e Processos Órfãos no Ralph Loop
 
-**Goal:** Eliminate the recursive fork bomb caused by `run_precheck()` → pytest → ralph tests → ralph_loop.py → `run_precheck()` → ∞, and fix orphan child processes surviving after ralph_loop.py is killed.
+**Objetivo:** Eliminate the recursive fork bomb caused by `run_precheck()` → pytest → ralph tests → ralph_loop.py → `run_precheck()` → ∞, and fix orphan child processes surviving after ralph_loop.py is killed.
 
-**Non-Goals:** Not changing the precheck feature's purpose (it still runs tests). Not changing ralph_loop.py's iteration/timeout/circuit-breaker logic. Not changing test structure or test coverage scope.
+**Não-Objetivos:** Not changing the precheck feature's purpose (it still runs tests). Not changing ralph_loop.py's iteration/timeout/circuit-breaker logic. Not changing test structure or test coverage scope.
 
-**Architecture:** Three-layer fix: (1) `run_precheck()` excludes `tests/ralph-loop/` from its pytest invocation — this is the root cause fix since precheck's purpose is environment health, not integration testing. (2) `ralph_loop.py` sets `_RALPH_LOOP_RUNNING=1` env var on startup and dies if already set — safety net against any future recursion vector. (3) Keep `start_new_session=True` (needed for timeout killpg) but add explicit child PID tracking in `_cleanup_handler`, so killing ralph also kills its child CLI process's process group instead of orphaning it.
+**Arquitetura:** Three-layer fix: (1) `run_precheck()` excludes `tests/ralph-loop/` from its pytest invocation - this is the root cause fix since precheck's purpose is environment health, not integration testing. (2) `ralph_loop.py` sets `_RALPH_LOOP_RUNNING=1` env var on startup and dies if already set - safety net against any future recursion vector. (3) Keep `start_new_session=True` (needed for timeout killpg) but add explicit child PID tracking in `_cleanup_handler`, so killing ralph also kills its child CLI process's process group instead of orphaning it.
 
 **Tech Stack:** Python 3, pytest
 
@@ -23,15 +23,15 @@ Post-review fixes applied:
 4. Task 3 _cleanup_handler: remove poll() check, directly try killpg (async-signal-safe)
 5. Task 3 test: replace sleep(2) with poll loop for robustness
 
-## Tasks
+## Tarefas
 
-### Task 1: Precheck Excludes Ralph Tests (Root Cause)
+### Tarefa 1: Precheck Excludes Ralph Tests (Root Cause)
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/precheck.py`
 - Test: `tests/ralph-loop/test_precheck.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_precheck.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_precheck.py -v`
 
 **Step 1: Write failing test**
 
@@ -63,13 +63,13 @@ return "python3 -m pytest -x -q -m 'not slow' --ignore=tests/ralph-loop"
 
 ---
 
-### Task 2: Ralph Loop Recursion Guard (Safety Net)
+### Tarefa 2: Ralph Loop Recursion Guard (Safety Net)
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_recursion_guard -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_recursion_guard -v`
 
 **Step 1: Write failing test**
 
@@ -105,13 +105,13 @@ os.environ["_RALPH_LOOP_RUNNING"] = "1"
 
 ---
 
-### Task 3: Fix Orphan Child Processes
+### Tarefa 3: Fix Orphan Child Processes
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_no_orphan_after_ralph_killed -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_no_orphan_after_ralph_killed -v`
 
 **Step 1: Write failing test**
 
