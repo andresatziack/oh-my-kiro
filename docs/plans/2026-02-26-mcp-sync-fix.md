@@ -1,15 +1,15 @@
-# MCP Sync Fix — mcp.json merge + uvx runtime
+# Correção do Sync MCP - merge de mcp.json + runtime uvx
 
-**Goal:** Fix sync-omcc.sh so MCP configs and MCP server runtime dependencies are correctly propagated to target projects, making `o/know` and `o/agent` commands work after sync.
-**Non-Goals:** Adding new MCP servers; changing MCP prompt content; modifying Claude Code (`.claude/`) MCP handling; modifying generate_configs.py.
-**Architecture:** Two changes in sync-omcc.sh: (1) Step 3.9 switches from copy-if-absent to jq merge for mcp.json (with copy fallback for first-time sync), (2) Step 3.9b is removed (merge in 3.9 now handles `o` server registration). The source `.kiro/settings/mcp.json` is updated to use uvx for the `o` server so the mcp dependency is auto-resolved at runtime.
+**Objetivo:** Fix sync-omcc.sh so MCP configs and MCP server runtime dependencies are correctly propagated to target projects, making `o/know` and `o/agent` commands work after sync.
+**Não-Objetivos:** Adding new MCP servers; changing MCP prompt content; modifying Claude Code (`.claude/`) MCP handling; modifying generate_configs.py.
+**Arquitetura:** Two changes in sync-omcc.sh: (1) Step 3.9 switches from copy-if-absent to jq merge for mcp.json (with copy fallback for first-time sync), (2) Step 3.9b is removed (merge in 3.9 now handles `o` server registration). The source `.kiro/settings/mcp.json` is updated to use uvx for the `o` server so the mcp dependency is auto-resolved at runtime.
 **Tech Stack:** bash, jq, uvx
 
-## Tasks
+## Tarefas
 
-### Task 1: Update source mcp.json + fix sync merge strategy + remove redundant Step 3.9b
+### Tarefa 1: Update source mcp.json + fix sync merge strategy + remove redundant Step 3.9b
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/settings/mcp.json` (source of truth — change `o` server to uvx)
 - Modify: `tools/sync-omcc.sh` (Step 3.9: copy-if-absent → jq merge; remove Step 3.9b)
 - Create: `tests/sync-omcc/test_mcp_sync.sh`
@@ -22,7 +22,7 @@
    - If project mcp.json exists: `jq -s '.[0] * .[1]' "$PROJECT_MCP" "$OMCC_MCP"` — wraps mcpServers level so OMCC servers override same-key entries, project-only servers preserved. Actually the correct merge is: build a new object with `{mcpServers: (project.mcpServers + omcc.mcpServers)}` so OMCC wins for shared keys. Use: `jq -s '{"mcpServers": (.[0].mcpServers * .[1].mcpServers)}' "$PROJECT_MCP" "$OMCC_MCP"`
 3. Remove Step 3.9b entirely (the standalone `o` server jq injection) — now redundant since merge handles it.
 
-**Verify:** `bash tests/sync-omcc/test_mcp_sync.sh`
+**Verificação:** `bash tests/sync-omcc/test_mcp_sync.sh`
 
 ## Review
 

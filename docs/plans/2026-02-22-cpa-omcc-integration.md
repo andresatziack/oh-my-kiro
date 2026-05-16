@@ -1,20 +1,20 @@
 > **Status:** draft
 
-# CPA OMCC Integration Plan
+# Plano de Integração CPA OMCC
 
-**Goal:** Integrate OMCC framework into china-poetry-app (CPA) via git submodule, inheriting all framework capabilities (hooks, skills, principles, workflow, self-learning) while preserving CPA's MoXun Identity/Roles and project-specific knowledge/skills/hooks. Also complete OMCC's own Identity/Roles definition (dogfooding).
+**Objetivo:** Integrate OMCC framework into china-poetry-app (CPA) via git submodule, inheriting all framework capabilities (hooks, skills, principles, workflow, self-learning) while preserving CPA's MoXun Identity/Roles and project-specific knowledge/skills/hooks. Also complete OMCC's own Identity/Roles definition (dogfooding).
 
-**Non-Goals:**
+**Não-Objetivos:**
 - Modifying CPA business code (moxun/, worker/, audio/)
 - Changing CPA's knowledge content (16 domain files)
 - Adding new framework features — only using existing extension points
 - Ralph loop cross-project support (separate plan)
 
-**Architecture:** CPA adds OMCC as git submodule at `.omcc/`. Top-level `hooks/` and `skills/` directories use sub-directory symlinks to framework content + real directories for project-specific content. `.omcc-overlay.json` registers project hooks/skills. `sync-omcc.sh` regenerates all agent configs. AGENTS.md uses `<!-- BEGIN/END OMCC -->` markers for framework section inheritance.
+**Arquitetura:** CPA adds OMCC as git submodule at `.omcc/`. Top-level `hooks/` and `skills/` directories use sub-directory symlinks to framework content + real directories for project-specific content. `.omcc-overlay.json` registers project hooks/skills. `sync-omcc.sh` regenerates all agent configs. AGENTS.md uses `<!-- BEGIN/END OMCC -->` markers for framework section inheritance.
 
 **Tech Stack:** Bash (integration scripts), Python (generate_configs.py), JSON (overlay/agent configs)
 
-## Context
+## Contexto
 
 ### CPA Current State
 - AGENTS.md: MoXun Agent v2 format (~80 lines), Identity + 3 Roles (Engineer/iOS QA/Design) + Workflow
@@ -39,7 +39,7 @@
 - AGENTS.md Identity: generic "Agent for this project" — needs proper definition
 - All extension point tools ready: init-project.sh, sync-omcc.sh, validate-project.sh, install-skill.sh, generate_configs.py with overlay support
 
-## Design Decisions
+## Decisões de Design
 
 1. **OMCC Identity/Roles** — Define as framework development agent (architect + devops + quality guardian), not generic "coding agent"
 2. **CPA hooks migration** — Only `enforce-code-quality.sh` preserved; other 4 are functionally superseded by OMCC's layered hook system
@@ -48,11 +48,11 @@
 5. **CLAUDE.md** — Generate from AGENTS.md (same content, CC compatibility)
 6. **CPA `.kiro/rules/`** — Preserved as-is (project-specific enforcement rules), OMCC rules added via `.claude/rules → .omcc/.claude/rules` symlink
 
-## Tasks
+## Tarefas
 
-### Task 1: [OMCC] Complete OMCC's own Identity and Roles
+### Tarefa 1: [OMCC] Complete OMCC's own Identity and Roles
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 - Modify: `CLAUDE.md`
 - Modify: `templates/agents-types/coding.md`
@@ -73,11 +73,11 @@
 - Sync same changes to CLAUDE.md
 - Update `templates/agents-types/coding.md` to have more descriptive default Roles (current ones are fine, just ensure consistency)
 
-**Verify:** `grep -q 'OMCC.*框架开发' AGENTS.md && grep -q 'framework architect' AGENTS.md`
+**Verificação:** `grep -q 'OMCC.*框架开发' AGENTS.md && grep -q 'framework architect' AGENTS.md`
 
-### Task 2: [CPA] Write integration script
+### Tarefa 2: [CPA] Write integration script
 
-**Files:**
+**Arquivos:**
 - Create: `tools/integrate-cpa.sh`
 
 **Do:**
@@ -103,11 +103,11 @@ Create a self-contained bash script that performs the full CPA integration when 
 
 Script must be idempotent (safe to re-run) and create a backup branch before changes.
 
-**Verify:** `bash -n tools/integrate-cpa.sh`
+**Verificação:** `bash -n tools/integrate-cpa.sh`
 
-### Task 3: [CPA] Write CPA's v3 AGENTS.md template
+### Tarefa 3: [CPA] Write CPA's v3 AGENTS.md template
 
-**Files:**
+**Arquivos:**
 - Create: `tools/cpa-agents-template.md`
 
 **Do:**
@@ -164,11 +164,11 @@ Write the complete AGENTS.md content for CPA in v3 format:
 
 The integration script (Task 2) will use this template and fill in the OMCC sections via `sync-omcc.sh`.
 
-**Verify:** `test -f tools/cpa-agents-template.md && grep -q 'MoXun Agent' tools/cpa-agents-template.md && grep -q 'BEGIN OMCC PRINCIPLES' tools/cpa-agents-template.md`
+**Verificação:** `test -f tools/cpa-agents-template.md && grep -q 'MoXun Agent' tools/cpa-agents-template.md && grep -q 'BEGIN OMCC PRINCIPLES' tools/cpa-agents-template.md`
 
-### Task 4: [OMCC] Verify integration script with dry-run
+### Tarefa 4: [OMCC] Verify integration script with dry-run
 
-**Files:**
+**Arquivos:**
 - Test: `tools/integrate-cpa.sh`
 
 **Do:**
@@ -176,7 +176,7 @@ The integration script (Task 2) will use this template and fill in the OMCC sect
 - Verify script syntax: `bash -n tools/integrate-cpa.sh`
 - Verify all referenced OMCC paths exist (hooks, skills, templates, tools)
 
-**Verify:** `bash -n tools/integrate-cpa.sh && bash tools/integrate-cpa.sh --dry-run /tmp/test-cpa-integration 2>&1 | grep -q 'dry-run complete'`
+**Verificação:** `bash -n tools/integrate-cpa.sh && bash tools/integrate-cpa.sh --dry-run /tmp/test-cpa-integration 2>&1 | grep -q 'dry-run complete'`
 
 ## CPA Integration Guide
 

@@ -1,4 +1,4 @@
-# Ralph Multi-Instance Findings
+# Descobertas: Ralph Multi-Instance
 
 ## Decision: Slug derivation from plan pointer filename
 
