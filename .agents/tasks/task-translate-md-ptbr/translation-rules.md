@@ -1,4 +1,4 @@
-# Translation Rules — EN → PT-BR (oh-my-kiro)
+# Translation Rules - EN -> PT-BR (oh-my-kiro)
 
 These rules are the canonical translator contract for the `feat/translate-md-ptbr`
 task. Every later feature on this branch MUST follow them. They exist to keep
@@ -23,12 +23,12 @@ Do not touch any other file under `tests/knowledge/fixtures/` either.
 The bash test harness greps for exact English phrases inside specific
 templates. These literals MUST appear unchanged after translation:
 
-- `templates/agents-sections/principles.md` — must contain `Evidence before claims`.
-- `templates/agents-sections/workflow.md` — must contain `Explore` and `Skill Routing`.
-- `templates/agents-sections/self-learning.md` — must contain `episodes.md`.
-- `templates/agents-sections/authority.md` — must contain `Authority Matrix`.
-- `templates/agents-types/coding.md` — must contain `Coding agent` and `OMK SECTIONS`.
-- `templates/agents-types/gtm.md` — must contain `GTM`.
+- `templates/agents-sections/principles.md` - must contain `Evidence before claims`.
+- `templates/agents-sections/workflow.md` - must contain `Explore` and `Skill Routing`.
+- `templates/agents-sections/self-learning.md` - must contain `episodes.md`.
+- `templates/agents-sections/authority.md` - must contain `Authority Matrix`.
+- `templates/agents-types/coding.md` - must contain `Coding agent` and `OMK SECTIONS`.
+- `templates/agents-types/gtm.md` - must contain `GTM`.
 
 HTML region markers in `templates/agents-sections/*.md` are also test-anchored
 and must remain byte-for-byte:
@@ -50,7 +50,7 @@ files MUST be preserved byte-for-byte. In particular:
   `hooks/feedback/context-enrichment.sh` against user prompts. Trigger
   keywords inside that value (e.g. `write code`, `implement`, `fix this`)
   are pattern-matched literals. To stay safe, keep the entire `description:`
-  value verbatim — do not translate it.
+  value verbatim - do not translate it.
 - Indentation, quoting style, and trailing whitespace inside the front-matter
   must not change.
 
@@ -58,7 +58,7 @@ files MUST be preserved byte-for-byte. In particular:
 
 Preserve verbatim:
 
-- Fenced code blocks (` ``` ... ``` `) — including their language tag.
+- Fenced code blocks (` ``` ... ``` `) - including their language tag.
 - Inline code spans (`` `...` ``).
 - URLs and link targets in `[text](url)`.
 - File paths (e.g. `hooks/feedback/context-enrichment.sh`).
@@ -92,7 +92,7 @@ These verbs and nouns stay in English even inside Portuguese sentences:
 
 - Explanatory prose (paragraphs of narrative English).
 - Headings (translate the natural-language part, keep technical terms per
-  rules 5 to 7 — e.g. `## Skill Routing` stays, `## Why this matters`
+  rules 5 to 7 - e.g. `## Skill Routing` stays, `## Why this matters`
   becomes `## Por que isso importa`).
 - List bullets and numbered list items written in English prose.
 - Table cells written as natural language.
@@ -101,7 +101,7 @@ These verbs and nouns stay in English even inside Portuguese sentences:
 ## 9. Style and tone
 
 - Use the second person singular `você` (informal technical register).
-- Professional, concise, technical tone — matches the original in voice.
+- Professional, concise, technical tone - matches the original in voice.
 - Do NOT use em dashes (`—`). Use a regular hyphen `-`, a comma, or rephrase
   the sentence.
 - Prefer short sentences. Translate by meaning, not word-for-word, when the

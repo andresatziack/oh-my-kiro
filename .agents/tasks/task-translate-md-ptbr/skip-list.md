@@ -1,4 +1,4 @@
-# Skip List — Files That MUST NOT Be Modified
+# Skip List - Files That MUST NOT Be Modified
 
 These files are TEST FIXTURES asserted by `tests/knowledge/l1-*.sh` through
 exact substring grep. Editing them (even reformatting whitespace) breaks
