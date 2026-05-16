@@ -1,15 +1,15 @@
-# Debugging Capability Upgrade — LSP-Driven Diagnostic Intelligence
+# Upgrade de Capacidade de Debugging - Inteligência Diagnóstica Dirigida por LSP
 
-**Goal:** 重写 debugging skill，嵌入 LSP 工具链和诊断证据机制，通过 hook 自动提醒和 rule 强制约束，使 agent 调试从"grep+猜测"升级为"语义分析+证据驱动"。
-**Non-Goals:** 不新建 subagent；不引入外部工具（只用已有 LSP/code tool）；不改 ralph_loop.py。
-**Architecture:** 三层保障——Skill 教方法 + Rule 强制工具选择 + Hook 自动提醒。修改 5 个文件，新建 0 个文件。Hook 无法观测 agent 工具调用，因此不做验证闭环；强制力来自 rule 层（agent 内化规则）。
+**Objetivo:** 重写 debugging skill，嵌入 LSP 工具链和诊断证据机制，通过 hook 自动提醒和 rule 强制约束，使 agent 调试从"grep+猜测"升级为"语义分析+证据驱动"。
+**Não-Objetivos:** 不新建 subagent；不引入外部工具（只用已有 LSP/code tool）；不改 ralph_loop.py。
+**Arquitetura:** 三层保障--Skill 教方法 + Rule 强制工具选择 + Hook 自动提醒。修改 5 个文件，新建 0 个文件。Hook 无法观测 agent 工具调用，因此不做验证闭环；强制力来自 rule 层（agent 内化规则）。
 **Tech Stack:** Bash (hooks), Markdown (skill/rules)
 
-## Tasks
+## Tarefas
 
-### Task 1: 重写 debugging skill — 嵌入 LSP 工具链
+### Tarefa 1: 重写 debugging skill - 嵌入 LSP 工具链
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/debugging/SKILL.md`
 - Modify: `skills/debugging/reference.md`
 - Test: `tests/test_debugging_skill.py`
@@ -88,9 +88,9 @@ Expected: PASS
 
 **Step 5: Commit**
 
-### Task 2: 升级 debugging rules — LSP-first 硬规则
+### Tarefa 2: 升级 debugging rules - LSP-first 硬规则
 
-**Files:**
+**Arquivos:**
 - Modify: `.claude/rules/debugging.md`
 - Modify: `.kiro/rules/code-analysis.md`
 - Test: `tests/test_debugging_rules.py`
@@ -141,9 +141,9 @@ Expected: PASS
 
 **Step 5: Commit**
 
-### Task 3: Hook 自动触发 — context-enrichment 检测调试场景
+### Tarefa 3: Hook 自动触发 - context-enrichment 检测调试场景
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 - Test: `tests/test_debug_hook_trigger.py`
 
@@ -261,5 +261,5 @@ Expected: PASS
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 

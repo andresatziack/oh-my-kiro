@@ -1,15 +1,15 @@
-# Hardening Sprint: verify-completion, worktree, tests, agent authority
+# Sprint de Hardening: verify-completion, worktree, testes, autoridade de agente
 
-**Goal:** Fix verify-completion 30s timeout by removing redundant execution; harden worktree.py against known bugs (duplicate create, unsafe cleanup, fragile merge); improve test quality (eliminate hacky exec-based imports, register slow mark, strengthen worktree test isolation); allow agent to write instruction files after user confirmation.
-**Non-Goals:** Rewrite ralph_loop.py main loop; add new features to worktree (e.g. rebase strategy); change hook architecture; modify test framework (pytest plugins).
-**Architecture:** Four independent workstreams touching different file sets. Task 1 simplifies verify-completion.sh. Tasks 2-3 harden worktree.py and its tests. Task 4 refactors ralph_loop.py to make functions importable (eliminating exec hack). Task 5 registers pytest slow mark and optimizes test timeouts. Task 6 updates authority matrix for agent-assisted instruction writes.
+**Objetivo:** Fix verify-completion 30s timeout by removing redundant execution; harden worktree.py against known bugs (duplicate create, unsafe cleanup, fragile merge); improve test quality (eliminate hacky exec-based imports, register slow mark, strengthen worktree test isolation); allow agent to write instruction files after user confirmation.
+**Não-Objetivos:** Rewrite ralph_loop.py main loop; add new features to worktree (e.g. rebase strategy); change hook architecture; modify test framework (pytest plugins).
+**Arquitetura:** Four independent workstreams touching different file sets. Task 1 simplifies verify-completion.sh. Tasks 2-3 harden worktree.py and its tests. Task 4 refactors ralph_loop.py to make functions importable (eliminating exec hack). Task 5 registers pytest slow mark and optimizes test timeouts. Task 6 updates authority matrix for agent-assisted instruction writes.
 **Tech Stack:** Bash, Python 3, pytest, git
 
-## Tasks
+## Tarefas
 
-### Task 1: Slim down verify-completion.sh
+### Tarefa 1: Slim down verify-completion.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/verify-completion.sh`
 
 **Step 1: Modify verify-completion.sh**
@@ -22,13 +22,13 @@ Expected: PASS (syntax valid, exits 0 quickly)
 **Step 3: Commit**
 `fix: verify-completion stop hook — remove redundant verify+test execution`
 
-**Verify:** `bash -n hooks/feedback/verify-completion.sh && ! grep -q 'detect_test_command\|alarm(30)' hooks/feedback/verify-completion.sh`
+**Verificação:** `bash -n hooks/feedback/verify-completion.sh && ! grep -q 'detect_test_command\|alarm(30)' hooks/feedback/verify-completion.sh`
 
 ---
 
-### Task 2: Harden worktree.py
+### Tarefa 2: Harden worktree.py
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_worktree.py`
 
@@ -52,13 +52,13 @@ Expected: PASS
 **Step 4: Commit**
 `fix: worktree.py — idempotent create, safe merge, robust remove/cleanup`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
 
 ---
 
-### Task 3: Strengthen worktree test isolation
+### Tarefa 3: Strengthen worktree test isolation
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_worktree.py`
 
 **Step 1: Add teardown safety**
@@ -71,13 +71,13 @@ Expected: PASS
 **Step 3: Commit**
 `test: worktree tests — add teardown safety for branch cleanup`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
 
 ---
 
-### Task 4: Make ralph_loop.py functions importable (eliminate exec hack)
+### Tarefa 4: Make ralph_loop.py functions importable (eliminate exec hack)
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Modify: `tests/ralph-loop/conftest.py`
@@ -105,13 +105,13 @@ Expected: PASS
 **Step 4: Commit**
 `refactor: ralph_loop.py — wrap side effects in __main__, enable direct import`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py -v`
 
 ---
 
-### Task 5: Test quality — register slow mark, optimize timeouts
+### Tarefa 5: Test quality - register slow mark, optimize timeouts
 
-**Files:**
+**Arquivos:**
 - Modify: `pyproject.toml`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -132,13 +132,13 @@ Expected: PASS, 0 warnings about unknown marks
 **Step 4: Commit**
 `test: register slow mark, replace sleep with poll loops`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/ --co -q 2>&1 | grep -cv 'PytestUnknownMarkWarning' > /dev/null && ! python3 -m pytest tests/ralph-loop/ --co -q 2>&1 | grep -q 'PytestUnknownMarkWarning'`
+**Verificação:** `python3 -m pytest tests/ralph-loop/ --co -q 2>&1 | grep -cv 'PytestUnknownMarkWarning' > /dev/null && ! python3 -m pytest tests/ralph-loop/ --co -q 2>&1 | grep -q 'PytestUnknownMarkWarning'`
 
 ---
 
-### Task 6: Agent authority for instruction file writes
+### Tarefa 6: Agent authority for instruction file writes
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 - Modify: `skills/self-reflect/SKILL.md`
 
@@ -151,7 +151,7 @@ In the "Writing to Protected Files" section, clarify that agent SHOULD execute t
 **Step 3: Commit**
 `docs: authorize agent to execute instruction-guard bypass after user confirmation`
 
-**Verify:** `grep -q '代执行' AGENTS.md`
+**Verificação:** `grep -q '代执行' AGENTS.md`
 
 ---
 
@@ -165,7 +165,7 @@ In the "Writing to Protected Files" section, clarify that agent SHOULD execute t
   2. Task 4 variable scoping not specified → **Fixed:** added explicit parameter lists for each function
 - **Technical Feasibility:** APPROVE — no blockers, pyproject.toml doesn't exist (no conflict), __main__ refactor preserves script entry point
 
-### Round 2 (2 reviewers — fixed angles only)
+### Round 2 (2 reviewers - fixed angles only)
 - **Goal Alignment:** APPROVE — confirmed fixes address Round 1 feedback, all tasks still aligned
 - **Verify Correctness:** APPROVE — all 13 verify commands traced, exit codes sound for both correct/broken cases
 

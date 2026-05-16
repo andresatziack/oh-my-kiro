@@ -1,17 +1,17 @@
-# Codebase Elegance Audit — Implementation Plan
+# Auditoria de Elegância do Codebase - Plano de Implementação
 
-**Goal:** Fix 7 code quality issues found in deep audit: signal handler safety, silent exceptions, dead code, unused module integration, eval elimination, config duplication, and prompt completeness.
-**Non-Goals:** Rewrite enforce-ralph-loop allowlist (text-based parsing is acceptable for workflow gate). Change plan.py shell=True (verify commands need shell features). Unify detect_test_command across Python/Bash (different contexts).
-**Architecture:** Targeted refactors across ralph_loop.py, worktree.py, generate_configs.py, post-write.sh. No new files. All changes are backward-compatible — existing tests must continue to pass.
+**Objetivo:** Fix 7 code quality issues found in deep audit: signal handler safety, silent exceptions, dead code, unused module integration, eval elimination, config duplication, and prompt completeness.
+**Não-Objetivos:** Rewrite enforce-ralph-loop allowlist (text-based parsing is acceptable for workflow gate). Change plan.py shell=True (verify commands need shell features). Unify detect_test_command across Python/Bash (different contexts).
+**Arquitetura:** Targeted refactors across ralph_loop.py, worktree.py, generate_configs.py, post-write.sh. No new files. All changes are backward-compatible - existing tests must continue to pass.
 **Tech Stack:** Python 3, Bash, pytest
 
-## Tasks
+## Tarefas
 
-### Task 1: Signal Handler Safety
+### Tarefa 1: Signal Handler Safety
 
 Make the signal handler non-blocking by removing subprocess calls and sys.exit().
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -56,13 +56,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_cleanup_handler_sets_flag_instead_of_exit -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_cleanup_handler_sets_flag_instead_of_exit -v`
 
-### Task 2: Worktree Silent Exception Fix
+### Tarefa 2: Worktree Silent Exception Fix
 
 Replace `except Exception: pass` with narrowed exception handling.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_worktree.py`
 
@@ -97,13 +97,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_worktree.py::test_no_broad_exception_handlers -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_worktree.py::test_no_broad_exception_handlers -v`
 
-### Task 3: Eliminate Dead Code — Wire Config/parse_config into main()
+### Tarefa 3: Eliminate Dead Code - Wire Config/parse_config into main()
 
 Make main() use the extracted Config/parse_config/validate_plan instead of duplicating logic.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -134,13 +134,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_main_has_no_inline_env_reads -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_main_has_no_inline_env_reads -v`
 
-### Task 4: Integrate git_retry into worktree.py
+### Tarefa 4: Integrate git_retry into worktree.py
 
 Replace raw subprocess.run git calls in worktree.py with git_run() for retry on lock contention. Expand transient error detection.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Modify: `scripts/lib/git_retry.py`
 - Test: `tests/ralph-loop/test_git_retry.py`
@@ -183,13 +183,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_git_retry.py tests/ralph-loop/test_worktree.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_git_retry.py tests/ralph-loop/test_worktree.py -v`
 
-### Task 5: Eliminate eval in post-write.sh
+### Tarefa 5: Eliminate eval in post-write.sh
 
 Replace `eval "$TEST_CMD"` with `bash -c "$TEST_CMD"`.
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/post-write.sh`
 
 **Step 1: Write failing test**
@@ -214,13 +214,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `bash -c '! grep -q "eval " hooks/feedback/post-write.sh && bash -n hooks/feedback/post-write.sh && echo PASS'`
+**Verificação:** `bash -c '! grep -q "eval " hooks/feedback/post-write.sh && bash -n hooks/feedback/post-write.sh && echo PASS'`
 
-### Task 6: DRY pilot_agent/default_agent
+### Tarefa 6: DRY pilot_agent/default_agent
 
 Extract shared logic into `_build_main_agent()`, call from both.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 - Test: `tests/test_generate_configs.py`
 
@@ -250,13 +250,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/test_generate_configs.py -v`
+**Verificação:** `python3 -m pytest tests/test_generate_configs.py -v`
 
-### Task 7: Complete build_batch_prompt
+### Tarefa 7: Complete build_batch_prompt
 
 Add SKIP instruction and security hook guidance to build_batch_prompt.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -292,7 +292,7 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_batch_prompt_includes_skip_and_security_guidance -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_batch_prompt_includes_skip_and_security_guidance -v`
 
 ## Checklist
 
@@ -313,7 +313,7 @@ Expected: PASS
 
 #### Goal Alignment Review
 
-**Findings:**
+**Descobertas:**
 
 **[P1] Task 3 test has false negative — `_RALPH_LOOP_RUNNING` guard will fail the test even after correct implementation**
 - Problem: Task 3's test checks `os.environ.get` in everything after `'def main'`. The `_RALPH_LOOP_RUNNING` recursion guard (`if os.environ.get("_RALPH_LOOP_RUNNING"):` at L488) is NOT a config value — it's a runtime guard that should stay in main(). But the test treats it as an "inline env read" and would fail even after correctly wiring parse_config.
@@ -347,7 +347,7 @@ Expected: PASS
 | 9 | 回归测试通过 | `pytest tests/ralph-loop/ -v` | 0 (all pass) | non-zero | ✅ Sound |
 | 10 | 全量测试通过 | `pytest tests/ -v` | 0 (all pass) | non-zero | ✅ Sound |
 
-**Findings:**
+**Descobertas:**
 
 **[P1] Checklist item 3 verify command inherits Task 3 test false negative**
 - Problem: Same as Goal Alignment finding — the verify command runs the flawed test
@@ -366,7 +366,7 @@ Expected: PASS
 
 #### Completeness Review
 
-**Findings:**
+**Descobertas:**
 
 **[Nit] Task 3 implementation spec doesn't mention `_RALPH_LOOP_RUNNING` handling**
 - Problem: Step 3 says "Remove the duplicated env var reads" but doesn't specify what to do with `_RALPH_LOOP_RUNNING` (which is not a config value)
@@ -386,7 +386,7 @@ Expected: PASS
 
 #### Technical Feasibility Review
 
-**Findings:**
+**Descobertas:**
 
 **[Nit] Task 1 `make_cleanup_handler` signature change may break existing tests**
 - Problem: Adding `shutdown_flag` parameter changes the function signature. Existing tests that call `make_cleanup_handler` without `shutdown_flag` need to still work (default behavior).

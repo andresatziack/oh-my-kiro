@@ -1,15 +1,15 @@
-# Ralph Loop 全面重构与加固
+# Ralph Loop: Refactor Completo e Hardening
 
-**Goal:** 全面重构 ralph_loop.py 及其 lib 模块，消除所有已知风险（竞态、孤儿进程、脏状态、静默失败），提升代码质量和可测试性。
-**Non-Goals:** 不改变 ralph loop 的外部行为和 CLI 接口；不改变 plan 文件格式；不添加新功能（如 PR 创建、远程执行）。
-**Architecture:** 将 ralph_loop.py 的 main() 拆分为独立可测试阶段（config → validate → loop → cleanup）。LockFile 改用 fcntl.flock 实现真互斥。WorktreeManager 修复 squash merge abort 逻辑并增加 git 操作重试。消除所有 hack 和静默失败路径。
+**Objetivo:** 全面重构 ralph_loop.py 及其 lib 模块，消除所有已知风险（竞态、孤儿进程、脏状态、静默失败），提升代码质量和可测试性。
+**Não-Objetivos:** 不改变 ralph loop 的外部行为和 CLI 接口；不改变 plan 文件格式；不添加新功能（如 PR 创建、远程执行）。
+**Arquitetura:** 将 ralph_loop.py 的 main() 拆分为独立可测试阶段（config → validate → loop → cleanup）。LockFile 改用 fcntl.flock 实现真互斥。WorktreeManager 修复 squash merge abort 逻辑并增加 git 操作重试。消除所有 hack 和静默失败路径。
 **Tech Stack:** Python 3.10+, fcntl, subprocess, threading, pytest
 
-## Tasks
+## Tarefas
 
-### Task 1: LockFile 改用 fcntl.flock 真互斥
+### Tarefa 1: LockFile 改用 fcntl.flock 真互斥
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/lock.py`
 - Test: `tests/ralph-loop/test_lock.py`
 
@@ -37,9 +37,9 @@ Expected: PASS
 
 ---
 
-### Task 2: 修复 WorktreeManager merge 脏状态问题
+### Tarefa 2: 修复 WorktreeManager merge 脏状态问题
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_worktree.py`
 
@@ -62,9 +62,9 @@ Expected: PASS
 
 ---
 
-### Task 3: Git 操作重试机制
+### Tarefa 3: Git 操作重试机制
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/git_retry.py`
 - Test: `tests/ralph-loop/test_git_retry.py`
 - Modify: `scripts/lib/worktree.py`
@@ -91,9 +91,9 @@ Expected: PASS
 
 ---
 
-### Task 4: verify 命令提取 fail-closed
+### Tarefa 4: verify 命令提取 fail-closed
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -116,9 +116,9 @@ Expected: PASS
 
 ---
 
-### Task 5: 消除 build_batch_prompt 的 fake plan 对象
+### Tarefa 5: 消除 build_batch_prompt 的 fake plan 对象
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -142,9 +142,9 @@ Expected: PASS
 
 ---
 
-### Task 6: 拆分 main() 为可测试阶段
+### Tarefa 6: 拆分 main() 为可测试阶段
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -167,9 +167,9 @@ Expected: PASS
 
 ---
 
-### Task 7: cleanup_stale 安全性 — 检查活跃进程
+### Tarefa 7: cleanup_stale 安全性 - 检查活跃进程
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_worktree.py`
@@ -194,9 +194,9 @@ Expected: PASS
 
 ---
 
-### Task 8: 信号处理器线程安全 + cleanup handler 健壮性
+### Tarefa 8: 信号处理器线程安全 + cleanup handler 健壮性
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -221,9 +221,9 @@ Expected: PASS
 
 ---
 
-### Task 9: 集成测试 — flock 互斥 + 全量回归
+### Tarefa 9: 集成测试 - flock 互斥 + 全量回归
 
-**Files:**
+**Arquivos:**
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
 **Step 1: Write failing test**
