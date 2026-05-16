@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "chore",
   "description": "Establish translation conventions, create the feature branch, and audit the test-fixture exclusion list. This is a setup feature that produces no large diff but locks in the global rules every later feature must follow. It also captures the baseline of pre-existing test failures so later features can prove no regressions were introduced.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Verify working directory is /projects/sandbox/oh-my-kiro and current branch is main, working tree clean. If not clean, stop and report.",
     "Create and switch to a new branch `feat/translate-md-ptbr` (`git checkout -b feat/translate-md-ptbr`). All later features commit on this branch.",
@@ -24,5 +24,5 @@
     "bash tests/test-agents-template.sh 2>&1 | tail -1  # must match baseline counts"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Branch feat/translate-md-ptbr created and checked out. Baseline captured in .agents/tasks/task-translate-md-ptbr/baseline.txt: pytest 60 passed / 8 failed (with documented ignore set), tests/test-agents-template.sh 27 passed / 1 failed (pre-existing 'OMK SECTIONS' mismatch on coding.md), tests/knowledge/run.sh 1/3 scripts pass (l1-rules-injection + l1-corruption-recall pre-existing fail). Note: tests/knowledge/run.sh on this checkout reports '1 pass / 3 total' rather than '5/9' from the planner snapshot, because the runner counts whole scripts (3 scripts: 1 pass + 2 fail) instead of individual assertions. Either way, the failing scripts are the same two pre-existing l1-rules-injection and l1-corruption-recall, so the baseline is recorded as observed and later features must not regress past it. translation-rules.md and skip-list.md written and committed. Sanity grep confirms 'Evidence before claims', 'Skill Routing', 'Authority Matrix', 'Coding agent' anchors still intact in templates/agents-{sections,types}/. Note for later features: the .agents/ directory is matched by /root/.config/git/ignore so committing files inside it requires git add -f."
 }
