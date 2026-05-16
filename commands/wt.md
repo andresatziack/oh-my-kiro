@@ -1,8 +1,8 @@
-Manage worktrees: list status, clean up merged branches.
+Gerencia worktrees: lista status e limpa branches já mergeadas.
 
-## Step 1: List all worktrees with status
+## Step 1: Listar todas as worktrees com status
 
-Run:
+Execute:
 ```bash
 echo "=== Worktrees in worktrees/ ==="
 for dir in worktrees/*/; do
@@ -13,9 +13,9 @@ for dir in worktrees/*/; do
 done
 ```
 
-## Step 2: Check merge status
+## Step 2: Verificar status de merge
 
-For each worktree, detect its submodule by reading `.git` file and check merge status:
+Para cada worktree, detecte seu submodule lendo o arquivo `.git` e verifique o status de merge:
 
 ```bash
 for dir in worktrees/*/; do
@@ -39,15 +39,15 @@ for dir in worktrees/*/; do
 done
 ```
 
-## Step 3: Confirm and clean up
+## Step 3: Confirmar e limpar
 
-Show the list to the user. For worktrees marked "MERGED":
-- Ask user to confirm which ones to remove
-- For each confirmed removal:
+Mostre a lista ao usuário. Para worktrees marcadas como "MERGED":
+- Peça ao usuário para confirmar quais devem ser removidas
+- Para cada remoção confirmada:
 ```bash
 git -C <submodule> worktree remove ../worktrees/<name>
 ```
-- If `.active-submodule` exists and its worktree field matches the removed path, clear it:
+- Se `.active-submodule` existir e seu campo worktree corresponder ao path removido, limpe-o:
 ```bash
 if [ -f .active-submodule ] && command -v jq >/dev/null 2>&1; then
   WT=$(jq -r '.worktree // ""' .active-submodule 2>/dev/null)
@@ -55,10 +55,10 @@ if [ -f .active-submodule ] && command -v jq >/dev/null 2>&1; then
 fi
 ```
 
-## Important rules
-- Only manage worktrees under `worktrees/` directory (not external paths)
-- Always confirm with user before removing — never auto-delete
-- Use `git -C <submodule> worktree remove` (not rm -rf)
+## Regras importantes
+- Gerencie apenas worktrees dentro do diretório `worktrees/` (não paths externos)
+- Sempre confirme com o usuário antes de remover, nunca delete automaticamente
+- Use `git -C <submodule> worktree remove` (não rm -rf)
 
 ---
 User's message (the text after @wt):

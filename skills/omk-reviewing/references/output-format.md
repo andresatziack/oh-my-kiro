@@ -1,6 +1,6 @@
-# Review Output Format
+# Formato de Saída do Review
 
-## Structure
+## Estrutura
 
 ```markdown
 ## Code Review Summary
@@ -35,25 +35,25 @@
 (optional improvements, not blocking)
 ```
 
-## Inline Comments
+## Comentários inline
 
-Use this format for file-specific findings:
+Use este formato para findings específicos de arquivo:
 ```
 ::code-comment{file="path/to/file.ts" line="42" severity="P1"}
 Description of the issue and suggested fix.
 ::
 ```
 
-## Clean Review Declaration
+## Declaração de review limpo
 
-If no issues found, explicitly state:
-- What was checked
-- Any areas not covered (e.g., "Did not verify database migrations")
-- Residual risks or recommended follow-up tests
+Se nenhum issue for encontrado, declare explicitamente:
+- O que foi verificado
+- Quaisquer áreas não cobertas (por exemplo, "Did not verify database migrations")
+- Riscos residuais ou testes de follow-up recomendados
 
-## Next Steps Confirmation
+## Confirmação de próximos passos
 
-After presenting findings, ask user how to proceed:
+Após apresentar findings, pergunte ao usuário como prosseguir:
 
 ```markdown
 ---
@@ -72,4 +72,4 @@ I found X issues (P0: _, P1: _, P2: _, P3: _).
 Please choose an option or provide specific instructions.
 ```
 
-**Important**: Do NOT implement any changes until user explicitly confirms. This is a review-first workflow.
+**Importante**: NÃO implemente alterações até o usuário confirmar explicitamente. Este é um workflow review-first.

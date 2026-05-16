@@ -1,63 +1,63 @@
-You MUST follow this exact sequence. @debug is a fully automated debugging pipeline — no user confirmation between stages. The goal is systematic root cause analysis, not guess-and-check.
+Você DEVE seguir esta sequência exata. @debug é um pipeline de depuração totalmente automatizado, sem confirmação do usuário entre estágios. O objetivo é a análise sistemática da causa raiz, não tentativa e erro.
 
 ```
 NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 ```
 
-## Stage 0: Session Resume Check
+## Estágio 0: Verificação de retomada de sessão
 
-Before starting any investigation, check for existing investigation documents:
+Antes de iniciar qualquer investigação, verifique se há documentos de investigação existentes:
 
-1. List `docs/investigations/` — look for files matching the current bug topic
-2. If a matching document exists:
-   - Read its **Status Overview** section to understand current state
-   - Read its **Ruled Out** section to avoid re-investigating dead ends
-   - Read its **Decision Log** to understand prior decisions
-   - Resume from the last recorded state — do NOT restart from scratch
-3. If no matching document exists:
-   - Create `docs/investigations/{date}-{topic}.md` using `skills/omk-debugging/investigation-template.md` as template
-   - Fill in the Problem Statement with the user's bug report
+1. Liste `docs/investigations/`, procurando arquivos que correspondam ao tópico do bug atual
+2. Se existir um documento correspondente:
+   - Leia a seção **Status Overview** para entender o estado atual
+   - Leia a seção **Ruled Out** para evitar reinvestigar caminhos sem saída
+   - Leia o **Decision Log** para entender decisões anteriores
+   - Retome a partir do último estado registrado, NÃO recomece do zero
+3. Se nenhum documento correspondente existir:
+   - Crie `docs/investigations/{date}-{topic}.md` usando `skills/omk-debugging/investigation-template.md` como template
+   - Preencha o Problem Statement com o relato do bug do usuário
 
-**Session Resume Protocol:** Every new session MUST check `docs/investigations/` first. The investigation document is the single source of truth for cross-session continuity.
+**Protocolo de retomada de sessão:** Toda nova sessão DEVE consultar `docs/investigations/` primeiro. O documento de investigação é a única fonte da verdade para continuidade entre sessões.
 
-## Stage 1: Triage & Context
+## Estágio 1: Triagem e contexto
 
-1. Read `knowledge/episodes.md` — check if this bug pattern has occurred before
-2. Build Architectural Context around the bug:
-   - `generate_codebase_overview` → module structure
-   - `find_references` on bug's core symbol(s) → all callers
-   - `get_document_symbols` on bug's file(s) → internal structure
-3. Classify failure type:
+1. Leia `knowledge/episodes.md`, verifique se esse padrão de bug já ocorreu antes
+2. Construa o Architectural Context em torno do bug:
+   - `generate_codebase_overview` → estrutura dos módulos
+   - `find_references` no(s) símbolo(s) central(is) do bug → todos os callers
+   - `get_document_symbols` no(s) arquivo(s) do bug → estrutura interna
+3. Classifique o tipo de falha:
 
-| Category | Signal |
+| Categoria | Sinal |
 |----------|--------|
-| Logic/Semantic | Test fails, wrong output |
-| Environment/Config | Works locally, fails elsewhere |
-| Concurrency/Timing | Intermittent |
-| Invalid Invocation | Schema error, 400 response |
-| Under-specified Intent | Need more context |
+| Logic/Semantic | Teste falha, saída errada |
+| Environment/Config | Funciona localmente, falha em outro lugar |
+| Concurrency/Timing | Intermitente |
+| Invalid Invocation | Erro de schema, resposta 400 |
+| Under-specified Intent | Precisa de mais contexto |
 
-4. Write triage summary to the investigation document (`docs/investigations/{date}-{topic}.md`):
-   - Fill in **Problem Statement**
-   - Add initial entries to **Evidence Table** (L0 facts from diagnostics)
-   - Build initial **Investigation Tree** with top-level branches
-   - Update **Status Overview** with triage results and next steps
+4. Escreva o resumo de triagem no documento de investigação (`docs/investigations/{date}-{topic}.md`):
+   - Preencha **Problem Statement**
+   - Adicione entradas iniciais à **Evidence Table** (fatos L0 vindos dos diagnostics)
+   - Construa a **Investigation Tree** inicial com os ramos de topo
+   - Atualize **Status Overview** com os resultados da triagem e os próximos passos
 
-## Stage 2: Root Cause Investigation
+## Estágio 2: Investigação da causa raiz
 
-Follow `skills/omk-debugging/SKILL.md` Phase 1 + `references/root-cause-protocol.md`.
+Siga `skills/omk-debugging/SKILL.md` Phase 1 + `references/root-cause-protocol.md`.
 
-Tool sequence — use LSP tools, NOT grep:
+Sequência de tools, use as tools de LSP, NÃO grep:
 
-| Step | Action |
+| Step | Ação |
 |------|--------|
-| 1 | `get_diagnostics` on failing file(s) |
-| 2 | `search_symbols` → `goto_definition` → `find_references` on involved symbols |
-| 3 | Read error messages / stack traces completely |
-| 4 | Reproduce the bug consistently |
-| 5 | Check recent changes (`git diff`, recent commits) |
+| 1 | `get_diagnostics` no(s) arquivo(s) com falha |
+| 2 | `search_symbols` → `goto_definition` → `find_references` nos símbolos envolvidos |
+| 3 | Leia mensagens de erro / stack traces por completo |
+| 4 | Reproduza o bug de forma consistente |
+| 5 | Verifique alterações recentes (`git diff`, commits recentes) |
 
-Produce **Diagnostic Evidence** before proceeding:
+Produza **Diagnostic Evidence** antes de prosseguir:
 ```
 Diagnostic Evidence:
 - failure_type: [category]
@@ -69,49 +69,49 @@ Diagnostic Evidence:
 - Root cause hypothesis: [conclusion]
 ```
 
-**Gate:** Without Diagnostic Evidence, DO NOT proceed to Stage 3.
+**Gate:** Sem Diagnostic Evidence, NÃO prossiga para o Estágio 3.
 
-**完成后:** Update investigation document — add L0 diagnostic evidence to Evidence Table, update Status Overview with findings and next steps.
+**完成后:** Atualize o documento de investigação, adicione as evidências de diagnóstico L0 à Evidence Table e atualize o Status Overview com as descobertas e próximos passos.
 
-## Stage 3: Pattern Analysis & Hypothesis
+## Estágio 3: Análise de padrões e hipótese
 
-Follow `skills/omk-debugging/SKILL.md` Phase 2-3 + `references/pattern-analysis.md`.
+Siga `skills/omk-debugging/SKILL.md` Phase 2-3 + `references/pattern-analysis.md`.
 
-1. Find working examples of similar code in the codebase
-2. Compare working vs broken — list ALL differences
-3. Form ONE hypothesis: "X is the root cause because Y"
-4. Test with the SMALLEST possible change — one variable at a time
-5. If hypothesis fails → form NEW hypothesis, don't stack fixes
+1. Encontre exemplos funcionais de código semelhante na codebase
+2. Compare o que funciona vs. o que está quebrado, liste TODAS as diferenças
+3. Formule UMA hipótese: "X é a causa raiz porque Y"
+4. Teste com a MENOR alteração possível, uma variável de cada vez
+5. Se a hipótese falhar → formule uma NOVA hipótese, não acumule fixes
 
-Append to scratch:
+Anexe ao scratch:
 ```
 - Hypothesis: <statement>
 - Test: <what minimal change was tried>
 - Result: confirmed | rejected → <next hypothesis if rejected>
 ```
 
-**Gate:** Hypothesis must be confirmed before proceeding to Stage 4.
+**Gate:** A hipótese deve ser confirmada antes de prosseguir para o Estágio 4.
 
-**完成后:** Update investigation document — record hypothesis and test results in Decision Log, add experiments to Experiment Log, update Status Overview.
+**完成后:** Atualize o documento de investigação, registre a hipótese e os resultados do teste no Decision Log, adicione experimentos ao Experiment Log e atualize o Status Overview.
 
-## Stage 4: Fix & Verify
+## Estágio 4: Fix e Verify
 
-Follow `skills/omk-debugging/SKILL.md` Phase 4 + `references/implementation-fix.md`.
+Siga `skills/omk-debugging/SKILL.md` Phase 4 + `references/implementation-fix.md`.
 
-1. `get_diagnostics` → record baseline
-2. Create failing test case (if possible)
-3. Implement SINGLE fix addressing root cause — no bundled changes
-4. `get_diagnostics` → zero new diagnostics, or revert
-5. Run tests → verify fix, no regressions
-6. Self-explain: root cause → fix logic → side effects (check against Architectural Context)
+1. `get_diagnostics` → registre baseline
+2. Crie um caso de teste falhando (se possível)
+3. Implemente UM ÚNICO fix abordando a causa raiz, sem alterações empacotadas
+4. `get_diagnostics` → zero novos diagnostics, ou reverta
+5. Rode os testes → verifique o fix, sem regressões
+6. Auto-explique: causa raiz → lógica do fix → efeitos colaterais (verifique contra o Architectural Context)
 
-**3-Strike Rule:** If 3 fix attempts fail → STOP, question the architecture, discuss with user.
+**Regra de 3 strikes:** Se 3 tentativas de fix falharem → PARE, questione a arquitetura, discuta com o usuário.
 
-**完成后:** Update investigation document — update Status Overview to final state (🟢 Resolved or 🟡 Partial), record final decision in Decision Log.
+**完成后:** Atualize o documento de investigação, atualize o Status Overview para o estado final (🟢 Resolved ou 🟡 Partial) e registre a decisão final no Decision Log.
 
-## Stage 5: Report
+## Estágio 5: Reporte
 
-Generate the final report from the investigation document (`docs/investigations/{date}-{topic}.md`):
+Gere o relatório final a partir do documento de investigação (`docs/investigations/{date}-{topic}.md`):
 
 ```markdown
 ## Debug Report
@@ -122,18 +122,18 @@ Generate the final report from the investigation document (`docs/investigations/
 - **Side Effects:** <none | list>
 ```
 
-If bug is a new pattern, append one-line summary to `knowledge/episodes.md`.
+Se o bug for um padrão novo, anexe um resumo de uma linha em `knowledge/episodes.md`.
 
-## Red Flags — Auto-Rollback to Stage 2
+## Sinais de alerta - rollback automático para o Estágio 2
 
-If at ANY stage you catch yourself:
-- Proposing fixes without Diagnostic Evidence
-- Using grep instead of LSP tools for code navigation
-- Saying "just try X"
-- Stacking multiple changes at once
-- Skipping reproduction
+Se em QUALQUER estágio você se pegar:
+- Propondo fixes sem Diagnostic Evidence
+- Usando grep em vez das tools de LSP para navegação no código
+- Dizendo "just try X"
+- Empilhando várias alterações de uma vez
+- Pulando reprodução
 
-→ **STOP. Return to Stage 2.** Load `references/red-flags.md` for full list.
+→ **PARE. Volte ao Estágio 2.** Carregue `references/red-flags.md` para a lista completa.
 
 ---
 User's bug report:

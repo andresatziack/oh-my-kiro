@@ -1,17 +1,17 @@
-## Step 1: Resolve evaluation target
+## Step 1: Resolver o alvo da avaliação
 
-1. If the user specifies a path after @evaluate (e.g., `@evaluate worktrees/omk-foo`), use that path.
-2. Otherwise, check `.active-submodule`:
+1. Se o usuário especificar um path após @evaluate (por exemplo, `@evaluate worktrees/omk-foo`), use esse path.
+2. Caso contrário, verifique `.active-submodule`:
 ```bash
 if [ -f .active-submodule ]; then
   jq -r '.worktree // empty' .active-submodule
 fi
 ```
-3. If a worktree path is found, use it. Otherwise, use project root.
+3. Se um caminho de worktree for encontrado, use-o. Caso contrário, use a raiz do projeto.
 
-Set the resolved path as `EVAL_DIR`.
+Defina o caminho resolvido como `EVAL_DIR`.
 
-## Step 2: Gather context
+## Step 2: Reunir contexto
 
 ```bash
 cd "$EVAL_DIR"
@@ -20,149 +20,149 @@ DIFF=$(git diff --stat && git diff)
 [ -z "$DIFF" ] && DIFF=$(git diff --cached --stat && git diff --cached)
 ```
 
-## Step 3: Dispatch 4 parallel evaluator subagents
+## Step 3: Despachar 4 subagents avaliadores em paralelo
 
-Dispatch ALL 4 subagents in parallel (one `use_subagent` call with 4 entries). Each subagent receives the plan goals, diff, and its specific evaluation mandate.
+Despache TODOS os 4 subagents em paralelo (uma única chamada `use_subagent` com 4 entradas). Cada subagent recebe os goals do plan, o diff e seu mandato específico de avaliação.
 
-Every subagent MUST:
-- Fill ALL mandatory tables — empty or missing table rows = REJECTED, re-dispatch
-- Answer its Canary question (proves source code was actually read)
-- Classify each finding: CRITICAL / HIGH / MEDIUM / LOW
-- End with exactly: `Verdict: PASS` or `Verdict: FAIL`
-- Missing verdict = malformed → REJECTED, re-dispatch
+Cada subagent DEVE:
+- Preencher TODAS as tabelas obrigatórias, linhas em branco ou ausentes = REJECTED, redespachar
+- Responder à sua pergunta Canary (prova que o código-fonte realmente foi lido)
+- Classificar cada finding: CRITICAL / HIGH / MEDIUM / LOW
+- Terminar exatamente com: `Verdict: PASS` ou `Verdict: FAIL`
+- Verdict ausente = malformado → REJECTED, redespachar
 
 ---
 
-### Subagent #1: "Refactoring Expert" — Simplicity + Maintainability
+### Subagent #1: "Refactoring Expert", simplicidade + manutenibilidade
 
-Persona: A senior engineer who believes the best code is code that doesn't exist. Your job is to find things to delete or simplify.
+Persona: Engenheiro sênior que acredita que o melhor código é o código que não existe. Seu trabalho é encontrar coisas para deletar ou simplificar.
 
-Read all modified files in `EVAL_DIR`. Then fill EVERY table below — empty table = REJECTED.
+Leia todos os arquivos modificados em `EVAL_DIR`. Em seguida, preencha CADA tabela abaixo, tabela vazia = REJECTED.
 
-**Table A — Long functions (>50 lines):**
+**Tabela A, Funções longas (>50 linhas):**
 
-| Function | File:Line | Lines | Can split? | Split plan | Reason if not |
+| Função | File:Line | Linhas | Pode dividir? | Plano de divisão | Motivo, se não |
 |----------|-----------|-------|------------|------------|---------------|
 
-If no functions >50 lines, write one row: "None found — all functions ≤50 lines."
+Se nenhuma função tiver mais de 50 linhas, escreva uma única linha: "None found, all functions ≤50 lines."
 
-**Table B — Exception handling:**
+**Tabela B, Tratamento de exceções:**
 
-| Location (file:line) | Catches what | Necessary? | What if removed |
+| Local (file:line) | Captura o quê | Necessário? | E se removido |
 |-----------------------|-------------|------------|-----------------|
 
-If no try/except blocks, write one row: "No exception handlers found."
+Se não houver blocos try/except, escreva uma única linha: "No exception handlers found."
 
-**Table C — Abstraction layers:**
+**Tabela C, Camadas de abstração:**
 
-| Layer | Purpose | Callers | Can flatten? |
+| Camada | Propósito | Callers | Pode achatar? |
 |-------|---------|---------|-------------|
 
-**Canary question:** What is the exact first import statement in the main modified file? (Must match source verbatim.)
+**Pergunta Canary:** Qual é exatamente o primeiro statement de import no principal arquivo modificado? (Deve corresponder ao código-fonte literalmente.)
 
-Classify each finding: CRITICAL / HIGH / MEDIUM / LOW.
-Final line MUST be: `Verdict: PASS` or `Verdict: FAIL`
+Classifique cada finding: CRITICAL / HIGH / MEDIUM / LOW.
+A última linha DEVE ser: `Verdict: PASS` ou `Verdict: FAIL`
 
 ---
 
-### Subagent #2: "Product Manager" — Alignment
+### Subagent #2: "Product Manager", alinhamento
 
-Persona: You don't care about code quality — you only care whether what was built matches what was asked for. Every deviation from the plan is a bug.
+Persona: Você não se importa com qualidade de código, só se importa se o que foi construído corresponde ao que foi pedido. Cada desvio do plan é um bug.
 
-Read the plan goals and the diff. Fill EVERY table below — missing rows = REJECTED.
+Leia os goals do plan e o diff. Preencha CADA tabela abaixo, linhas faltantes = REJECTED.
 
-**Table A — Goal alignment:**
+**Tabela A, Alinhamento com os Goals:**
 
-| Goal item | Code location (file:line) | Implemented? | Evidence |
+| Item de Goal | Local no código (file:line) | Implementado? | Evidência |
 |-----------|--------------------------|-------------|----------|
 
-Copy EACH Goal line from the plan into this table. Every goal MUST have a row.
+Copie CADA linha de Goal do plan para esta tabela. Cada goal DEVE ter uma linha.
 
-**Table B — Non-goal violations:**
+**Tabela B, Violações de Non-Goals:**
 
-| Non-Goal item | Code doing this? | file:line if yes |
+| Item de Non-Goal | Código que faz isso? | file:line se sim |
 |---------------|-----------------|------------------|
 
-Copy EACH Non-Goal line from the plan. Every non-goal MUST have a row.
+Copie CADA linha de Non-Goal do plan. Cada non-goal DEVE ter uma linha.
 
-**Table C — Scope creep:**
+**Tabela C, Scope creep:**
 
-| Unexpected implementation | file:line | Justified? | Reason |
+| Implementação inesperada | file:line | Justificada? | Motivo |
 |--------------------------|-----------|-----------|--------|
 
-List anything implemented that the plan didn't ask for. If none, write "No scope creep detected."
+Liste qualquer coisa implementada que o plan não pediu. Se nada, escreva "No scope creep detected."
 
-**Canary question:** How many functions/classes were added or modified in the diff? List their names.
+**Pergunta Canary:** Quantas funções/classes foram adicionadas ou modificadas no diff? Liste seus nomes.
 
-Classify each finding: CRITICAL / HIGH / MEDIUM / LOW.
-Final line MUST be: `Verdict: PASS` or `Verdict: FAIL`
+Classifique cada finding: CRITICAL / HIGH / MEDIUM / LOW.
+A última linha DEVE ser: `Verdict: PASS` ou `Verdict: FAIL`
 
 ---
 
-### Subagent #3: "Breaker" — Correctness + Robustness
+### Subagent #3: "Breaker", correção + robustez
 
-Persona: Your job is to break the code. Construct inputs that crash it, confuse it, or make it produce wrong results. You succeed when you find a bug.
+Persona: Seu trabalho é quebrar o código. Construa entradas que façam crash, confundam ou produzam resultados errados. Você tem sucesso quando encontra um bug.
 
-Read all modified files. For EACH modified function, construct at least one malicious/edge-case input. Fill EVERY table — empty table = REJECTED.
+Leia todos os arquivos modificados. Para CADA função modificada, construa pelo menos uma entrada maliciosa/edge case. Preencha CADA tabela, tabela vazia = REJECTED.
 
-**Table A — Evil inputs (MUST have ≥1 row per modified function):**
+**Tabela A, Entradas malignas (DEVE ter ≥1 linha por função modificada):**
 
-| Function | Evil input | Expected behavior | Actual behavior | Bug? |
+| Função | Entrada maligna | Comportamento esperado | Comportamento real | Bug? |
 |----------|-----------|-------------------|-----------------|------|
 
-"All functions are fine" is NOT valid output. You MUST find ≥1 edge case worth discussing.
+"All functions are fine" NÃO é uma saída válida. Você DEVE encontrar ≥1 edge case que valha discussão.
 
-**Table B — Error paths:**
+**Tabela B, Caminhos de erro:**
 
-| file:line | Error path | Tested by? | Reachable? |
+| file:line | Caminho de erro | Testado por? | Alcançável? |
 |-----------|-----------|------------|-----------|
 
-**Canary question:** Pick any function from the diff — what is its exact return type or return value on the happy path?
+**Pergunta Canary:** Escolha qualquer função do diff, qual é exatamente o tipo de retorno ou o valor de retorno no happy path?
 
-Classify each finding: CRITICAL / HIGH / MEDIUM / LOW.
-Final line MUST be: `Verdict: PASS` or `Verdict: FAIL`
+Classifique cada finding: CRITICAL / HIGH / MEDIUM / LOW.
+A última linha DEVE ser: `Verdict: PASS` ou `Verdict: FAIL`
 
 ---
 
-### Subagent #4: "CSO" — Security
+### Subagent #4: "CSO", segurança
 
-Persona: Chief Security Officer running OWASP Top 10 + STRIDE threat model. Only report findings with confidence ≥ 8/10. False positives waste everyone's time — if you're not sure, don't report it.
+Persona: Chief Security Officer rodando OWASP Top 10 + STRIDE threat model. Reporte apenas findings com confiança ≥ 8/10. Falsos positivos desperdiçam o tempo de todos, se você não tem certeza, não reporte.
 
-First, run:
+Primeiro, execute:
 ```bash
 grep -rn 'subprocess\|eval\|exec\|open(\|os.system' <modified files>
 ```
 
-Then fill EVERY table — empty table = REJECTED.
+Depois preencha CADA tabela, tabela vazia = REJECTED.
 
-**Table A — Dangerous calls:**
+**Tabela A, Chamadas perigosas:**
 
-| file:line | Call | Input source | Injectable? | Confidence (1-10) | Fix |
+| file:line | Chamada | Origem da entrada | Injetável? | Confiança (1-10) | Fix |
 |-----------|------|-------------|------------|-------------------|-----|
 
-If grep returns 0 matches, write one row: "grep returned 0 matches — no dangerous calls found." (Do NOT skip the table.)
+Se o grep retornar 0 matches, escreva uma única linha: "grep returned 0 matches, no dangerous calls found." (NÃO pule a tabela.)
 
-**Table B — Secrets & paths:**
+**Tabela B, Secrets e paths:**
 
-| file:line | Issue type | Detail | Confidence (1-10) |
+| file:line | Tipo de problema | Detalhe | Confiança (1-10) |
 |-----------|-----------|--------|-------------------|
 
-Check for: hardcoded secrets, path traversal, command injection, insecure deserialization.
+Verifique: secrets hardcoded, path traversal, command injection, deserialização insegura.
 
-Only report findings with confidence ≥ 8/10.
+Reporte apenas findings com confiança ≥ 8/10.
 
-**Canary question:** What shell commands (if any) does the code execute? List them verbatim from source.
+**Pergunta Canary:** Quais comandos de shell (se algum) o código executa? Liste-os literalmente do código-fonte.
 
-Classify each finding: CRITICAL / HIGH / MEDIUM / LOW.
-Final line MUST be: `Verdict: PASS` or `Verdict: FAIL`
+Classifique cada finding: CRITICAL / HIGH / MEDIUM / LOW.
+A última linha DEVE ser: `Verdict: PASS` ou `Verdict: FAIL`
 
 ---
 
-## Step 4: Aggregate results
+## Step 4: Agregar resultados
 
-After all 4 subagents return:
+Depois que todos os 4 subagents retornarem:
 
-1. Check each subagent output for `Verdict: PASS` or `Verdict: FAIL`
-2. If any output is missing a verdict or has empty mandatory tables → REJECTED, re-dispatch that subagent
-3. Aggregation rule: **Any subagent FAIL or any CRITICAL finding → overall FAIL**
-4. Report the combined evaluation to the user with all tables preserved
+1. Verifique cada saída de subagent buscando `Verdict: PASS` ou `Verdict: FAIL`
+2. Se alguma saída estiver sem verdict ou tiver tabelas obrigatórias vazias → REJECTED, redespache esse subagent
+3. Regra de agregação: **Qualquer subagent FAIL ou qualquer finding CRITICAL → FAIL geral**
+4. Reporte a avaliação combinada ao usuário com todas as tabelas preservadas

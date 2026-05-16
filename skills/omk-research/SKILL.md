@@ -10,34 +10,34 @@ description: "Multi-level research: built-in knowledge → web search → Tavily
 - "what's the best practice for X in 2026?"
 - "compare these three approaches"
 
-# Research Skill — Multi-Level Search
+# Skill de Pesquisa, busca em múltiplos níveis
 
-## Search Level Strategy
+## Estratégia de níveis de busca
 
-Always use the lowest level that can answer the question:
+Sempre use o nível mais baixo que consegue responder à pergunta:
 
-| Level | Tool | Use Case | Cost |
+| Nível | Tool | Caso de uso | Custo |
 |-------|------|----------|------|
-| 0 | Built-in knowledge | Common concepts, basics | Free |
-| 1 | `web_search` | Quick verification, simple queries | Free |
-| 2 | Tavily Research API | Deep research, competitive analysis | API credits |
+| 0 | Conhecimento embutido | Conceitos comuns, básicos | Grátis |
+| 1 | `web_search` | Verificação rápida, queries simples | Grátis |
+| 2 | Tavily Research API | Pesquisa profunda, análise competitiva | Créditos da API |
 
-**Rule**: If Level 0 or 1 can answer it, don't use Level 2.
+**Regra**: Se o Level 0 ou 1 já responde, não use Level 2.
 
-**Don't need research**: Common knowledge, already in `knowledge/`, answerable from built-in knowledge.
+**Não precisa de pesquisa**: Conhecimento comum, já está em `knowledge/`, ou respondível pelo conhecimento embutido.
 
 ## Level 2: Tavily Research API
 
-### Prerequisites
+### Pré-requisitos
 
-Get your API key at https://tavily.com (1000 free credits/month)
+Pegue sua API key em https://tavily.com (1000 créditos gratuitos por mês)
 
-Set environment variable:
+Defina a env var:
 ```bash
 export TAVILY_API_KEY="tvly-your-key-here"
 ```
 
-Or add to your agent config:
+Ou adicione na config do agent:
 ```json
 {
   "env": {
@@ -46,7 +46,7 @@ Or add to your agent config:
 }
 ```
 
-### Usage
+### Uso
 
 ```bash
 ./scripts/research.sh '{"input": "your research query"}' [output_file]
@@ -61,17 +61,17 @@ Or add to your agent config:
 ./scripts/research.sh '{"input": "market analysis", "model": "pro"}' ./report.md
 ```
 
-### Model Selection
+### Seleção de modelo
 
-| Model | Use Case | Speed |
+| Modelo | Caso de uso | Velocidade |
 |-------|----------|-------|
-| `mini` | Single topic, targeted | ~30s |
-| `pro` | Multi-angle, comprehensive | ~60-120s |
-| `auto` | API chooses based on complexity | Varies |
+| `mini` | Tópico único, focado | ~30s |
+| `pro` | Multi-ângulo, abrangente | ~60-120s |
+| `auto` | A API escolhe pela complexidade | Varia |
 
-**Rule of thumb**: "what does X do?" → mini. "X vs Y vs Z" → pro.
+**Regra prática**: "what does X do?" → mini. "X vs Y vs Z" → pro.
 
-### Structured Output
+### Saída estruturada
 
 ```bash
 ./scripts/research.sh '{
@@ -87,26 +87,26 @@ Or add to your agent config:
 }'
 ```
 
-### Citation Formats
+### Formatos de citação
 
-Supported: `numbered` (default), `mla`, `apa`, `chicago`
+Suportados: `numbered` (default), `mla`, `apa`, `chicago`
 
 ```bash
 ./scripts/research.sh '{"input": "climate impacts", "citation_format": "apa"}'
 ```
 
-## Post-Research 沉淀 Checkpoint
+## Checkpoint pós-pesquisa 沉淀
 
-After completing research, before writing findings or recommendations:
+Após concluir a pesquisa, antes de escrever findings ou recomendações:
 
-**Socratic validation (mandatory for each recommendation/gap/optimization):**
-1. Does this problem actually exist in the current codebase? Check existing solutions first.
-2. Is the proposed fix feasible on all target platforms (Kiro + CC)? Check constraints.
-3. Does the benefit outweigh the maintenance cost?
+**Validação Socrática (obrigatória para cada recomendação/gap/otimização):**
+1. Esse problema existe de fato na codebase atual? Verifique soluções existentes primeiro.
+2. O fix proposto é viável em todas as plataformas alvo (Kiro + CC)? Verifique constraints.
+3. O benefício supera o custo de manutenção?
 
-If any answer is "no" → drop that recommendation. Don't include it in findings.
+Se alguma resposta for "não" → descarte essa recomendação. Não a inclua nos findings.
 
-**Then persist:**
-1. Record validated findings in `docs/plans/findings.md` (if working on a plan)
-2. If findings reveal reusable patterns → write to `knowledge/episodes.md`
-3. Cite sources with URLs — no hallucinated references
+**Em seguida, persista:**
+1. Registre os findings validados em `docs/plans/findings.md` (se estiver trabalhando em um plan)
+2. Se os findings revelarem padrões reutilizáveis → escreva em `knowledge/episodes.md`
+3. Cite as fontes com URLs, sem referências alucinadas

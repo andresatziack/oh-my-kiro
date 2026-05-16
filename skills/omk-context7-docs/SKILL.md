@@ -10,51 +10,51 @@ description: "Fetch current library/framework documentation via Context7. Trigge
 - "how do I set up Supabase auth?"
 - "Tailwind 的 grid 怎么用？"
 
-When the user asks about libraries, frameworks, or needs code examples, use Context7 to fetch current documentation instead of relying on training data.
+Quando o usuário perguntar sobre libraries, frameworks ou precisar de exemplos de código, use o Context7 para buscar documentação atual em vez de confiar em training data.
 
-## When to Use This Skill
+## Quando usar esta Skill
 
-Activate this skill when the user:
+Ative esta skill quando o usuário:
 
-- Asks setup or configuration questions ("How do I configure Next.js middleware?")
-- Requests code involving libraries ("Write a Prisma query for...")
-- Needs API references ("What are the Supabase auth methods?")
-- Mentions specific frameworks (React, Vue, Svelte, Express, Tailwind, etc.)
+- Fizer perguntas de setup ou configuração ("How do I configure Next.js middleware?")
+- Pedir código envolvendo libraries ("Write a Prisma query for...")
+- Precisar de referências de API ("What are the Supabase auth methods?")
+- Mencionar frameworks específicos (React, Vue, Svelte, Express, Tailwind, etc.)
 
-## How to Fetch Documentation
+## Como buscar documentação
 
-### Step 1: Resolve the Library ID
+### Step 1: Resolver o Library ID
 
-Call `resolve-library-id` with:
+Chame `resolve-library-id` com:
 
-- `libraryName`: The library name extracted from the user's question
-- `query`: The user's full question (improves relevance ranking)
+- `libraryName`: O nome da library extraído da pergunta do usuário
+- `query`: A pergunta completa do usuário (melhora o ranking de relevância)
 
-### Step 2: Select the Best Match
+### Step 2: Selecionar a melhor correspondência
 
-From the resolution results, choose based on:
+Entre os resultados da resolução, escolha com base em:
 
-- Exact or closest name match to what the user asked for
-- Higher benchmark scores indicate better documentation quality
-- If the user mentioned a version (e.g., "React 19"), prefer version-specific IDs
+- Correspondência exata ou mais próxima ao que o usuário pediu
+- Pontuações de benchmark mais altas indicam melhor qualidade da documentação
+- Se o usuário mencionou uma versão (por exemplo, "React 19"), prefira IDs específicos da versão
 
-### Step 3: Fetch the Documentation
+### Step 3: Buscar a documentação
 
-Call `query-docs` with:
+Chame `query-docs` com:
 
-- `libraryId`: The selected Context7 library ID (e.g., `/vercel/next.js`)
-- `query`: The user's specific question
+- `libraryId`: O Context7 library ID escolhido (por exemplo, `/vercel/next.js`)
+- `query`: A pergunta específica do usuário
 
-### Step 4: Use the Documentation
+### Step 4: Usar a documentação
 
-Incorporate the fetched documentation into your response:
+Incorpore a documentação obtida em sua resposta:
 
-- Answer the user's question using current, accurate information
-- Include relevant code examples from the docs
-- Cite the library version when relevant
+- Responda à pergunta do usuário usando informações atuais e corretas
+- Inclua exemplos de código relevantes da documentação
+- Cite a versão da library quando relevante
 
-## Guidelines
+## Diretrizes
 
-- **Be specific**: Pass the user's full question as the query for better results
-- **Version awareness**: When users mention versions ("Next.js 15", "React 19"), use version-specific library IDs if available from the resolution step
-- **Prefer official sources**: When multiple matches exist, prefer official/primary packages over community forks
+- **Seja específico**: Passe a pergunta completa do usuário como query para obter melhores resultados
+- **Atenção à versão**: Quando o usuário mencionar versões ("Next.js 15", "React 19"), use IDs de library específicos da versão se disponíveis na etapa de resolução
+- **Prefira fontes oficiais**: Quando houver várias correspondências, prefira pacotes oficiais/primários a forks da comunidade

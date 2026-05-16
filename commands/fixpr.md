@@ -1,17 +1,17 @@
-Automated PR fixer: fetch all review comments, triage each one, fix or pushback, reply + resolve every thread. Zero unresolved threads when done.
+Fixer automático de PR: busca todos os comentários de review, faz triagem de cada um, aplica fix ou pushback, responde + resolve cada thread. Zero threads não resolvidas ao final.
 
-## Step 1: Understand the PR
+## Step 1: Entender o PR
 
 ```bash
 gh pr view <PR> --json number,title,body,headRefName,baseRefName,files,additions,deletions
 gh pr diff <PR>
 ```
 
-Read the full diff. Understand what the PR does and why — this context guards against drift when fixing individual comments.
+Leia o diff completo. Entenda o que o PR faz e por quê, esse contexto evita drift ao corrigir comentários individuais.
 
-## Step 2: Fetch ALL Unresolved Review Threads
+## Step 2: Buscar TODAS as threads de review não resolvidas
 
-**This step is MANDATORY. Do NOT skip it.**
+**Este step é OBRIGATÓRIO. NÃO pule.**
 
 ```bash
 gh api graphql -f query='
@@ -32,36 +32,36 @@ query($owner:String!,$repo:String!,$pr:Int!) {
 }' -f owner='<OWNER>' -f repo='<REPO>' -F pr='<PR_NUMBER>'
 ```
 
-Filter to unresolved threads. If zero unresolved → report "nothing to fix" and stop.
+Filtre para threads não resolvidas. Se zero não resolvidas → reporte "nothing to fix" e pare.
 
-## Step 3: Triage Every Thread
+## Step 3: Triagem de cada thread
 
-For each unresolved thread, decide:
+Para cada thread não resolvida, decida:
 
-| Verdict | Meaning | Action |
+| Verdict | Significado | Ação |
 |---------|---------|--------|
-| **AGREE** | Reviewer is right | Fix the code |
-| **PUSHBACK** | Current code is intentional or reviewer misunderstood | Explain why, don't change code |
+| **AGREE** | O reviewer está certo | Corrigir o código |
+| **PUSHBACK** | O código atual é intencional ou o reviewer entendeu mal | Explicar por quê, sem alterar o código |
 
-Show the triage table to the user before proceeding:
+Mostre a tabela de triagem ao usuário antes de prosseguir:
 
 ```
 | # | Thread ID | File:Line | Comment (summary) | Verdict | Reason |
 ```
 
-## Step 4: Fix Code (AGREE items only)
+## Step 4: Corrigir o código (apenas itens AGREE)
 
-For each AGREE item:
-1. Make the minimal code change
-2. Verify the fix doesn't break other parts of the PR
+Para cada item AGREE:
+1. Faça a alteração mínima de código
+2. Verifique se o fix não quebra outras partes do PR
 
-After all AGREE fixes: run build/lint/typecheck if applicable.
+Após todos os fixes AGREE: rode build/lint/typecheck, se aplicável.
 
-## Step 5: Reply + Resolve EVERY Thread
+## Step 5: Responder + resolver CADA thread
 
-**CRITICAL: Both AGREE and PUSHBACK threads get a reply AND a resolve. No exceptions.**
+**CRÍTICO: Tanto threads AGREE quanto PUSHBACK recebem uma resposta E são resolvidas. Sem exceções.**
 
-### For AGREE threads:
+### Para threads AGREE:
 ```bash
 # Reply with what was fixed
 gh api graphql -f query='mutation($tid:ID!,$body:String!) {
@@ -76,7 +76,7 @@ gh api graphql -f query='mutation($tid:ID!) {
 }' -f tid='<THREAD_ID>'
 ```
 
-### For PUSHBACK threads:
+### Para threads PUSHBACK:
 ```bash
 # Reply with explanation
 gh api graphql -f query='mutation($tid:ID!,$body:String!) {
@@ -91,14 +91,14 @@ gh api graphql -f query='mutation($tid:ID!) {
 }' -f tid='<THREAD_ID>'
 ```
 
-## Step 6: Verify Zero Unresolved + Push
+## Step 6: Verificar zero não resolvidas + push
 
 ```bash
 # Must be 0
 gh api graphql ... --jq '[.nodes[] | select(.isResolved==false)] | length'
 ```
 
-Commit, push, report:
+Commit, push, reporte:
 
 ```
 ## @fixpr Summary
@@ -109,4 +109,4 @@ Commit, push, report:
 
 ---
 User's task:
-(User provides PR URL/number. If none, detect from current branch.)
+(O usuário fornece a URL/número do PR. Se não houver, detecte a partir da branch atual.)

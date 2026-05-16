@@ -1,52 +1,52 @@
-Execute an approved plan with Ralph Loop hard constraint. Agent stops don't matter — bash loop keeps going until all checklist items are done.
+Executa um plan aprovado com a constraint dura do Ralph Loop. Paradas do agent não importam, o loop em bash continua até que todos os itens do checklist sejam concluídos.
 
-## Step 1: Load Plan
+## Step 1: Carregar o plan
 
-Resolve which plan to execute:
-1. Read `docs/plans/.active` — if it exists, use that path
-2. If not found, find the most recently modified `docs/plans/*.md` and write it to `docs/plans/.active`
-3. If multiple plans modified within the last hour, list them and ask the user to pick
+Resolva qual plan executar:
+1. Leia `docs/plans/.active`, se existir, use esse caminho
+2. Se não existir, encontre o `docs/plans/*.md` modificado mais recentemente e escreva-o em `docs/plans/.active`
+3. Se houver vários plans modificados na última hora, liste-os e peça ao usuário para escolher
 
-Verify the plan has reviewer APPROVE verdict. If not approved, tell the user to run @plan first.
+Verifique se o plan tem o verdict APPROVE do reviewer. Se não estiver aprovado, diga ao usuário para rodar @plan primeiro.
 
-## Step 1b: Detect Work Dir
+## Step 1b: Detectar Work Dir
 
-Check if the plan header contains `**Work Dir:**`:
+Verifique se o cabeçalho do plan contém `**Work Dir:**`:
 ```bash
 WORK_DIR=$(grep -oE '^\*\*Work Dir:\*\*\s*.+' "$PLAN_FILE" | sed 's/^\*\*Work Dir:\*\*\s*//' | tr -d '[:space:]')
 ```
 
-If Work Dir is set:
-1. Resolve to absolute path relative to project root
-2. If path doesn't exist, create worktree (infer submodule and branch from plan slug)
-3. Launch ralph loop with isolation env vars:
+Se Work Dir estiver definido:
+1. Resolva para um caminho absoluto relativo à raiz do projeto
+2. Se o path não existir, crie um worktree (infira submodule e branch a partir do slug do plan)
+3. Inicie o ralph loop com env vars de isolamento:
 ```bash
 PLAN_POINTER_OVERRIDE=<plan_file_path> RALPH_WORK_DIR=<work_dir_abs> python3 scripts/ralph_loop.py
 ```
 
-If Work Dir is absent, proceed normally (backward compatible).
+Se Work Dir estiver ausente, prossiga normalmente (compatível com versões anteriores).
 
-## Step 2: Verify Checklist
+## Step 2: Verificar o checklist
 
-The plan MUST contain a `## Checklist` section with at least one `- [ ]` item. If missing, STOP and tell the user the plan needs a checklist.
+O plan DEVE conter uma seção `## Checklist` com pelo menos um item `- [ ]`. Se estiver faltando, PARE e diga ao usuário que o plan precisa de um checklist.
 
-## Step 3: Launch Ralph Loop
+## Step 3: Iniciar o Ralph Loop
 
-Run **foreground** (NEVER use `nohup &` — you need to see the exit summary):
+Rode em **foreground** (NUNCA use `nohup &`, você precisa ver o resumo de saída):
 ```bash
 python3 scripts/ralph_loop.py
 ```
 
-This bash script will:
-- Loop until all `- [ ]` items become `- [x]`
-- Each iteration spawns a fresh Kiro CLI instance with clean context
-- Circuit breaker: exits if 3 consecutive rounds make no progress
-- Agent stopping is fine — the loop restarts a new instance
-- On exit (success or failure), prints a full summary to stdout
+Esse script bash vai:
+- Fazer loop até que todos os itens `- [ ]` virem `- [x]`
+- Cada iteração inicia uma instância nova do Kiro CLI com contexto limpo
+- Circuit breaker: sai se 3 rodadas consecutivas não tiverem progresso
+- Paradas do agent estão ok, o loop reinicia uma nova instância
+- Ao sair (sucesso ou falha), imprime um resumo completo no stdout
 
-## Step 4: Report Results
+## Step 4: Reportar resultados
 
-The script prints a summary block on exit. Use that output to report:
-- How many checklist items completed vs total
-- Any `- [SKIP]` items with reasons
-- Read skills/omk-finishing/SKILL.md for merge/PR/cleanup options
+O script imprime um bloco de resumo ao sair. Use essa saída para reportar:
+- Quantos itens do checklist concluídos vs. total
+- Quaisquer itens `- [SKIP]` com motivos
+- Leia skills/omk-finishing/SKILL.md para opções de merge/PR/cleanup

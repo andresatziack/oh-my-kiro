@@ -1,51 +1,51 @@
-# Debugging Reference
+# Referência de Depuração
 
-## LSP Tool Recipes
+## Receitas das tools de LSP
 
-### get_diagnostics — Compiler Errors & Warnings
+### get_diagnostics, erros e warnings de compilador
 
-Get all errors, warnings, and hints for a file:
+Obtenha todos os erros, warnings e hints de um arquivo:
 ```
 get_diagnostics(file_path="src/main.py")
 ```
-Use FIRST when debugging — gives exact error locations and types.
-Use AFTER fix — verify zero new diagnostics introduced.
+Use PRIMEIRO ao depurar, dá os locais e tipos exatos do erro.
+Use DEPOIS do fix, verifique zero novos diagnostics introduzidos.
 
-### search_symbols — Find Symbol Definitions
+### search_symbols, encontrar definições de símbolos
 
-Find where a function, class, or variable is defined:
+Encontre onde uma função, classe ou variável é definida:
 ```
 search_symbols(symbol_name="processOrder", symbol_type="function")
 ```
-Use when you know the name but not the location.
+Use quando souber o nome mas não a localização.
 
-### goto_definition — Navigate to Implementation
+### goto_definition, navegar até a implementação
 
-Jump to where a symbol is actually defined:
+Salte para onde um símbolo é realmente definido:
 ```
 goto_definition(file_path="src/handler.py", row=42, column=15)
 ```
-Use after search_symbols to read the actual implementation.
-**Iron Law: No goto_definition = No modify.**
+Use depois de search_symbols para ler a implementação real.
+**Iron Law: sem goto_definition = sem modificar.**
 
-### find_references — Find All Usage Sites
+### find_references, encontrar todos os locais de uso
 
-Find everywhere a symbol is used:
+Encontre todos os locais onde um símbolo é usado:
 ```
 find_references(file_path="src/models.py", row=10, column=8)
 ```
-Use before refactoring to understand impact.
-**Iron Law: No find_references = No refactor.**
+Use antes de refatorar, para entender o impacto.
+**Iron Law: sem find_references = sem refactor.**
 
-### get_hover — Type Information
+### get_hover, informação de tipo
 
-Get type and documentation at a position:
+Obtenha tipo e documentação em uma posição:
 ```
 get_hover(file_path="src/utils.py", row=25, column=12)
 ```
-Use to understand types without reading full implementation.
+Use para entender tipos sem ler a implementação completa.
 
-### Typical Workflow
+### Workflow típico
 
 ```
 1. get_diagnostics → identify errors
@@ -57,41 +57,41 @@ Use to understand types without reading full implementation.
 7. get_diagnostics → verify fix (zero new diagnostics)
 ```
 
-## Structural Code Search (pattern_search)
+## Busca estrutural de código (pattern_search)
 
-Use `pattern_search` for AST-aware bug pattern detection — finds structural matches that grep misses.
+Use `pattern_search` para detecção AST-aware de padrões de bug, encontra correspondências estruturais que o grep deixa passar.
 
-### Find subprocess calls without timeout
+### Encontrar chamadas de subprocess sem timeout
 ```
 pattern_search(pattern='subprocess.run($$$ARGS)', language='python')
 ```
-Then inspect each match for missing `timeout=` parameter.
+Em seguida, inspecione cada match procurando o parâmetro `timeout=` faltando.
 
-### Find unchecked error returns (Go)
+### Encontrar retornos de erro não verificados (Go)
 ```
 pattern_search(pattern='$VAR, _ := $FUNC($$$)', language='go')
 ```
 
-### Find bare except clauses (Python)
+### Encontrar bare except clauses (Python)
 ```
 pattern_search(pattern='except: $$$BODY', language='python')
 ```
 
-### Find TODO/FIXME in code (not comments)
+### Encontrar TODO/FIXME no código (não em comentários)
 ```
 pattern_search(pattern='$VAR = "TODO"', language='python')
 ```
-For comments, use grep instead — pattern_search matches code structure, not comments.
+Para comentários, use grep, o pattern_search casa estrutura de código, não comentários.
 
-### When to use pattern_search vs grep
-- **pattern_search**: structural code patterns (function signatures, error handling, API calls)
-- **grep**: literal text, comments, config values, log messages
+### Quando usar pattern_search vs. grep
+- **pattern_search**: padrões estruturais de código (assinaturas de função, error handling, chamadas de API)
+- **grep**: texto literal, comentários, valores de config, mensagens de log
 
-## Multi-Component Diagnostic Patterns
+## Padrões de diagnóstico multi-componente
 
-### Boundary Instrumentation
+### Instrumentação de borda
 
-When system has multiple components, add diagnostic logging at each boundary:
+Quando o sistema tem múltiplos componentes, adicione logging de diagnóstico em cada borda:
 
 ```bash
 # Layer 1: Workflow
@@ -111,21 +111,21 @@ security find-identity -v
 codesign --sign "$IDENTITY" --verbose=4 "$APP"
 ```
 
-This reveals which layer fails (secrets → workflow ✓, workflow → build ✗).
+Isso revela qual layer falha (secrets → workflow ✓, workflow → build ✗).
 
 ### Backward Tracing
 
-When error is deep in call stack:
-1. Start at the error
-2. Use `goto_definition` to navigate to the function
-3. Use `find_references` to find all callers
-4. Trace backward: who called this with bad data?
-5. Keep going until you find the source
-6. Fix at source, not at symptom
+Quando o erro está fundo no call stack:
+1. Comece pelo erro
+2. Use `goto_definition` para navegar até a função
+3. Use `find_references` para encontrar todos os callers
+4. Rastreie para trás: quem chamou isso com dados ruins?
+5. Continue indo até encontrar a origem
+6. Corrija na origem, não no sintoma
 
-### Condition-Based Waiting
+### Espera baseada em condição
 
-Replace arbitrary timeouts with condition polling:
+Substitua timeouts arbitrários por polling de condição:
 ```bash
 # Bad: sleep 30
 # Good:
@@ -135,15 +135,15 @@ for i in $(seq 1 60); do
 done
 ```
 
-### Git Bisect Regression Localization
+### Localização de regressão por Git Bisect
 
-Use when a bug is a **regression** — something that used to work but now doesn't.
+Use quando um bug é uma **regressão**, algo que antes funcionava e agora não.
 
-**When to use:**
-- You can identify a "good" commit (where it worked) and a "bad" commit (where it's broken)
-- The bug is reproducible with a test or manual check
+**Quando usar:**
+- Você consegue identificar um commit "good" (onde funcionava) e um commit "bad" (onde está quebrado)
+- O bug é reproduzível com um teste ou check manual
 
-**Flow:**
+**Fluxo:**
 ```bash
 # 1. Start bisect
 git log --oneline -20  # find good/bad commit range
@@ -164,10 +164,10 @@ git bisect bad   # if this commit is broken
 git bisect reset  # return to original branch
 ```
 
-**After finding the culprit commit:**
-1. Read the full diff: `git show <culprit-sha>`
-2. Understand what changed and why it broke the behavior
-3. This narrows root cause from "somewhere in the codebase" to "this specific change"
+**Após encontrar o commit culpado:**
+1. Leia o diff completo: `git show <culprit-sha>`
+2. Entenda o que mudou e por que isso quebrou o comportamento
+3. Isso restringe a causa raiz de "em algum lugar da codebase" para "essa mudança específica".
 
-**LLM-assisted semantic analysis:**
-For each bisect step's diff, analyze whether the changes are semantically related to the target behavior. This helps when the predicate is noisy (flaky tests, non-deterministic behavior). Focus on: state transitions, error handling changes, and dependency modifications.
+**Análise semântica assistida por LLM:**
+Para cada diff de step do bisect, analise se as alterações são semanticamente relacionadas ao comportamento alvo. Isso ajuda quando o predicate é ruidoso (testes flaky, comportamento não determinístico). Foque em: transições de estado, mudanças de error handling e modificações de dependência.

@@ -10,28 +10,28 @@ description: "Branch completion workflow: verify tests → present 4 options (me
 - "wrap up this feature branch"
 - "discard this work, start over"
 
-# Finishing a Development Branch
+# Finalizando uma branch de desenvolvimento
 
-## Overview
+## Visão geral
 
-Guide completion of development work by presenting clear options and handling chosen workflow.
+Conduza a conclusão do trabalho apresentando opções claras e tratando o workflow escolhido.
 
-**Core principle:** Verify tests → Present options → Execute choice → Clean up.
+**Princípio central:** Verificar testes → apresentar opções → executar a escolha → limpar.
 
-**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
+**Anuncie no início:** "I'm using the finishing-a-development-branch skill to complete this work."
 
-## The Process
+## O processo
 
-### Step 1: Verify Tests
+### Step 1: Verificar testes
 
-**Before presenting options, verify tests pass:**
+**Antes de apresentar opções, verifique se os testes passam:**
 
 ```bash
 # Run project's test suite
 npm test / cargo test / pytest / go test ./...
 ```
 
-**If tests fail:**
+**Se os testes falharem:**
 ```
 Tests failing (<N> failures). Must fix before completing:
 
@@ -40,22 +40,22 @@ Tests failing (<N> failures). Must fix before completing:
 Cannot proceed with merge/PR until tests pass.
 ```
 
-Stop. Don't proceed to Step 2.
+Pare. Não prossiga para o Step 2.
 
-**If tests pass:** Continue to Step 2.
+**Se os testes passarem:** continue para o Step 2.
 
-### Step 2: Determine Base Branch
+### Step 2: Determinar a base branch
 
 ```bash
 # Try common base branches
 git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 ```
 
-Or ask: "This branch split from main - is that correct?"
+Ou pergunte: "This branch split from main - is that correct?"
 
-### Step 3: Present Options
+### Step 3: Apresentar opções
 
-Present exactly these 4 options:
+Apresente exatamente estas 4 opções:
 
 ```
 Implementation complete. What would you like to do?
@@ -68,11 +68,11 @@ Implementation complete. What would you like to do?
 Which option?
 ```
 
-**Don't add explanation** - keep options concise.
+**Não adicione explicação**, mantenha as opções concisas.
 
-### Step 4: Execute Choice
+### Step 4: Executar a escolha
 
-#### Option 1: Merge Locally
+#### Opção 1: Merge local
 
 ```bash
 # Switch to base branch
@@ -91,9 +91,9 @@ git merge <feature-branch>
 git branch -d <feature-branch>
 ```
 
-Then: Cleanup worktree (Step 5)
+Em seguida: limpeza do worktree (Step 5)
 
-#### Option 2: Push and Create PR
+#### Opção 2: Push e criar PR
 
 ```bash
 # Push branch
@@ -110,17 +110,17 @@ EOF
 )"
 ```
 
-Then: Cleanup worktree (Step 5)
+Em seguida: limpeza do worktree (Step 5)
 
-#### Option 3: Keep As-Is
+#### Opção 3: Manter como está
 
-Report: "Keeping branch <name>. Worktree preserved at <path>."
+Reporte: "Keeping branch <name>. Worktree preserved at <path>."
 
-**Don't cleanup worktree.**
+**Não limpe o worktree.**
 
-#### Option 4: Discard
+#### Opção 4: Descartar
 
-**Confirm first:**
+**Confirme primeiro:**
 ```
 This will permanently delete:
 - Branch <name>
@@ -130,78 +130,78 @@ This will permanently delete:
 Type 'discard' to confirm.
 ```
 
-Wait for exact confirmation.
+Aguarde a confirmação exata.
 
-If confirmed:
+Se confirmado:
 ```bash
 git checkout <base-branch>
 git branch -D <feature-branch>
 ```
 
-Then: Cleanup worktree (Step 5)
+Em seguida: limpeza do worktree (Step 5)
 
-### Step 5: Cleanup Worktree
+### Step 5: Limpeza do worktree
 
-**For Options 1, 2, 4:**
+**Para as opções 1, 2 e 4:**
 
-Check if in worktree:
+Verifique se está em worktree:
 ```bash
 git worktree list | grep $(git branch --show-current)
 ```
 
-If yes:
+Se sim:
 ```bash
 git worktree remove <worktree-path>
 ```
 
-**For Option 3:** Keep worktree.
+**Para a opção 3:** mantenha o worktree.
 
-## Quick Reference
+## Referência rápida
 
-| Option | Merge | Push | Keep Worktree | Cleanup Branch |
+| Opção | Merge | Push | Manter Worktree | Limpar branch |
 |--------|-------|------|---------------|----------------|
-| 1. Merge locally | ✓ | - | - | ✓ |
-| 2. Create PR | - | ✓ | ✓ | - |
-| 3. Keep as-is | - | - | ✓ | - |
-| 4. Discard | - | - | - | ✓ (force) |
+| 1. Merge local | ✓ | - | - | ✓ |
+| 2. Criar PR | - | ✓ | ✓ | - |
+| 3. Manter como está | - | - | ✓ | - |
+| 4. Descartar | - | - | - | ✓ (force) |
 
-## Common Mistakes
+## Erros comuns
 
-**Skipping test verification**
-- **Problem:** Merge broken code, create failing PR
-- **Fix:** Always verify tests before offering options
+**Pular a verificação de testes**
+- **Problema:** Mergear código quebrado, criar PR com falhas
+- **Fix:** Sempre verifique os testes antes de oferecer opções
 
-**Open-ended questions**
-- **Problem:** "What should I do next?" → ambiguous
-- **Fix:** Present exactly 4 structured options
+**Perguntas abertas**
+- **Problema:** "What should I do next?" → ambíguo
+- **Fix:** Apresente exatamente 4 opções estruturadas
 
-**Automatic worktree cleanup**
-- **Problem:** Remove worktree when might need it (Option 2, 3)
-- **Fix:** Only cleanup for Options 1 and 4
+**Limpeza automática do worktree**
+- **Problema:** Remover worktree quando ele ainda pode ser necessário (Opção 2, 3)
+- **Fix:** Faça cleanup apenas para as opções 1 e 4
 
-**No confirmation for discard**
-- **Problem:** Accidentally delete work
-- **Fix:** Require typed "discard" confirmation
+**Sem confirmação para discard**
+- **Problema:** Apagar trabalho por acidente
+- **Fix:** Exija confirmação digitada "discard"
 
-## Red Flags
+## Sinais de alerta
 
-**Never:**
-- Proceed with failing tests
-- Merge without verifying tests on result
-- Delete work without confirmation
-- Force-push without explicit request
+**Nunca:**
+- Prosseguir com testes falhando
+- Mergear sem verificar os testes no resultado
+- Apagar trabalho sem confirmação
+- Force-push sem solicitação explícita
 
-**Always:**
-- Verify tests before offering options
-- Present exactly 4 options
-- Get typed confirmation for Option 4
-- Clean up worktree for Options 1 & 4 only
+**Sempre:**
+- Verifique os testes antes de oferecer opções
+- Apresente exatamente 4 opções
+- Exija confirmação digitada para a Opção 4
+- Limpe o worktree apenas para as Opções 1 e 4
 
-## Integration
+## Integração
 
-**Called by:**
-- **subagent-driven-development** (Step 7) - After all tasks complete
-- **executing-plans** (Step 5) - After all batches complete
+**Chamado por:**
+- **subagent-driven-development** (Step 7), depois que todas as tasks são concluídas
+- **executing-plans** (Step 5), depois que todos os batches são concluídos
 
-**Pairs with:**
-- **using-git-worktrees** - Cleans up worktree created by that skill
+**Combina com:**
+- **using-git-worktrees**, limpa o worktree criado por essa skill

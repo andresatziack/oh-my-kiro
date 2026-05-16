@@ -1,13 +1,13 @@
-Checkout a branch in a submodule, with fuzzy search support. (CK = Checkout)
+Faz checkout de uma branch em um submodule, com suporte a busca fuzzy. (CK = Checkout)
 
-## Scope
-Operates on the current submodule or the submodule specified by the user.
+## Escopo
+Opera no submodule atual ou no submodule especificado pelo usuário.
 
 ## Steps
 
-### Step 1: Determine Target Submodule
+### Step 1: Determinar o submodule alvo
 
-If user specifies a submodule name, use it. Otherwise detect from current directory:
+Se o usuário especificar um nome de submodule, use-o. Caso contrário, detecte a partir do diretório atual:
 
 ```bash
 # Check if we're inside a submodule
@@ -20,9 +20,9 @@ else
 fi
 ```
 
-### Step 2: Fuzzy Search Branches
+### Step 2: Busca fuzzy de branches
 
-If user provided a branch name (or partial name after @ck):
+Se o usuário forneceu um nome de branch (ou nome parcial após @ck):
 
 ```bash
 input="<user_input>"
@@ -38,9 +38,9 @@ echo "=== Remote branches ==="
 git branch -r --list "*${input}*" --sort=-committerdate | head -10
 ```
 
-Show matches to user. If multiple matches, let user pick. If exactly one match, confirm and proceed.
+Mostre os resultados ao usuário. Se houver várias correspondências, peça para o usuário escolher. Se houver exatamente uma, confirme e prossiga.
 
-If user provided NO branch name, show recent branches:
+Se o usuário NÃO forneceu nome de branch, mostre as branches recentes:
 
 ```bash
 echo "=== Recent branches (last 10) ==="
@@ -49,14 +49,14 @@ git branch -r --sort=-committerdate | head -10
 
 ### Step 3: Checkout
 
-Two modes based on user intent:
+Dois modos baseados na intenção do usuário:
 
-**Mode A: Direct checkout (switch submodule's current branch)**
+**Modo A: Checkout direto (troca a branch atual do submodule)**
 ```bash
 git checkout <branch>
 ```
 
-**Mode B: Create worktree (for development work)**
+**Modo B: Criar worktree (para trabalho de desenvolvimento)**
 ```bash
 branch="<selected_branch>"
 sm_name=$(basename $(pwd))
@@ -70,12 +70,12 @@ git worktree add "../../worktrees/${wt_name}" -b "$(echo $branch | sed 's#origin
 echo "Worktree created: $wt_path (branch: $branch)"
 ```
 
-Ask user which mode they want, default to Mode B (worktree) for feature branches.
+Pergunte ao usuário qual modo deseja, com padrão Modo B (worktree) para feature branches.
 
-## Edge Cases
-- **Branch not found:** Show "No branches matching '<input>'. Did you mean:" with closest matches.
-- **Worktree already exists for branch:** Warn and show existing worktree path.
-- **Detached HEAD in submodule:** Warn user before checkout.
+## Casos de borda
+- **Branch não encontrada:** Mostre "No branches matching '<input>'. Did you mean:" com as correspondências mais próximas.
+- **Worktree já existe para a branch:** Avise e mostre o caminho do worktree existente.
+- **Detached HEAD no submodule:** Avise o usuário antes do checkout.
 
 ---
 User's message (the text after @ck):

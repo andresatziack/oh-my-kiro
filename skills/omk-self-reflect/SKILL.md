@@ -10,82 +10,82 @@ description: "Agent self-learning: promote recurring episodes to rules, capture 
 - "I told you this before, capture it"
 - "这个错误犯了好几次了，升级成规则"
 
-# Self-Reflect — Agent Self-Learning System
+# Self-Reflect - Sistema de auto-aprendizagem do agent
 
-## Scope (v3)
+## Escopo (v3)
 
-1. **Promotion execution**: When hook outputs 🔥 or ⬆️, read episodes.md,
-   distill into 1-2 line rule, propose to user, write to rules.md if approved.
-   Mark source episodes as `promoted`.
+1. **Execução de promoção**: Quando o hook gera 🔥 ou ⬆️, leia episodes.md,
+   destile em uma rule de 1 a 2 linhas, proponha ao usuário e escreva em rules.md se aprovado.
+   Marque os episodes de origem como `promoted`.
 
-2. **Complex insight capture**: When hook outputs 🚨 (complex) and the correction
-   is too complex for auto-capture (no simple DO/DON'T pattern), help user
-   articulate and write to episodes.md via the same format.
+2. **Captura de insight complexo**: Quando o hook gera 🚨 (complexo) e a correção
+   é muito complexa para captura automática (sem padrão simples DO/DON'T), ajude o usuário
+   a articular e escrever em episodes.md no mesmo formato.
 
-NOT responsible for: daily capture (hook does it), dedup (hook does it),
-quality reporting (hook does it).
+NÃO é responsável por: captura diária (o hook faz), dedup (o hook faz),
+relatório de qualidade (o hook faz).
 
-## Sync Targets
+## Alvos de sincronização
 
-| Scenario | Target |
+| Cenário | Alvo |
 |----------|--------|
-| Top-level principle (user approved) | AGENTS.md / CLAUDE.md (Principles section) |
-| Promotion (≥3 same pattern) | knowledge/rules.md (matching keyword section) |
-| Complex insight | knowledge/episodes.md |
-| Code-enforceable rule | .kiro/rules/enforcement.md |
+| Princípio de topo (aprovado pelo usuário) | AGENTS.md / CLAUDE.md (seção Principles) |
+| Promoção (≥3 do mesmo padrão) | knowledge/rules.md (seção de keyword correspondente) |
+| Insight complexo | knowledge/episodes.md |
+| Regra aplicável por código | .kiro/rules/enforcement.md |
 
-## Writing to Protected Files (AGENTS.md / CLAUDE.md / .claude/rules/)
+## Escrevendo em arquivos protegidos (AGENTS.md / CLAUDE.md / .claude/rules/)
 
-When user explicitly approves writing to a protected instruction file, agent MUST autonomously execute the full three-step flow — do NOT wait for the human to do it manually:
+Quando o usuário aprovar explicitamente escrever em um arquivo protegido de instrução, o agent DEVE executar autonomamente o fluxo de três steps, NÃO espere o humano fazer manualmente:
 1. `touch .skip-instruction-guard`
-2. Write the change
+2. Escreva a alteração
 3. `rm -f .skip-instruction-guard`
 
-This bypasses the pre-write hook temporarily. Only do this when user has clearly approved the content in the current conversation.
+Isso ignora o pre-write hook temporariamente. Faça isso somente quando o usuário aprovou claramente o conteúdo na conversa atual.
 
-## Episode Format
+## Formato de Episode
 
 `DATE | STATUS | KEYWORDS | SUMMARY`
 
 - DATE: YYYY-MM-DD
 - STATUS: active / resolved / promoted
-- KEYWORDS: 1-3 english technical terms, ≥4 chars, comma-separated
-- SUMMARY: ≤80 chars, no `|` character, actionable DO/DON'T
+- KEYWORDS: 1 a 3 termos técnicos em inglês, ≥4 chars, separados por vírgula
+- SUMMARY: ≤80 chars, sem o caractere `|`, DO/DON'T acionável
 
-## Promotion Process
+## Processo de promoção
 
-1. Read episodes.md, find keywords appearing ≥3 times in active episodes
-2. Distill into 1-2 line rule with DO/DON'T + trigger scenario
-3. Read knowledge/rules.md section headers (`## [keywords]`)
-4. **Clustering** — choose target section by semantic match:
-   - Compare episode keywords with each section's keyword list
-   - Pick the section with most keyword overlap + semantic relevance
-   - If no section matches → create new `## [episode-keywords]` section at end of file
-   - If placing in existing section → append new keywords to section header if they add value
-5. Propose to user for approval (show target section)
-6. If approved: append rule to chosen section, change source episodes status to `promoted`
-7. Output: ⬆️ Promoted to rules.md [section]: 'RULE'
+1. Leia episodes.md, encontre keywords que apareçam ≥3 vezes em episodes ativos
+2. Destile em uma rule de 1 a 2 linhas com DO/DON'T + cenário-trigger
+3. Leia os headers de seção em knowledge/rules.md (`## [keywords]`)
+4. **Clusterização**, escolha a seção alvo por correspondência semântica:
+   - Compare as keywords do episode com a lista de keywords de cada seção
+   - Escolha a seção com maior sobreposição de keywords + relevância semântica
+   - Se nenhuma seção corresponder → crie uma nova seção `## [episode-keywords]` no fim do arquivo
+   - Se for inserir em uma seção existente → anexe novas keywords no header da seção, se agregam valor
+5. Proponha ao usuário para aprovação (mostre a seção alvo)
+6. Se aprovado: anexe a rule à seção escolhida e mude o status dos episodes de origem para `promoted`
+7. Saída: ⬆️ Promoted to rules.md [section]: 'RULE'
 
-Note: promoted episodes are auto-cleaned by context-enrichment on next session start.
+Nota: episodes promovidos são auto-limpos pelo context-enrichment no próximo início de sessão.
 
-## Trigger Patterns
+## Padrões-trigger
 
-**High confidence (90%)**:
+**Alta confiança (90%)**:
 - `remember:` / `always:`
 - `don't ... unless`
 - `I told you`
 
-**Medium confidence (80%)**:
+**Média confiança (80%)**:
 - `no, use X` / `not X, use Y`
 - `you missed` / `why didn't you`
 
-### Exclusion Patterns (Don't capture)
-- Questions ending with `?`
-- Requests starting with `please` / `help me`
-- Messages over 300 characters without clear DO/DON'T pattern
+### Padrões de exclusão (não capturar)
+- Perguntas terminadas com `?`
+- Pedidos começando com `please` / `help me`
+- Mensagens com mais de 300 caracteres sem padrão claro de DO/DON'T
 
-## On Detection
+## Ao detectar
 
-1. Confirm: `📝 Learning captured: '[preview]'`
-2. **Write to target file immediately** (no queue)
-3. Continue answering the user's question
+1. Confirme: `📝 Learning captured: '[preview]'`
+2. **Escreva no arquivo alvo imediatamente** (sem fila)
+3. Continue respondendo à pergunta do usuário

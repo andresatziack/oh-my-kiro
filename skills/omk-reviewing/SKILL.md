@@ -10,147 +10,147 @@ description: "Code and plan review with multi-angle dispatch. Trigger when user 
 - "review the plan I just wrote"
 - "这个改动有没有问题？"
 
-# Reviewing — Request, Execute, Receive
+# Reviewing - Solicitar, executar, receber
 
-## Requesting Review
+## Solicitando review
 
-**When (mandatory):** after completing major feature, before merge, after each task batch.
+**Quando (obrigatório):** após concluir feature grande, antes de merge, depois de cada batch de tasks.
 
-### Plan Review — 4 angles, 4 parallel subagents
+### Plan Review, 4 ângulos, 4 subagents em paralelo
 
-#### Pre-review Risk Identification
-Before dispatching reviewers, the main agent MUST run the **Pre-mortem Analysis** defined in `skills/planning/SKILL.md` (Phase 1.5 → Pre-mortem Analysis section). This produces 3 risk questions (Integration / Assumption / Environment) that are injected as "Specific Questions" into each reviewer's dispatch query.
+#### Identificação prévia de risco
+Antes de despachar reviewers, o agent principal DEVE rodar a **Pre-mortem Analysis** definida em `skills/planning/SKILL.md` (Phase 1.5 → seção Pre-mortem Analysis). Isso produz 3 perguntas de risco (Integration / Assumption / Environment) que são injetadas como "Specific Questions" na query de dispatch de cada reviewer.
 
-Additionally, craft one canary question per dispatch that requires reading a specific source file.
+Adicionalmente, formule uma pergunta canary por dispatch que exija a leitura de um arquivo-fonte específico.
 
 #### Dispatch
 
-Dispatch exactly **4 reviewer subagents in parallel** (`agent_name: "reviewer"`, `dangerously_trust_all_tools: true`), one per angle:
+Despache exatamente **4 subagents reviewers em paralelo** (`agent_name: "reviewer"`, `dangerously_trust_all_tools: true`), um por ângulo:
 
-| # | Angle | Mission |
+| # | Ângulo | Missão |
 |---|-------|---------|
-| 1 | Goal Alignment | Every task maps to goal? Execution order valid? Non-goals respected? |
-| 2 | Verify Correctness | Each verify command sound? False positives/negatives? |
-| 3 | Completeness | All modified files covered? Edge cases? Conflicts with other plans? |
-| 4 | Technical Feasibility | Blockers? Contradictions? Race conditions? Signal safety? |
+| 1 | Goal Alignment | Toda task mapeia para o goal? Ordem de execução é válida? Non-goals respeitados? |
+| 2 | Verify Correctness | Cada comando verify é sólido? Falsos positivos/negativos? |
+| 3 | Completeness | Todos os arquivos modificados cobertos? Edge cases? Conflitos com outros plans? |
+| 4 | Technical Feasibility | Bloqueadores? Contradições? Race conditions? Signal safety? |
 
-Each subagent query must include: plan file path + relevant source file paths to read.
+Cada query de subagent deve incluir: caminho do arquivo do plan + caminhos dos arquivos-fonte relevantes a serem lidos.
 
-### Deterministic Pre-check (main agent, before dispatching reviewers)
+### Pre-check determinístico (agent principal, antes de despachar reviewers)
 
-Before dispatching any reviewer subagent, the **main agent** runs deterministic checks (reviewer subagent only has read/write/shell — no LSP tools):
+Antes de despachar qualquer subagent reviewer, o **agent principal** roda checks determinísticos (o subagent reviewer só tem read/write/shell, sem tools de LSP):
 
-1. Run `get_diagnostics` on all modified files — collect compiler errors/warnings
-2. Run `pattern_search` for known anti-patterns (bare except, subprocess without timeout, etc.)
-3. Package results as "Pre-check Findings" to include in each reviewer's dispatch query
+1. Rode `get_diagnostics` em todos os arquivos modificados, colete erros/warnings de compilador
+2. Rode `pattern_search` para anti-padrões conhecidos (bare except, subprocess sem timeout, etc.)
+3. Empacote os resultados como "Pre-check Findings" para incluir na query de dispatch de cada reviewer
 
-Pre-check findings are automatically P0/P1 — they don't need LLM judgment. This reduces the reviewer's workload to reasoning-heavy issues only.
+Pre-check findings são automaticamente P0/P1, não precisam de julgamento de LLM. Isso reduz a carga do reviewer apenas para issues que exigem raciocínio.
 
-### Code Review — size-based dispatch
+### Code Review, dispatch baseado no tamanho
 
-Choose dispatch mode based on diff size:
+Escolha o modo de dispatch com base no tamanho do diff:
 
-**Small PR (<200 lines diff):** Dispatch **1 reviewer subagent** (`agent_name: "reviewer"`, `dangerously_trust_all_tools: true`) with:
-- What was implemented
-- Plan/requirements reference
-- Git diff range (BASE_SHA..HEAD_SHA)
-- Pre-check Findings from Deterministic Pre-check
+**PR pequeno (<200 linhas de diff):** Despache **1 subagent reviewer** (`agent_name: "reviewer"`, `dangerously_trust_all_tools: true`) com:
+- O que foi implementado
+- Referência do plan/requirements
+- Range do git diff (BASE_SHA..HEAD_SHA)
+- Pre-check Findings do Pre-check determinístico
 
-**Large PR (≥200 lines diff):** Dispatch **2 reviewer subagents in parallel** (`agent_name: "reviewer"`, `dangerously_trust_all_tools: true`):
+**PR grande (≥200 linhas de diff):** Despache **2 subagents reviewers em paralelo** (`agent_name: "reviewer"`, `dangerously_trust_all_tools: true`):
 
-| Agent | Angle | Focus |
+| Agent | Ângulo | Foco |
 |-------|-------|-------|
-| 1 | Correctness + Security | Functional correctness, input validation, auth, injection, race conditions |
-| 2 | Quality + Architecture | SOLID, code smells, performance, error handling, boundary conditions |
+| 1 | Correctness + Security | Correção funcional, validação de entrada, auth, injection, race conditions |
+| 2 | Quality + Architecture | SOLID, code smells, performance, error handling, condições de borda |
 
-Each agent receives: diff range, pre-check findings, and relevant source file paths. Findings from both agents are merged and deduplicated by the main agent before presenting to user.
+Cada agent recebe: range do diff, pre-check findings e caminhos dos arquivos-fonte relevantes. Os findings de ambos os agents são unidos e desduplicados pelo agent principal antes de apresentar ao usuário.
 
-## Iron Principle: Respect the Existing Codebase
+## Princípio de Ferro: Respeite a codebase existente
 
-> The existing code is the stable, battle-tested baseline. It may be 85/100 — not perfect — but it works. Your job is to review the **new code**, not to fix the old code through the PR author.
+> O código existente é a baseline estável e testada em batalha. Pode estar em 85/100, não perfeito, mas funciona. Seu trabalho é revisar o **código novo**, não corrigir o código antigo através do autor do PR.
 
-- **Only review new/changed lines.** Do not raise findings against unchanged existing code, even if it has style issues, minor inefficiencies, or non-ideal patterns.
-- **Judge new code by the standards of the existing codebase**, not by textbook perfection. If the existing code uses `@Autowired` field injection, don't flag the new code for not using constructor injection. If the existing code swallows certain exceptions with a warn log, the new code doing the same is consistent, not a bug.
-- **P2/P3 "style improvement" findings on existing patterns are noise.** Only raise findings on existing code if it's P0/P1 (security vulnerability, data loss, crash) AND directly touched by the PR.
-- **"While we're here" refactors are out of scope.** If the reviewer wants to suggest improving old code, it goes in a separate follow-up issue, not as a PR comment blocking merge.
+- **Revise apenas linhas novas/alteradas.** Não levante findings contra código existente inalterado, mesmo com problemas de estilo, ineficiências menores ou padrões não ideais.
+- **Julgue o código novo pelos padrões da codebase existente**, não pela perfeição de livro-texto. Se o código existente usa injeção de campo via `@Autowired`, não aponte o código novo por não usar injeção via construtor. Se o código existente engole certas exceções com um log warn, o código novo fazendo o mesmo é consistente, não é bug.
+- **Findings P2/P3 de "melhoria de estilo" em padrões existentes são ruído.** Só levante findings sobre código existente se for P0/P1 (vulnerabilidade de segurança, perda de dados, crash) E diretamente tocado pelo PR.
+- **Refactors do tipo "while we're here" estão fora de escopo.** Se o reviewer quer sugerir melhorias no código antigo, isso vira issue de follow-up separada, não comentário de PR bloqueando o merge.
 
-## Executing Code Review (for reviewer agent)
+## Executando Code Review (para o reviewer agent)
 
-### 1) Preflight context
+### 1) Contexto pré-voo
 
-- Run `git diff --stat` then `git diff` to understand scope
-- If diff > 500 lines, batch by file/module — review each batch separately
-- Note: file renames, new files, deleted files
+- Rode `git diff --stat` e depois `git diff` para entender o escopo
+- Se o diff for > 500 linhas, divida em batches por arquivo/módulo, revise cada batch separadamente
+- Anote: file renames, novos arquivos, arquivos deletados
 
-### 2) SOLID + architecture check
+### 2) Verificação de SOLID + arquitetura
 
-- Load `references/solid-checklist.md` for coverage
-- Check SRP, OCP, LSP, ISP, DIP violations
-- Flag common code smells: long methods, feature envy, data clumps, dead code
-- Apply refactor heuristics where applicable
+- Carregue `references/solid-checklist.md` para a cobertura
+- Verifique violações de SRP, OCP, LSP, ISP, DIP
+- Sinalize code smells comuns: long methods, feature envy, data clumps, dead code
+- Aplique heurísticas de refactor onde fizer sentido
 
-### 3) Security scan
+### 3) Scan de segurança
 
-- Load `references/security-checklist.md` for coverage
-- Check: input/output safety (XSS, injection, SSRF, path traversal), auth gaps, secrets in code
-- Check: race conditions (concurrent access, check-then-act, TOCTOU, missing locks)
-- Call out both **exploitability** and **impact**
+- Carregue `references/security-checklist.md` para a cobertura
+- Verifique: input/output safety (XSS, injection, SSRF, path traversal), gaps de auth, secrets em código
+- Verifique: race conditions (acesso concorrente, check-then-act, TOCTOU, falta de locks)
+- Aponte tanto **explorabilidade** quanto **impacto**
 
-### 4) Code quality scan
+### 4) Scan de qualidade de código
 
-- Load `references/code-quality-checklist.md` for coverage
-- Check: error handling (swallowed exceptions, overly broad catch, async errors)
-- Check: performance (N+1 queries, CPU-intensive ops in hot paths, missing cache, unbounded memory)
-- Check: boundary conditions (null/undefined, empty collections, numeric boundaries, off-by-one)
-- Flag issues that may cause silent failures or production incidents
+- Carregue `references/code-quality-checklist.md` para a cobertura
+- Verifique: error handling (exceções engolidas, catch muito amplo, async errors)
+- Verifique: performance (N+1 queries, operações CPU-intensivas em hot paths, falta de cache, memória sem limite)
+- Verifique: condições de borda (null/undefined, coleções vazias, limites numéricos, off-by-one)
+- Sinalize issues que possam causar falhas silenciosas ou incidentes em produção
 
-### 5) Removal candidates
+### 5) Candidatos para remoção
 
-- Load `references/removal-plan.md` for template
-- Identify dead code, unused imports, deprecated patterns
-- Categorize: safe to remove now vs defer with plan
+- Carregue `references/removal-plan.md` para o template
+- Identifique código morto, imports não usados, padrões deprecated
+- Categorize: seguro para remover agora vs. adiar com plan
 
-### 6) Output
+### 6) Saída
 
-- Load `references/output-format.md` for structure
+- Carregue `references/output-format.md` para a estrutura
 - Categorize findings: P0 Critical / P1 High / P2 Medium / P3 Low
-- Be specific — cite file:line, show code examples
-- Never rubber-stamp
+- Seja específico, cite file:line e mostre exemplos de código
+- Nunca carimbe
 
-### 7) Next steps confirmation
+### 7) Confirmação dos próximos passos
 
-- Present findings summary with issue counts by priority
-- Ask user how to proceed (fix all / P0-P1 only / specific items / no changes)
-- Do NOT implement changes until user explicitly confirms
+- Apresente um resumo dos findings com contagem por prioridade
+- Pergunte ao usuário como prosseguir (corrigir tudo / só P0-P1 / itens específicos / sem mudanças)
+- NÃO implemente alterações até o usuário confirmar explicitamente
 
-## Receiving Review
+## Recebendo review
 
-**Core principle:** Verify before implementing. Technical correctness over social comfort.
+**Princípio central:** Verifique antes de implementar. Correção técnica acima de conforto social.
 
-1. READ complete feedback without reacting
-2. UNDERSTAND — restate requirement (or ask)
-3. VERIFY against codebase reality
-4. EVALUATE — technically sound for THIS codebase?
-5. RESPOND — technical acknowledgment or reasoned pushback
-6. IMPLEMENT one item at a time, test each
+1. LEIA o feedback completo sem reagir
+2. ENTENDA, reformule o requisito (ou pergunte)
+3. VERIFIQUE contra a realidade da codebase
+4. AVALIE, é tecnicamente sólido para ESTA codebase?
+5. RESPONDA, reconhecimento técnico ou pushback fundamentado
+6. IMPLEMENTE um item por vez, teste cada um
 
-### YAGNI Check
+### Verificação YAGNI
 
-Before implementing any suggestion, ask: "Does this solve a real problem we have now?" Reject speculative generality, premature abstractions, and features for hypothetical future needs.
+Antes de implementar qualquer sugestão, pergunte: "Isso resolve um problema real que temos hoje?" Rejeite generalidade especulativa, abstrações prematuras e features para necessidades hipotéticas futuras.
 
-### Implementation Order
+### Ordem de implementação
 
-When implementing accepted feedback:
-1. **Blocking issues first** — anything that breaks build/tests
-2. **Simple fixes** — typos, naming, formatting (quick wins)
-3. **Complex changes** — refactors, architecture changes (highest risk, do last)
+Ao implementar feedback aceito:
+1. **Issues bloqueantes primeiro**, qualquer coisa que quebre build/tests
+2. **Fixes simples**, typos, naming, formatação (ganhos rápidos)
+3. **Mudanças complexas**, refactors, mudanças arquiteturais (maior risco, deixe por último)
 
-### Push Back
+### Pushback
 
-Push back when reviewer is wrong — with technical reasoning and evidence. Show code, show tests, show docs.
+Faça pushback quando o reviewer estiver errado, com raciocínio técnico e evidência. Mostre código, mostre testes, mostre docs.
 
-### Acknowledging Correct Feedback
+### Reconhecendo feedback correto
 
-When feedback is correct, acknowledge briefly and implement: "Agreed, fixing." No flattery.
+Quando o feedback estiver correto, reconheça brevemente e implemente: "Agreed, fixing." Sem bajulação.
 
-**Never:** "You're absolutely right!" / "Great point!" / implement before verifying.
+**Nunca:** "You're absolutely right!" / "Great point!" / implementar antes de verificar.

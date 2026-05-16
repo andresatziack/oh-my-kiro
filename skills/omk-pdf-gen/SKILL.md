@@ -7,7 +7,7 @@ description: >
   Also trigger when user mentions PDF formatting issues, garbled text, or font problems.
 ---
 
-# PDF Generation Skill
+# Skill de Geração de PDF
 
 ## Trigger Examples
 - "帮我生成一个报价 PDF"
@@ -16,19 +16,19 @@ description: >
 - "generate a comparison PDF for this customer"
 - "create a budget proposal PDF"
 
-## Approach: HTML + weasyprint
+## Abordagem: HTML + weasyprint
 
-Use **HTML + CSS → weasyprint** pipeline. Do NOT use reportlab for documents containing CJK text.
+Use o pipeline **HTML + CSS → weasyprint**. NÃO use reportlab para documentos com texto CJK.
 
-Why:
-- reportlab CID fonts (STSong-Light) have incomplete glyph coverage — symbols like `•` render as garbage (e.g. "煉")
-- reportlab cannot read macOS SIP-protected TTC fonts (PingFang etc.)
-- reportlab `canvas` API requires manual coordinate positioning — fragile and ugly
-- weasyprint uses system fontconfig — correct font resolution out of the box
+Por quê:
+- As CID fonts do reportlab (STSong-Light) têm cobertura incompleta de glifos, símbolos como `•` viram lixo (ex.: "煉")
+- O reportlab não consegue ler fontes TTC protegidas pelo SIP do macOS (PingFang etc.)
+- A API `canvas` do reportlab exige posicionamento manual por coordenadas, frágil e feio
+- O weasyprint usa o fontconfig do sistema, resolução de fontes correta de saída
 
 ## Workflow
 
-### Step 1: Write HTML string in Python
+### Step 1: Escreva a string HTML em Python
 
 ```python
 HTML = """\
@@ -43,7 +43,7 @@ body { font-family: "Hiragino Sans GB", "Heiti SC", "Noto Sans CJK SC", sans-ser
 """
 ```
 
-### Step 2: Write to temp HTML, convert, clean up
+### Step 2: Escreva em HTML temporário, converta e limpe
 
 ```python
 import subprocess, os
@@ -54,35 +54,35 @@ subprocess.run(['weasyprint', html_tmp, output_path], check=True)
 os.remove(html_tmp)
 ```
 
-## Font Rules (Critical)
+## Regras de fontes (críticas)
 
-| Platform | CSS font-family | Notes |
+| Plataforma | CSS font-family | Notas |
 |----------|----------------|-------|
-| macOS | `"Hiragino Sans GB", "Heiti SC"` | Verified via `fc-list :lang=zh` |
-| Linux | `"Noto Sans CJK SC", "WenQuanYi Micro Hei"` | Install `fonts-noto-cjk` if missing |
-| Fallback | `sans-serif` | Always include as last resort |
+| macOS | `"Hiragino Sans GB", "Heiti SC"` | Verificado via `fc-list :lang=zh` |
+| Linux | `"Noto Sans CJK SC", "WenQuanYi Micro Hei"` | Instale `fonts-noto-cjk` se faltar |
+| Fallback | `sans-serif` | Sempre inclua como último recurso |
 
-**Never use these in weasyprint CSS:**
-- `-apple-system` — weasyprint doesn't understand Apple system font aliases
-- `"PingFang SC"` — fontconfig often can't resolve it even though macOS has it
-- `"STSong-Light"` — CID font name, not a real font family for CSS
+**Nunca use estes no CSS do weasyprint:**
+- `-apple-system`, o weasyprint não entende aliases de fonte do Apple system
+- `"PingFang SC"`, o fontconfig frequentemente não consegue resolver, mesmo com macOS tendo a fonte
+- `"STSong-Light"`, nome de CID font, não é uma family real para CSS
 
-**Before generating**, verify CJK fonts are available:
+**Antes de gerar**, verifique se há fontes CJK disponíveis:
 ```bash
 fc-list :lang=zh family | head -10
 ```
 
-## Styling Best Practices
+## Boas práticas de styling
 
-Use standard HTML elements — weasyprint handles them well:
+Use elementos HTML padrão, o weasyprint os trata bem:
 
-- `<table>` with CSS `border-collapse: collapse` for data tables
-- `<ul>/<li>` for bullet lists (no manual bullet symbols needed)
-- `<h1>-<h3>` for headings
-- `<hr>` for dividers
-- CSS `@page` for margins and page size
+- `<table>` com CSS `border-collapse: collapse` para tabelas de dados
+- `<ul>/<li>` para listas (sem precisar de símbolos manuais)
+- `<h1>-<h3>` para headings
+- `<hr>` para divisores
+- CSS `@page` para margens e tamanho da página
 
-### Recommended CSS skeleton
+### Esqueleto de CSS recomendado
 
 ```css
 @page { size: A4; margin: 2cm 2.2cm; }
@@ -96,26 +96,26 @@ td { padding: 6pt 10pt; border-bottom: 1px solid #e5e7eb; }
 tr:nth-child(even) td { background: #f8f9fa; }
 ```
 
-## When reportlab IS acceptable
+## Quando o reportlab É aceitável
 
-English-only documents where you need precise programmatic layout (charts, diagrams, pixel-perfect positioning). Use `platypus` (SimpleDocTemplate + Paragraph + Table), never raw `canvas` API.
+Documentos somente em inglês, em que você precisa de layout programático preciso (gráficos, diagramas, posicionamento pixel-perfect). Use `platypus` (SimpleDocTemplate + Paragraph + Table), nunca a API `canvas` crua.
 
-Reference: `tools/gen-73strings-pdfs.py` — good example of reportlab platypus for English PDFs.
+Referência: `tools/gen-73strings-pdfs.py`, bom exemplo de reportlab platypus para PDFs em inglês.
 
-## Anti-Patterns (from real incidents)
+## Anti-padrões (de incidentes reais)
 
-| Don't | Why | Do Instead |
+| Não faça | Por quê | Faça em vez disso |
 |-------|-----|-----------|
-| reportlab + STSong-Light for CJK | `•` → "煉", incomplete glyphs | weasyprint + system fonts |
-| reportlab `canvas` manual positioning | Fragile coordinates, misaligned text | weasyprint or reportlab `platypus` |
-| CSS `font-family: -apple-system` | weasyprint can't resolve it | Use `"Hiragino Sans GB"` |
-| CSS `font-family: "PingFang SC"` | fontconfig often fails to find it | Use `"Hiragino Sans GB"` |
-| Helvetica-Bold for table headers with CJK | CJK chars render as ■■■ | Use CJK font + `font-weight: bold` |
-| Hardcode font without checking | Fails on different OS | Run `fc-list :lang=zh` first |
+| reportlab + STSong-Light para CJK | `•` → "煉", glifos incompletos | weasyprint + fontes do sistema |
+| Posicionamento manual com `canvas` do reportlab | Coordenadas frágeis, texto desalinhado | weasyprint ou `platypus` do reportlab |
+| CSS `font-family: -apple-system` | weasyprint não consegue resolver | Use `"Hiragino Sans GB"` |
+| CSS `font-family: "PingFang SC"` | fontconfig costuma falhar em encontrar | Use `"Hiragino Sans GB"` |
+| Helvetica-Bold em headers de tabela com CJK | Caracteres CJK viram ■■■ | Use fonte CJK + `font-weight: bold` |
+| Hardcode de fonte sem checar | Falha em outro OS | Rode `fc-list :lang=zh` antes |
 
-## Output
+## Saída
 
-Place generated script in `tools/gen-<name>-pdf.py`. The script should:
-1. Define HTML as a string constant
-2. Write temp HTML → call weasyprint → remove temp HTML
-3. Print the output path on success
+Coloque o script gerado em `tools/gen-<name>-pdf.py`. O script deve:
+1. Definir o HTML como uma constante string
+2. Escrever HTML temporário → chamar weasyprint → remover o HTML temporário
+3. Imprimir o caminho de saída em caso de sucesso

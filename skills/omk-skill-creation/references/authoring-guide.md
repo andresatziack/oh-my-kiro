@@ -1,28 +1,28 @@
-# Skill Authoring Reference
+# Referência de Authoring de Skill
 
-> Detailed reference material for skill creation. Read on demand, not preloaded.
+> Material de referência detalhado para criação de skills. Leia on demand, não pré-carregue.
 
-## Sources
+## Fontes
 
-This reference synthesizes best practices from:
-- Anthropic official: "Skill authoring best practices" (platform.claude.com/docs)
-- Anthropic official: "A complete guide to building skills for Claude" (2026-01-29)
-- Anthropic official: skill-creator meta-skill (improved 2026-03)
-- TDS: "How to Build a Production-Ready Claude Code Skill" by Hajime Takeda (2026-03-16)
-- Community: shareuhack.com skill guide, yu-wenhao.com skill guide
+Esta referência sintetiza boas práticas de:
+- Anthropic oficial: "Skill authoring best practices" (platform.claude.com/docs)
+- Anthropic oficial: "A complete guide to building skills for Claude" (2026-01-29)
+- Anthropic oficial: meta-skill skill-creator (melhorada em 2026-03)
+- TDS: "How to Build a Production-Ready Claude Code Skill", de Hajime Takeda (2026-03-16)
+- Comunidade: skill guide do shareuhack.com, skill guide do yu-wenhao.com
 
 ## Description Writing Deep Dive
 
-### Why Descriptions Matter So Much
+### Por que descriptions importam tanto
 
-At startup, only name + description (~100 tokens per skill) are loaded. The agent uses
-this metadata alone to decide whether to load the full SKILL.md. If description is vague,
-the skill never triggers — no matter how good the body is.
+Na inicialização, apenas name + description (~100 tokens por skill) são carregados. O agent usa
+apenas esses metadados para decidir se carrega o SKILL.md completo. Se a description for vaga,
+a skill nunca dispara, não importa quão bom seja o corpo.
 
-Agent behavior: defaults to NOT triggering. It would rather skip a skill than trigger
-incorrectly. Testing shows vague descriptions drop auto-trigger accuracy to ~55%.
+Comportamento do agent: por padrão NÃO dispara. Ele prefere pular uma skill a disparar incorretamente.
+Testes mostram que descriptions vagas derrubam a precisão de auto-trigger para ~55%.
 
-### Description Formula
+### Fórmula da description
 
 ```
 [What it does in one sentence]. [Trigger when user says "keyword1", "keyword2",
@@ -30,50 +30,50 @@ incorrectly. Testing shows vague descriptions drop auto-trigger accuracy to ~55%
 ```
 
 ### Constraints
-- name: ≤64 chars, lowercase + hyphens only, no "anthropic"/"claude"
-- description: ≤1024 chars, non-empty, no XML tags
-- Always third person ("Processes X", not "I help you")
+- name: ≤64 chars, lowercase + hyphens, sem "anthropic"/"claude"
+- description: ≤1024 chars, não vazio, sem tags XML
+- Sempre em terceira pessoa ("Processes X", não "I help you")
 
-### Trigger Keyword Strategy
+### Estratégia de keywords-trigger
 
-1. Start from use cases — what will users actually say?
-2. Include both English and Chinese keywords if bilingual
-3. Include synonyms (e.g., "review" + "check" + "audit")
-4. Include implicit triggers (file types, contexts)
-5. More trigger phrases > fewer (agent under-triggers, not over-triggers)
+1. Comece pelos casos de uso, o que os usuários vão de fato dizer?
+2. Inclua keywords em inglês e em chinês se for bilíngue
+3. Inclua sinônimos (por exemplo, "review" + "check" + "audit")
+4. Inclua triggers implícitos (tipos de arquivo, contextos)
+5. Mais frases-trigger > menos (o agent sub-dispara, não sobre-dispara)
 
-## Three-Layer Loading (Progressive Disclosure)
+## Three-Layer Loading (Disclosure progressivo)
 
-| Layer | What | When Loaded | Token Cost |
+| Layer | O quê | Quando carrega | Custo em tokens |
 |-------|------|-------------|------------|
-| L1: Metadata | name + description | Always (startup) | ~100 tokens/skill |
-| L2: SKILL.md body | Full instructions | When agent deems relevant | Variable |
-| L3: references/ + scripts/ | Supporting files | On demand | Zero until read |
+| L1: Metadata | name + description | Sempre (startup) | ~100 tokens/skill |
+| L2: Corpo do SKILL.md | Instruções completas | Quando o agent considera relevante | Variável |
+| L3: references/ + scripts/ | Arquivos de apoio | On demand | Zero até serem lidos |
 
-Context budget: skills get ~2% of context window, fallback cap 16,000 chars.
-Check with `/context` command if skills are being excluded.
+Orçamento de contexto: skills recebem ~2% da janela de contexto, cap de fallback de 16.000 chars.
+Verifique com o comando `/context` se as skills estão sendo excluídas.
 
-## Pattern Details
+## Detalhes dos patterns
 
 ### Pattern A: Prompt-Only
-Just SKILL.md with markdown instructions. No scripts.
-Best for: brand guidelines, coding standards, review checklists, writing style.
-When: Agent judgment alone is sufficient.
+Apenas SKILL.md com instruções em markdown. Sem scripts.
+Melhor para: brand guidelines, padrões de código, checklists de review, estilo de escrita.
+Quando: o julgamento do agent sozinho é suficiente.
 
 ### Pattern B: Prompt + Scripts
-SKILL.md + executable code in scripts/.
-Best for: data transformation, PDF/Excel processing, template generation, numerical reports.
-Scripts execute without entering context — saves tokens and ensures accuracy.
-Supported: Python, JavaScript/Node.js, Bash.
+SKILL.md + código executável em scripts/.
+Melhor para: transformação de dados, processamento de PDF/Excel, geração de templates, relatórios numéricos.
+Scripts executam sem entrar no contexto, economizando tokens e garantindo precisão.
+Suportados: Python, JavaScript/Node.js, Bash.
 
 ### Pattern C: Skill + MCP/Subagent
-Calls MCP servers or spawns subagents from within the workflow.
-Best for: workflows involving external services (create issue → branch → fix → PR).
-More moving parts = more debugging. Get comfortable with A/B first.
+Chama MCP servers ou inicia subagents de dentro do workflow.
+Melhor para: workflows envolvendo serviços externos (criar issue → branch → fix → PR).
+Mais peças móveis = mais debugging. Fique confortável com A/B primeiro.
 
-## Freedom Level Examples
+## Exemplos de Freedom Level
 
-### Low Freedom (fragile operations)
+### Liberdade baixa (operações frágeis)
 ```markdown
 ## Database Migration
 Run exactly this script:
@@ -83,7 +83,7 @@ python scripts/migrate.py --verify --backup
 Do not modify the command or add additional flags.
 ```
 
-### Medium Freedom (preferred pattern exists)
+### Liberdade média (existe um padrão preferido)
 ```markdown
 ## Generate Report
 Use this template and customize as needed:
@@ -93,7 +93,7 @@ def generate_report(data, format="markdown", include_charts=True):
 ```
 ```
 
-### High Freedom (multiple valid approaches)
+### Liberdade alta (múltiplas abordagens válidas)
 ```markdown
 ## Code Review Process
 1. Analyze code structure and organization
@@ -102,13 +102,13 @@ def generate_report(data, format="markdown", include_charts=True):
 4. Verify adherence to project conventions
 ```
 
-## Common Patterns
+## Patterns comuns
 
 ### Template Pattern
-Provide output format templates. Strict for APIs/data, flexible for prose.
+Forneça templates de formato de saída. Estrito para APIs/dados, flexível para prosa.
 
 ### Examples Pattern
-Input/output pairs teach better than descriptions:
+Pares input/output ensinam melhor que descrições:
 ```
 Input: Added user authentication with JWT tokens
 Output: feat(auth): implement JWT-based authentication
@@ -122,40 +122,40 @@ Output: feat(auth): implement JWT-based authentication
 ```
 
 ### Feedback Loop Pattern
-Run → validate → fix → validate again. Greatly improves output quality.
+Run → validate → fix → validate again. Melhora muito a qualidade do output.
 
 ### HITL (Human-in-the-Loop) Pattern
-Pause after each stage, wait for user confirmation before proceeding.
-Experience shows fully automated pipelines produce lower quality than
-human-reviewed-at-each-stage pipelines.
+Pause após cada stage e aguarde a confirmação do usuário antes de prosseguir.
+A experiência mostra que pipelines totalmente automatizados produzem qualidade menor que
+pipelines revisados por humano em cada stage.
 
 ### File-Based Communication Pattern
-Each skill writes output to a file. Next skill reads the same file.
-More reliable than passing data through context (context disappears on session end).
+Cada skill escreve a saída em um arquivo. A próxima skill lê o mesmo arquivo.
+Mais confiável que passar dados pelo contexto (o contexto desaparece no fim da sessão).
 
-## Evaluation-Driven Development
+## Desenvolvimento orientado por avaliação
 
-1. Identify gaps: Run agent on tasks WITHOUT the skill. Document failures.
-2. Create evaluations: 3+ scenarios testing those gaps.
-3. Establish baseline: Measure performance without skill.
-4. Write minimal instructions: Just enough to pass evaluations.
-5. Iterate: Execute evaluations, compare against baseline, refine.
+1. Identifique gaps: rode o agent em tasks SEM a skill. Documente as falhas.
+2. Crie avaliações: 3+ cenários testando esses gaps.
+3. Estabeleça baseline: meça a performance sem a skill.
+4. Escreva instruções mínimas: o suficiente para passar nas avaliações.
+5. Itere: execute as avaliações, compare com a baseline e refine.
 
-## Script Best Practices
+## Boas práticas para scripts
 
-- Handle errors explicitly — don't punt to agent
-- Document all constants (no magic numbers)
-- List required packages in SKILL.md
-- Make execution intent clear: "Run X" (execute) vs "See X" (read as reference)
-- Prefer scripts for deterministic operations over asking agent to generate code
-- Use forward slashes in paths (even on Windows)
+- Trate erros explicitamente, não empurre para o agent
+- Documente todas as constantes (sem magic numbers)
+- Liste pacotes obrigatórios no SKILL.md
+- Deixe a intenção de execução clara: "Run X" (executar) vs. "See X" (ler como referência)
+- Prefira scripts para operações determinísticas em vez de pedir que o agent gere o código
+- Use forward slashes em paths (mesmo no Windows)
 
-## Skill Lifecycle
+## Ciclo de vida da skill
 
-Skills aren't write-once-and-forget:
-1. v1: Get workflow right in conversation first, then extract
-2. v2-v3: Fix issues discovered in daily use
-3. Ongoing: Monthly review — does skill still match reality?
-4. Retirement: Remove or merge rarely-used skills
+Skills não são write-once-and-forget:
+1. v1: acerte primeiro o workflow na conversa, depois extraia
+2. v2-v3: corrija issues descobertos no uso diário
+3. Em andamento: review mensal, a skill ainda corresponde à realidade?
+4. Aposentadoria: remova ou unifique skills pouco usadas
 
-> "Good workflows are grown, not designed." — Anthropic skill-creator guide
+> "Good workflows are grown, not designed.", guia do skill-creator da Anthropic

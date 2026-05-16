@@ -10,13 +10,13 @@ description: "Extract and summarize YouTube video content via subtitle extractio
 - "这个 talk 讲了什么？ https://youtu.be/xxx"
 - "translate this video's content to Chinese"
 
-# YouTube Subtitle Extraction
+# Extração de legendas do YouTube
 
-## When to Use
+## Quando usar
 
-User shares a YouTube URL and wants to understand the content (summary, key points, translation).
+O usuário compartilha uma URL do YouTube e quer entender o conteúdo (resumo, pontos-chave, tradução).
 
-## Usage
+## Uso
 
 ```bash
 # English subtitles (default)
@@ -31,13 +31,13 @@ bash skills/omk-youtube/scripts/yt-subtitle.sh "https://www.youtube.com/watch?v=
 
 ## Workflow
 
-1. Extract subtitles: `bash skills/omk-youtube/scripts/yt-subtitle.sh <url> [lang]`
-2. Read the output (clean plain text, no timestamps)
-3. Summarize in user's preferred language
+1. Extraia legendas: `bash skills/omk-youtube/scripts/yt-subtitle.sh <url> [lang]`
+2. Leia a saída (texto puro limpo, sem timestamps)
+3. Resuma no idioma de preferência do usuário
 
-## Tips
+## Dicas
 
-- For English videos: extract `en` subtitles, summarize in Chinese — best quality
-- For Chinese videos: extract `zh-Hans` subtitles directly
-- Priority: manual subtitles > auto-generated subtitles > auto-translated
-- Requires: `yt-dlp` (`brew install yt-dlp`)
+- Para vídeos em inglês: extraia legendas `en`, resuma em chinês, melhor qualidade
+- Para vídeos em chinês: extraia legendas `zh-Hans` diretamente
+- Prioridade: legendas manuais > legendas auto-geradas > traduzidas automaticamente
+- Requer: `yt-dlp` (`brew install yt-dlp`)
