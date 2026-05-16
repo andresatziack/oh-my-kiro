@@ -1,16 +1,16 @@
 # Reasoning Loop & Coarse Checklist Support
 
-**Goal:** Enhance ralph loop prompt with a reasoning loop (observe-think-plan-execute-reflect-correct) so the agent can autonomously handle coarse/vague checklist items, and update the planning skill to teach plan writers how to write coarse items with appropriate verify commands.
-**Non-Goals:** Rewriting ralph loop outer architecture. Removing verify command requirement from hooks. Adding new Python modules. Changing hook enforcement logic.
-**Architecture:** Pure prompt engineering — inject reasoning loop instructions into build_prompt() and add coarse-item guidance to skills/planning/SKILL.md. No new files, no architecture changes.
+**Objetivo:** Enhance ralph loop prompt with a reasoning loop (observe-think-plan-execute-reflect-correct) so the agent can autonomously handle coarse/vague checklist items, and update the planning skill to teach plan writers how to write coarse items with appropriate verify commands.
+**Não-Objetivos:** Rewriting ralph loop outer architecture. Removing verify command requirement from hooks. Adding new Python modules. Changing hook enforcement logic.
+**Arquitetura:** Pure prompt engineering - inject reasoning loop instructions into build_prompt() and add coarse-item guidance to skills/planning/SKILL.md. No new files, no architecture changes.
 **Tech Stack:** Python (ralph_loop.py), Markdown (SKILL.md)
-**Work Dir:** `.`
+**Diretório de Trabalho:** `.`
 
-## Tasks
+## Tarefas
 
-### Task 1: Add reasoning loop instructions to build_prompt
+### Tarefa 1: Add reasoning loop instructions to build_prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -48,12 +48,12 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:**
+**Verificação:**
 `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_reasoning_loop_in_prompt -v`
 
-### Task 2: Add coarse-item guidance to planning skill
+### Tarefa 2: Add coarse-item guidance to planning skill
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Step 1: Implementation**
@@ -64,17 +64,17 @@ Add a "Coarse Checklist Items" subsection under the existing "Checklist Format" 
 
 Verify the content was added correctly.
 
-**Verify:**
+**Verificação:**
 `grep -q 'Coarse Checklist Items' skills/planning/SKILL.md`
 
-### Task 3: Regression test
+### Tarefa 3: Regression test
 
-**Files:**
+**Arquivos:**
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
 Run full regression to ensure nothing broke.
 
-**Verify:**
+**Verificação:**
 `python3 -m pytest tests/ralph-loop/ -v -k 'not test_flock_prevents_double_ralph'`
 
 ## Checklist
@@ -91,4 +91,4 @@ Run full regression to ensure nothing broke.
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas

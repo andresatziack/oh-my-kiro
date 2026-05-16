@@ -1,10 +1,10 @@
 # OpenViking Knowledge Integration
 
-**Goal:** Make OpenViking actually power OMCC's knowledge recall and capture — semantic search for recall (context-enrichment), auto-indexing for capture (auto-capture + post-write), fix daemon init, remove socat dependency.
-**Non-Goals:** Replacing episodes.md/rules.md file storage. Changing distill.sh promotion logic. Rewriting ov-daemon architecture. Adding new OV API commands.
-**Architecture:** OpenViking as semantic overlay on existing file-based knowledge. OV available → semantic search + auto-index. OV unavailable → graceful fallback to existing grep. Communication via Python socket (no socat). Daemon init fixed with proper StorageConfig + correct embedding model.
+**Objetivo:** Make OpenViking actually power OMCC's knowledge recall and capture - semantic search for recall (context-enrichment), auto-indexing for capture (auto-capture + post-write), fix daemon init, remove socat dependency.
+**Não-Objetivos:** Replacing episodes.md/rules.md file storage. Changing distill.sh promotion logic. Rewriting ov-daemon architecture. Adding new OV API commands.
+**Arquitetura:** OpenViking as semantic overlay on existing file-based knowledge. OV available → semantic search + auto-index. OV unavailable → graceful fallback to existing grep. Communication via Python socket (no socat). Daemon init fixed with proper StorageConfig + correct embedding model.
 **Tech Stack:** Python 3, bash, existing hooks framework
-**Work Dir:** `.`
+**Diretório de Trabalho:** `.`
 
 ## Review
 
@@ -20,11 +20,11 @@
 - ~~"daemon error paths untested"~~ — Out of scope (Non-Goals: not rewriting daemon architecture); daemon error paths have stderr+exit(1)
 - ~~"post-write.sh lint/test untested"~~ — Existing functionality already tested; plan only adds OV indexing
 
-## Tasks
+## Tarefas
 
-### Task 1: Fix ov-daemon.py initialization + remove socat from ov-init.sh
+### Tarefa 1: Fix ov-daemon.py initialization + remove socat from ov-init.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ov-daemon.py`
 - Modify: `hooks/_lib/ov-init.sh`
 - Modify: `tools/validate-project.sh`
@@ -116,9 +116,9 @@ Expected: PASS
 **Step 5: Commit**
 `feat: fix ov-daemon init (StorageConfig + large model) + remove socat dependency`
 
-### Task 2: Semantic recall in context-enrichment.sh
+### Tarefa 2: Semantic recall in context-enrichment.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 - Test: `tests/test_ov_recall.py`
 
@@ -209,9 +209,9 @@ Expected: PASS
 **Step 5: Commit**
 `feat: semantic recall via OpenViking in context-enrichment`
 
-### Task 3: Auto-index knowledge to OpenViking
+### Tarefa 3: Auto-index knowledge to OpenViking
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/auto-capture.sh`
 - Modify: `hooks/feedback/post-write.sh`
 - Test: `tests/test_ov_capture.py`

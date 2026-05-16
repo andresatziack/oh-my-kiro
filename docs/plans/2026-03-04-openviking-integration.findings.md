@@ -1,17 +1,18 @@
-# OpenViking Integration — Findings
+# OpenViking Integration - Descobertas
 
-## Codebase Patterns
+## Padrões da Codebase
 
-- **Verify log**: Hook system logs bash executions to `/tmp/verify-log-{ws_hash}.jsonl`. Checklist check-off requires matching command hash with exit_code=0 within 600s window.
-- **Hook bypass for progress/findings**: `gate_plan_structure` in `pre-write.sh` matches all `docs/plans/*.md` on create, including progress/findings files. Use bash `cat >` to write these files.
-- **e2e test exclusion**: `test_openviking_e2e.py` uses module-level code (not pytest functions). Must be excluded from default collection via `collect_ignore` in `conftest.py`.
-- **ov-init.sh pattern**: `ov_call` uses inline `python3 -c "import socket,json,sys; ..."` one-liner with `socket.settimeout(3)` for daemon communication. No external dependencies (socat removed).
+- **Verify log**: O sistema de hooks loga execuções de bash em `/tmp/verify-log-{ws_hash}.jsonl`. O check-off do checklist exige hash de comando correspondente com exit_code=0 dentro de uma janela de 600s.
+- **Bypass de hook para progress/findings**: `gate_plan_structure` em `pre-write.sh` faz match em todos os `docs/plans/*.md` no create, incluindo arquivos de progress/findings. Use `cat >` no bash para escrever esses arquivos.
+- **Exclusão de teste e2e**: `test_openviking_e2e.py` usa código em nível de módulo (não funções pytest). Precisa ser excluído da coleção padrão via `collect_ignore` em `conftest.py`.
+- **Padrão de ov-init.sh**: `ov_call` usa um one-liner inline `python3 -c "import socket,json,sys; ..."` com `socket.settimeout(3)` para comunicação com o daemon. Sem dependências externas (socat removido).
 
-## Technical Decisions
+## Decisões Técnicas
 
-- **agfs-server binary**: The openviking package ships a Linux x86-64 `agfs-server` binary. On macOS ARM this causes `OSError: [Errno 8] Exec format error`. This is an upstream package issue — excluded from test collection, not fixable in our codebase.
+- **Binário agfs-server**: O pacote openviking entrega um binário `agfs-server` Linux x86-64. No macOS ARM isso causa `OSError: [Errno 8] Exec format error`. É uma issue do pacote upstream - excluído da coleção de testes, não é corrigível em nossa codebase.
 
-## Kiro fs_write Behavior
+## Comportamento de fs_write do Kiro
 
-- Kiro's fs_write tool reverts file changes between tool calls. All source code modifications must be done in a single `execute_bash` call using Python, and git committed in the same call flow.
-- This means: write a Python script that modifies all files, run it via execute_bash, then git add+commit in the next execute_bash call.
+- A tool fs_write do Kiro reverte mudanças de arquivo entre chamadas de tool. Todas as modificações de código fonte precisam ser feitas em uma única chamada `execute_bash` usando Python, e o git commit feito no mesmo fluxo de chamadas.
+- Isso significa: escreva um script Python que modifique todos os arquivos, execute via execute_bash, depois faça git add+commit na próxima chamada execute_bash.
+

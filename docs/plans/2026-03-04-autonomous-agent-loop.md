@@ -1,10 +1,10 @@
 # Autonomous Agent Loop Enhancement
 
-**Goal:** Make ralph loop agent truly end-to-end autonomous — when encountering obstacles, the agent self-diagnoses, researches, tries alternative approaches, and uses subagents, instead of stopping or skipping.
-**Non-Goals:** Rewriting the outer loop architecture (it's already superior to snarktank/ralph). Adding new CLI backends. Changing plan file format.
-**Architecture:** Enhance `build_prompt()` with error context injection, autonomous problem-solving instructions, and a "Codebase Patterns" consolidation mechanism borrowed from snarktank/ralph. Add `extract_error_context()` to parse the log file for actionable error info from the previous iteration. Adjust main loop to pass stale/error state into prompt builder.
+**Objetivo:** Make ralph loop agent truly end-to-end autonomous - when encountering obstacles, the agent self-diagnoses, researches, tries alternative approaches, and uses subagents, instead of stopping or skipping.
+**Não-Objetivos:** Rewriting the outer loop architecture (it's already superior to snarktank/ralph). Adding new CLI backends. Changing plan file format.
+**Arquitetura:** Enhance `build_prompt()` with error context injection, autonomous problem-solving instructions, and a "Codebase Patterns" consolidation mechanism borrowed from snarktank/ralph. Add `extract_error_context()` to parse the log file for actionable error info from the previous iteration. Adjust main loop to pass stale/error state into prompt builder.
 **Tech Stack:** Python 3, existing scripts/lib/ modules
-**Work Dir:** `.`
+**Diretório de Trabalho:** `.`
 
 ## Review
 
@@ -20,11 +20,11 @@
 - ~~"Task 1 test imports non-existent module"~~ — this is expected TDD behavior (Step 2 verifies it fails)
 - ~~"Task 2 verify checks signature before implementation"~~ — checklist items are verified AFTER implementation, not before
 
-## Tasks
+## Tarefas
 
-### Task 1: Error Context Extraction
+### Tarefa 1: Error Context Extraction
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/error_context.py`
 - Test: `tests/ralph-loop/test_error_context.py`
 
@@ -130,11 +130,11 @@ Expected: PASS
 **Step 5: Commit**
 `feat: add error context extraction for ralph loop prompt injection`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_error_context.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_error_context.py -v`
 
-### Task 2: Enhance build_prompt with Autonomous Problem-Solving
+### Tarefa 2: Enhance build_prompt with Autonomous Problem-Solving
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -199,7 +199,7 @@ Expected: ALL PASS (87 existing + 4 new)
 **Step 5: Commit**
 `feat: autonomous problem-solving prompt + error context injection + codebase patterns`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/ -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 

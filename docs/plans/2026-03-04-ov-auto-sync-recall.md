@@ -1,10 +1,10 @@
 # OV 自动落库与召回强化
 
-**Goal:** 确保 knowledge 文件变更通过任何路径（fs_write、execute_bash、外部编辑、git pull）都自动同步到 OV，且召回失败时有明确告警而非静默降级。
-**Non-Goals:** 不改 OV daemon 本身（ov-daemon.py）；不改 OV 数据格式；不新增 OV 命令。
-**Architecture:** 三层加固——(1) session-init 冷启动时检查 daemon + 增量同步 knowledge 文件到 OV；(2) post-bash hook 检测 execute_bash 后 knowledge 文件变更并同步；(3) context-enrichment Layer 4 OV 失败时 emit 告警。
+**Objetivo:** 确保 knowledge 文件变更通过任何路径（fs_write、execute_bash、外部编辑、git pull）都自动同步到 OV，且召回失败时有明确告警而非静默降级。
+**Não-Objetivos:** 不改 OV daemon 本身（ov-daemon.py）；不改 OV 数据格式；不新增 OV 命令。
+**Arquitetura:** 三层加固--(1) session-init 冷启动时检查 daemon + 增量同步 knowledge 文件到 OV；(2) post-bash hook 检测 execute_bash 后 knowledge 文件变更并同步；(3) context-enrichment Layer 4 OV 失败时 emit 告警。
 **Tech Stack:** Bash (hooks), Python3 (ov-daemon 启动检测)
-**Work Dir:** `.`
+**Diretório de Trabalho:** `.`
 
 ## Review
 
@@ -20,11 +20,11 @@
 
 **Final Verdict: APPROVE**
 
-## Tasks
+## Tarefas
 
-### Task 1: session-init OV 冷启动 + 增量同步
+### Tarefa 1: session-init OV 冷启动 + 增量同步
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/session-init.sh`
 - Lib: `hooks/_lib/ov-init.sh` (已有，直接 source)
 
@@ -37,11 +37,11 @@
 3. OV 可用后，遍历 `knowledge/*.md`，对每个文件调用 `ov_add` 做增量同步
 4. 如果 OV 始终不可用（overlay 未配置或 daemon 启动失败），emit 一行告警
 
-**Verify:** `grep -q 'ov_add' hooks/feedback/session-init.sh && grep -q 'ov-daemon' hooks/feedback/session-init.sh`
+**Verificação:** `grep -q 'ov_add' hooks/feedback/session-init.sh && grep -q 'ov-daemon' hooks/feedback/session-init.sh`
 
-### Task 2: post-bash hook 检测 knowledge 文件变更
+### Tarefa 2: post-bash hook 检测 knowledge 文件变更
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/post-bash.sh`
 - Lib: `hooks/_lib/ov-init.sh` (已有)
 
@@ -52,22 +52,22 @@
 1. 检查命令字符串是否包含 `knowledge/` 路径引用，如果包含则对匹配的 .md 文件调用 `ov_add`
 2. 静默失败（OV 不可用时不阻塞 bash 执行）
 
-**Verify:** `grep -q 'ov_add' hooks/feedback/post-bash.sh`
+**Verificação:** `grep -q 'ov_add' hooks/feedback/post-bash.sh`
 
-### Task 3: context-enrichment OV 召回失败告警
+### Tarefa 3: context-enrichment OV 召回失败告警
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
 **What to implement:**
 
 修改 Layer 4 段：当 overlay 配置了 openviking 但 `ov_init` 失败时，emit 告警行 `⚠️ OV unavailable — knowledge semantic recall degraded. Run: python3 scripts/ov-daemon.py &` 而非静默跳过。
 
-**Verify:** `grep -q 'OV unavailable' hooks/feedback/context-enrichment.sh`
+**Verificação:** `grep -q 'OV unavailable' hooks/feedback/context-enrichment.sh`
 
-### Task 4: 测试
+### Tarefa 4: 测试
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/test_ov_capture.py` (增加 post-bash OV 同步测试)
 - Modify: `tests/test_ov_recall.py` (增加 OV 不可用告警测试)
 
@@ -77,7 +77,7 @@
 2. `test_post_bash_silent_when_ov_down`: OV 不可用时 post-bash 仍正常退出（exit 0），不报错
 3. `test_enrichment_warns_when_ov_down`: overlay 配置了 openviking 但 socket 不存在，验证 stdout 包含 `⚠️ OV unavailable`
 
-**Verify:** `python3 -m pytest tests/test_ov_capture.py tests/test_ov_recall.py -v`
+**Verificação:** `python3 -m pytest tests/test_ov_capture.py tests/test_ov_recall.py -v`
 
 ## Checklist
 
