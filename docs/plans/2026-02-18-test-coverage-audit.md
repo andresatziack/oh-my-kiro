@@ -1,8 +1,8 @@
-# Test Coverage & Quality Audit (Layer 1-3)
+# Auditoria de Cobertura e Qualidade de Testes (Layer 1-3)
 
-**Goal:** Audit existing test coverage for completeness and quality across Layer 1 (pytest), Layer 2 (shell integration), and Layer 3 (knowledge tests). Fix stale/broken tests, fill coverage gaps. Additionally, improve reviewer subagent quality based on this round's review findings.
-**Non-Goals:** Layer 4 (CC integration tests requiring `claude` CLI). Adding tests for docs, skills, or commands. Rewriting working tests.
-**Architecture:** Audit-first approach — build coverage matrix, identify gaps, fix broken tests, then add minimal new tests for uncovered critical paths.
+**Objetivo:** Audit existing test coverage for completeness and quality across Layer 1 (pytest), Layer 2 (shell integration), and Layer 3 (knowledge tests). Fix stale/broken tests, fill coverage gaps. Additionally, improve reviewer subagent quality based on this round's review findings.
+**Não-Objetivos:** Layer 4 (CC integration tests requiring `claude` CLI). Adding tests for docs, skills, or commands. Rewriting working tests.
+**Arquitetura:** Audit-first approach - build coverage matrix, identify gaps, fix broken tests, then add minimal new tests for uncovered critical paths.
 **Tech Stack:** Python (pytest), Bash (shell tests), jq
 
 ## Coverage Matrix (Current State)
@@ -45,11 +45,11 @@
 5. **kb-health-report.sh has zero tests** — Report generation, promotion candidate detection.
 6. **Feedback hooks tested only for exit 0** — post-bash verify-log writing, verify-completion checklist re-run, session-init rules injection — all untested for actual behavior.
 
-## Tasks
+## Tarefas
 
-### Task 1: Fix 4 Stale Enforcement Tests
+### Tarefa 1: Fix 4 Stale Enforcement Tests
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test-enforcement.sh`
 
 **Step 1: Update T1, T4, T7, T17 to use commands that SHOULD be blocked**
@@ -58,25 +58,25 @@
 - T7: stale lock test uses `mkdir x` which is now allowed. Change to `python3 -c "pass"` (not in allowlist).
 - T17: `cat foo | tee bar` → cat is read-only. Change to `python3 x.py | tee bar` (python not in allowlist).
 
-**Verify:** `bash tests/ralph-loop/test-enforcement.sh`
+**Verificação:** `bash tests/ralph-loop/test-enforcement.sh`
 
 ---
 
-### Task 2: Add generate_configs.py validate() Test
+### Tarefa 2: Add generate_configs.py validate() Test
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/test_generate_configs.py`
 
 **Step 1: Add test for validate()**
 Test that `validate()` returns 0 when hook registry is consistent (current state).
 
-**Verify:** `python3 -m pytest tests/test_generate_configs.py -v`
+**Verificação:** `python3 -m pytest tests/test_generate_configs.py -v`
 
 ---
 
-### Task 3: Add require-regression.sh Real Tests
+### Tarefa 3: Add require-regression.sh Real Tests
 
-**Files:**
+**Arquivos:**
 - Create: `tests/hooks/test-require-regression.sh`
 
 **Step 1: Test commit-with-ralph-files blocked without recent pytest**
@@ -88,13 +88,13 @@ Touch pytest cache to simulate recent run, verify exit 0.
 **Step 3: Test non-ralph commit always passes**
 Stage a non-ralph file, verify exit 0.
 
-**Verify:** `bash tests/hooks/test-require-regression.sh`
+**Verificação:** `bash tests/hooks/test-require-regression.sh`
 
 ---
 
-### Task 4: Add auto-capture.sh Tests
+### Tarefa 4: Add auto-capture.sh Tests
 
-**Files:**
+**Arquivos:**
 - Create: `tests/hooks/test-auto-capture.sh`
 
 **Step 1: Test gate 1 — question filtered**
@@ -115,25 +115,25 @@ Same keyword already in episodes → exit 0, no new line added (line count uncha
 **Step 6: Test gate 4 — capacity check**
 Episodes at 30 entries → exit 0, no new line added (line count unchanged).
 
-**Verify:** `bash tests/hooks/test-auto-capture.sh`
+**Verificação:** `bash tests/hooks/test-auto-capture.sh`
 
 ---
 
-### Task 5: Add post-bash.sh Verify-Log Test
+### Tarefa 5: Add post-bash.sh Verify-Log Test
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/hooks/test-kiro-compat.sh`
 
 **Step 1: Add test that post-bash writes to verify log**
 Send a bash command, check that `/tmp/verify-log-*.jsonl` gets an entry. Verify JSON structure: has `cmd_hash`, `cmd`, `exit_code`, `ts` fields. Verify `cmd_hash` matches expected shasum of the command.
 
-**Verify:** `bash tests/hooks/test-kiro-compat.sh`
+**Verificação:** `bash tests/hooks/test-kiro-compat.sh`
 
 ---
 
-### Task 6: Add correction-detect.sh English Pattern Test
+### Tarefa 6: Add correction-detect.sh English Pattern Test
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/context-enrichment/test-split.sh`
 
 **Step 1: Add English correction detection test**
@@ -142,13 +142,13 @@ Input "you are wrong" → output contains CORRECTION.
 **Step 2: Add negative test — non-correction should NOT trigger**
 Input "hello world" → output does NOT contain CORRECTION.
 
-**Verify:** `bash tests/context-enrichment/test-split.sh`
+**Verificação:** `bash tests/context-enrichment/test-split.sh`
 
 ---
 
-### Task 7: Improve Reviewer Quality (3 fixes)
+### Tarefa 7: Improve Reviewer Quality (3 fixes)
 
-**Files:**
+**Arquivos:**
 - Modify: `agents/reviewer-prompt.md`
 - Modify: `.claude/agents/reviewer.md`
 - Modify: `skills/planning/SKILL.md`
@@ -180,7 +180,7 @@ You MUST copy each table below and fill EVERY cell. Do NOT summarize or skip row
 If a table has N tasks, your output must have N rows. Missing rows = review REJECTED.
 ```
 
-**Verify:** `grep -q 'Verdict is mandatory' agents/reviewer-prompt.md && grep -q 'Mandatory Source Reading' skills/planning/SKILL.md && grep -q 'Missing rows = review REJECTED' skills/planning/SKILL.md`
+**Verificação:** `grep -q 'Verdict is mandatory' agents/reviewer-prompt.md && grep -q 'Mandatory Source Reading' skills/planning/SKILL.md && grep -q 'Missing rows = review REJECTED' skills/planning/SKILL.md`
 
 ---
 

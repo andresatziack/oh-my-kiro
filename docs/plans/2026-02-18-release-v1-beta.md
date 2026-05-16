@@ -1,8 +1,8 @@
-# Release v1.0.0-beta Implementation Plan
+# Plano de Implementação do Release v1.0.0-beta
 
-**Goal:** Create the first public release v1.0.0-beta with git tag, GitHub Release (highlights + changelog link), and a version badge in README.
-**Non-Goals:** Running full test suite (recently passed). Changing any framework functionality. Writing detailed per-commit changelog.
-**Architecture:** Tag current HEAD, add shield badge to README top, create GitHub Release via `gh release create` with curated highlights.
+**Objetivo:** Create the first public release v1.0.0-beta with git tag, GitHub Release (highlights + changelog link), and a version badge in README.
+**Não-Objetivos:** Running full test suite (recently passed). Changing any framework functionality. Writing detailed per-commit changelog.
+**Arquitetura:** Tag current HEAD, add shield badge to README top, create GitHub Release via `gh release create` with curated highlights.
 **Tech Stack:** Git, GitHub CLI (`gh`), Markdown
 
 ## Review
@@ -13,11 +13,11 @@
 - Completeness: ✅ APPROVE — all modified files exercised by tasks
 - Technical Feasibility: ✅ APPROVE — no blockers, gh CLI + git available on macOS
 
-## Tasks
+## Tarefas
 
-### Task 1: Add version badge to README
+### Tarefa 1: Add version badge to README
 
-**Files:**
+**Arquivos:**
 - Modify: `README.md`
 
 **What to implement:**
@@ -26,14 +26,14 @@ Add a release badge after the H1 title line in README.md:
 [![Release](https://img.shields.io/github/v/release/KaimingWan/oh-my-claude-code?include_prereleases)](https://github.com/KaimingWan/oh-my-claude-code/releases)
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 grep -q 'img.shields.io/github/v/release' README.md
 ```
 
-### Task 2: Write release notes and create GitHub Release
+### Tarefa 2: Write release notes and create GitHub Release
 
-**Files:**
+**Arquivos:**
 - Create: `docs/releases/v1.0.0-beta.md`
 
 **What to implement:**
@@ -52,7 +52,7 @@ grep -q 'img.shields.io/github/v/release' README.md
    gh release create v1.0.0-beta --title "v1.0.0-beta" --notes-file docs/releases/v1.0.0-beta.md --prerelease
    ```
 
-**Verify:**
+**Verificação:**
 ```bash
 test -f docs/releases/v1.0.0-beta.md && grep -q 'Highlights' docs/releases/v1.0.0-beta.md && grep -q 'v3.0.0...v1.0.0-beta' docs/releases/v1.0.0-beta.md && git tag -l v1.0.0-beta | grep -q v1.0.0-beta && gh release view v1.0.0-beta --json isPrerelease -q '.isPrerelease' | grep -q true
 ```
