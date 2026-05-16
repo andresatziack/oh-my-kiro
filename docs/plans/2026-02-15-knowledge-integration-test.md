@@ -1,7 +1,7 @@
-# Knowledge System Integration Test Plan
+# Plano de Teste de Integração do Knowledge System
 
-**Goal:** Build a 2-layer test suite (hook unit tests + agent integration tests) that validates knowledge system correctness, recall effectiveness, and detects corruption/degradation.
-**Architecture:** L1 = deterministic shell tests against hooks (context-enrichment, auto-capture, kb-health-report), using fixture data and controlled inputs. L2 = agent integration tests via `kiro-cli chat -a --no-interactive`, checking agent actually uses injected rules and captures corrections. All tests use the existing e2e-v3 lib.sh pattern (pass/fail/json report).
+**Objetivo:** Build a 2-layer test suite (hook unit tests + agent integration tests) that validates knowledge system correctness, recall effectiveness, and detects corruption/degradation.
+**Arquitetura:** L1 = deterministic shell tests against hooks (context-enrichment, auto-capture, kb-health-report), using fixture data and controlled inputs. L2 = agent integration tests via `kiro-cli chat -a --no-interactive`, checking agent actually uses injected rules and captures corrections. All tests use the existing e2e-v3 lib.sh pattern (pass/fail/json report).
 **Tech Stack:** Bash, jq, existing lib.sh test framework, kiro-cli (L2 only)
 
 ## Review
@@ -19,11 +19,11 @@
 - Fixed checklist verify commands: #8 checks exit 0 explicitly, #9 uses grep on summary line not tail, #10 checks specific corruption test IDs
 - Added backup/restore mechanism to lib.sh spec: `setup_sandbox` copies fixtures to /tmp, overrides KNOWLEDGE_DIR; `teardown_sandbox` removes /tmp dir. Real files never touched.
 
-## Tasks
+## Tarefas
 
-### Task 1: Test Infrastructure + Fixtures
+### Tarefa 1: Test Infrastructure + Fixtures
 
-**Files:**
+**Arquivos:**
 - Create: `tests/knowledge/lib.sh` (shared helpers)
 - Create: `tests/knowledge/fixtures/rules-healthy.md`
 - Create: `tests/knowledge/fixtures/rules-corrupted.md`
@@ -111,9 +111,9 @@ Also re-export pass/fail/begin_test/record_result/summary from archive e2e-v3 li
 2026-02-15 | promoted | oldlib,deprecated | 旧库问题已晋升
 ```
 
-### Task 2: L1 — Rules Injection Tests (context-enrichment.sh)
+### Tarefa 2: L1 - Rules Injection Tests (context-enrichment.sh)
 
-**Files:**
+**Arquivos:**
 - Create: `tests/knowledge/l1-rules-injection.sh`
 
 **Setup per test:** `clear_session_flags`, copy rules-healthy.md to sandbox `knowledge/rules.md`, create empty `knowledge/episodes.md`.
@@ -130,9 +130,9 @@ Also re-export pass/fail/begin_test/record_result/summary from archive e2e-v3 li
 
 **Verification method:** `echo '{"prompt":"..."}' | bash hooks/feedback/context-enrichment.sh` from sandbox dir, capture stdout into variable, use `assert_contains` / `assert_not_contains`.
 
-### Task 3: L1 — Auto-capture Tests (auto-capture.sh)
+### Tarefa 3: L1 - Auto-capture Tests (auto-capture.sh)
 
-**Files:**
+**Arquivos:**
 - Create: `tests/knowledge/l1-auto-capture.sh`
 
 **Setup per test:** Copy episodes-healthy.md to sandbox `knowledge/episodes.md`, copy rules-healthy.md to sandbox `knowledge/rules.md`. Auto-capture reads these via relative paths from `$PWD`.
@@ -150,9 +150,9 @@ Also re-export pass/fail/begin_test/record_result/summary from archive e2e-v3 li
 
 **Verification method:** `cd $SANDBOX && bash $PROJECT_DIR/hooks/feedback/auto-capture.sh "$MSG"`, check `$?`, stdout, and `wc -l < knowledge/episodes.md`.
 
-### Task 4: L1 — Corruption & Recall Tests
+### Tarefa 4: L1 - Corruption & Recall Tests
 
-**Files:**
+**Arquivos:**
 - Create: `tests/knowledge/l1-corruption-recall.sh`
 
 Merged corruption detection + recall effectiveness into one file (both test the same hooks with different fixtures).
@@ -176,9 +176,9 @@ Merged corruption detection + recall effectiveness into one file (both test the 
 | E3 | Injection completeness | `{"prompt":"用 jq"}` | Both rule 1 AND rule 2 from shell section | — |
 | E4 | No false positive | `{"prompt":"今天天气怎么样"}` | `"Rules (general)"` (fallback) | Should not contain security/subagent specific rules |
 
-### Task 5: L2 — Agent Integration Tests
+### Tarefa 5: L2 - Agent Integration Tests
 
-**Files:**
+**Arquivos:**
 - Create: `tests/knowledge/l2-agent-integration.sh`
 
 **Setup:** `backup_file knowledge/rules.md && backup_file knowledge/episodes.md` before all tests, `restore_file` after all tests (using lib.sh helpers from e2e-v3).
@@ -191,9 +191,9 @@ Merged corruption detection + recall effectiveness into one file (both test the 
 | A4 | `"这个项目用了什么消息队列？查下项目文件"` | 60s | `grep -qiE '(没有\|未找到\|不确定\|no.*found)'` |
 | A5 | `"查下我们之前犯过什么错误"` | 60s | `grep -qiE '(episodes\|教训\|mistakes\|错误记录)'` |
 
-### Task 6: Runner Script
+### Tarefa 6: Runner Script
 
-**Files:**
+**Arquivos:**
 - Create: `tests/knowledge/run.sh`
 
 **Behavior:**

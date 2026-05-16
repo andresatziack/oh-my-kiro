@@ -1,9 +1,9 @@
 > ⚠️ SUPERSEDED by 2026-02-15-subagent-architecture-optimization.md
 
-# Subagent Selective Delegation Plan
+# Plano de Delegação Seletiva de Subagentes
 
-**Goal:** Establish clear delegation rules + fix subagent security gaps + optimize main agent context usage. Zero capability degradation.
-**Architecture:** Rules in AGENTS.md (always loaded) + context-enrichment hint for complex tasks + subagent hook hardening + planning skill update.
+**Objetivo:** Establish clear delegation rules + fix subagent security gaps + optimize main agent context usage. Zero capability degradation.
+**Arquitetura:** Rules in AGENTS.md (always loaded) + context-enrichment hint for complex tasks + subagent hook hardening + planning skill update.
 
 ## Key Decisions
 
@@ -31,11 +31,11 @@
 - Multi-step operations with cross-step context dependency
 - **Mixed tasks** — if any subtask needs a main-agent-only tool, keep the whole task on main agent
 
-## Tasks
+## Tarefas
 
-### Task 1: Harden subagent security hooks
+### Tarefa 1: Harden subagent security hooks
 
-**Files:** Modify `.kiro/agents/implementer.json`, `.kiro/agents/reviewer.json`, `.kiro/agents/debugger.json`, `.kiro/agents/researcher.json`
+**Arquivos:** Modify `.kiro/agents/implementer.json`, `.kiro/agents/reviewer.json`, `.kiro/agents/debugger.json`, `.kiro/agents/researcher.json`
 
 Add missing security hooks to all subagents. Current gap:
 - implementer: has block-dangerous, missing block-sed-json + block-secrets
@@ -54,9 +54,9 @@ Target: all 4 subagents have identical preToolUse security hooks:
 
 Verify: `jq '.hooks.preToolUse' .kiro/agents/*.json` — all 4 should show 3 entries.
 
-### Task 2: Update AGENTS.md with delegation rules
+### Tarefa 2: Update AGENTS.md with delegation rules
 
-**Files:** Modify `AGENTS.md`
+**Arquivos:** Modify `AGENTS.md`
 
 Add a `## Subagent Delegation` section after `Self-Learning`:
 
@@ -74,9 +74,9 @@ Add a `## Subagent Delegation` section after `Self-Learning`:
 
 Verify: `grep -c 'Subagent Delegation' AGENTS.md` = 1
 
-### Task 3: Update planning skill Strategy C
+### Tarefa 3: Update planning skill Strategy C
 
-**Files:** Modify `skills/planning/SKILL.md`
+**Arquivos:** Modify `skills/planning/SKILL.md`
 
 Add capability constraints note after Strategy C section:
 
@@ -91,9 +91,9 @@ Add capability constraints note after Strategy C section:
 
 Verify: `grep -c 'capability limits' skills/planning/SKILL.md` = 1
 
-### Task 4: Add context-enrichment delegation hint
+### Tarefa 4: Add context-enrichment delegation hint
 
-**Files:** Modify `hooks/feedback/context-enrichment.sh`
+**Arquivos:** Modify `hooks/feedback/context-enrichment.sh`
 
 After the rules injection block (inside the `if [ ! -f "$LESSONS_FLAG" ]` block), add:
 
@@ -105,9 +105,9 @@ One line, injected once per session alongside rules. No bloat.
 
 Verify: `grep -c 'Delegation:' hooks/feedback/context-enrichment.sh` = 1
 
-### Task 5: Fix generate-platform-configs.sh subagent security hooks
+### Tarefa 5: Fix generate-platform-configs.sh subagent security hooks
 
-**Files:** Modify `scripts/generate-platform-configs.sh`
+**Arquivos:** Modify `scripts/generate-platform-configs.sh`
 
 Current state: reviewer/implementer/debugger only have `block-dangerous` in preToolUse. Researcher has NO preToolUse at all.
 
@@ -119,9 +119,9 @@ Fix all 4 subagent sections to include 3 security hooks:
 
 Verify: `bash scripts/generate-platform-configs.sh && jq '.hooks.preToolUse | length' .kiro/agents/{implementer,reviewer,debugger,researcher}.json` — all return 3
 
-### Task 6: Record in episodes.md
+### Tarefa 6: Record in episodes.md
 
-**Files:** Modify `knowledge/episodes.md`
+**Arquivos:** Modify `knowledge/episodes.md`
 
 Append: `2026-02-15 | active | subagent,delegation,context | subagent选择性委派: 能力不降级/结果自包含/任务独立, 需要code/grep/web工具的不委派`
 

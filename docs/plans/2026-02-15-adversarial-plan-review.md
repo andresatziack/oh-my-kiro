@@ -1,8 +1,8 @@
-# Adversarial Multi-Perspective Plan Review
+# Review Adversarial de Plan Multi-Perspectiva
 
-**Goal:** Replace the current 2-round rubber-stamp plan review with a multi-perspective, multi-round adversarial review system that uses 3-7 parallel reviewer subagents per round, rotating angles each round, with a 5-round hard cap.
+**Objetivo:** Replace the current 2-round rubber-stamp plan review with a multi-perspective, multi-round adversarial review system that uses 3-7 parallel reviewer subagents per round, rotating angles each round, with a 5-round hard cap.
 
-**Architecture:** Modify two files: `skills/reviewing/SKILL.md` (single reviewer behavior with angle-specific mission/output) and `skills/planning/SKILL.md` (multi-angle orchestration logic in a new review phase). Also update Phase 0 Step 3 with the research dimension principle.
+**Arquitetura:** Modify two files: `skills/reviewing/SKILL.md` (single reviewer behavior with angle-specific mission/output) and `skills/planning/SKILL.md` (multi-angle orchestration logic in a new review phase). Also update Phase 0 Step 3 with the research dimension principle.
 
 **Tech Stack:** Markdown skill files only.
 
@@ -97,7 +97,7 @@ Add to Phase 0 Step 3: "Research should cover at least two dimensions: theoretic
 
 **Mission:** Clarity
 
-**Findings:**
+**Descobertas:**
 - **"Agent assesses plan complexity"** - No criteria defined for complexity assessment. What makes a plan "simple" vs "architecture change"? Agent needs specific metrics or characteristics to evaluate.
 - **"select NEW angles (no repeat)"** - Ambiguous scope. Does this mean no angle can be reused across ALL rounds, or just not repeated from the previous round? With 9 angles and up to 10 rounds, total prohibition is impossible.
 - **"standard review packet"** - Format mentioned but not defined. What exactly is included in "plan + checklist + context summary"? How much context? Which sections of the plan?
@@ -115,7 +115,7 @@ Add to Phase 0 Step 3: "Research should cover at least two dimensions: theoretic
 - Clarify error handling: "If reviewer crashes, continue round with remaining reviewers. If <50% complete, restart round."
 - Define termination action: "After 10 rounds, stop execution and prompt user: 'Plan too complex for automated review. Consider breaking into smaller plans.'"
 
-**Verdict:** REJECT
+**Veredito:** REJECT
 
 **Specific reasons:**
 1. **Complexity assessment lacks criteria** - Agent cannot reliably categorize plans without defined metrics
@@ -129,7 +129,7 @@ The plan requires concrete definitions and measurable criteria to be executable 
 
 **Mission:** Technical Feasibility
 
-**Findings:**
+**Descobertas:**
 - **Subagent parallel dispatch limit exceeded**: Plan proposes 3-7 parallel reviewers per round, but context shows max 4 parallel subagents per call. With 7 angles, this requires batching which adds complexity not addressed in the design.
 - **Reviewer subagent write capabilities confirmed**: Context confirms reviewer subagents can read and write files, so writing to specific plan sections is technically feasible.
 - **Context window risk**: Each reviewer receives "plan + checklist + context summary" but no size limits defined. Large plans could exceed reviewer subagent context windows, causing failures.
@@ -137,7 +137,7 @@ The plan requires concrete definitions and measurable criteria to be executable 
 - **Resource scaling concern**: Up to 70 subagent calls (7 angles × 10 rounds) could hit rate limits or performance bottlenecks not accounted for.
 - **Angle selection algorithm dependency**: Plan requires "Agent selects 3-7 angles based on plan characteristics" but this logic must be implemented in the main agent, adding complexity.
 
-**Verdict:** REJECT - Critical technical constraints not properly addressed
+**Veredito:** REJECT - Critical technical constraints not properly addressed
 
 **Specific blockers:**
 1. Parallel dispatch limit (4) vs proposed angles (up to 7) requires batching logic not designed
@@ -148,7 +148,7 @@ The plan requires concrete definitions and measurable criteria to be executable 
 
 **Mission:** Find missing steps, unhandled edge cases, and gaps in coverage.
 
-**Findings:**
+**Descobertas:**
 - Missing error recovery for malformed reviewer output (what if subagent returns invalid format?)
 - No handling for partial angle pool exhaustion (what if 8 rounds used 8 angles, only 1 left for round 9?)
 - Undefined behavior when plan complexity changes mid-review (e.g., scope reduction after YAGNI feedback)
@@ -160,7 +160,7 @@ The plan requires concrete definitions and measurable criteria to be executable 
 - Undefined behavior for plans that don't fit the complexity categories cleanly
 - Missing specification of what constitutes "plan + checklist + context summary" size limits
 
-**Verdict:** REJECT - Critical gaps in error handling and edge case coverage that could cause system failures in practice.
+**Veredito:** REJECT - Critical gaps in error handling and edge case coverage that could cause system failures in practice.
 
 ### Strengths
 - Concrete checklist with verifiable acceptance criteria (✓ passes requirement #1)
@@ -204,7 +204,7 @@ The plan requires concrete definitions and measurable criteria to be executable 
 
 **Mission:** Testability - Are the 13 checklist verify commands adequate? Can failures actually be detected by these commands? Are there acceptance criteria that lack verification?
 
-**Findings:**
+**Descobertas:**
 
 **Weak Verifications:**
 - Item 4 "Angle pool table present" uses `grep -q "Angle Pool"` - only checks for text existence, not table structure or completeness of 9 angles
@@ -227,7 +227,7 @@ The plan requires concrete definitions and measurable criteria to be executable 
 - Replace vague text searches with specific implementation checks (e.g., verify rotation logic, not just "different angles" text)
 - Add integration test: verify Phase 1.5 appears between Phase 1 and Phase 2 in correct sequence
 
-**Verdict:** REJECT
+**Veredito:** REJECT
 
 **Specific Reasons:**
 1. **Surface-level verification**: Most grep commands only check for keyword presence, not implementation correctness
@@ -241,7 +241,7 @@ The verification strategy needs to shift from text existence to structural and l
 
 **Mission:** Rollback Safety
 
-**Findings:**
+**Descobertas:**
 
 **Failure Modes:**
 - **Performance degradation**: 3-7 parallel subagents × 5 rounds = up to 35 subagent calls per plan vs current 2 calls. Could make planning prohibitively slow (5-10x longer).
@@ -263,7 +263,7 @@ The verification strategy needs to shift from text existence to structural and l
 4. **Full revert**: Remove added sections from both skill files, restoring original review behavior
 5. **No data loss**: All existing plans and workflows remain functional during rollback
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **Clean rollback path**: Changes are additive to markdown files with clear section boundaries - easy to remove
@@ -308,7 +308,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Over-engineering (YAGNI)
 
-**Findings:**
+**Descobertas:**
 - **9-angle pool excessive**: Security, Performance, Rollback Safety angles rarely needed for typical plans. Most plans are simple file modifications that don't warrant security analysis or performance optimization. Pool could be reduced to 5 core angles: Technical Feasibility, Completeness, Testability, Compatibility, Clarity.
 - **10-round cap too high**: Current 2-round system works for 90% of plans. Even adversarial review shouldn't need more than 5 rounds for complex plans. 10 rounds = potential 70 subagent calls, which is resource waste.
 - **Parallel execution overkill**: 3-7 simultaneous subagents per round adds complexity without proven benefit. Sequential review with 2-3 angles would achieve similar quality with simpler orchestration.
@@ -316,7 +316,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **Conflict Resolution mechanism unnecessary**: If angles are well-chosen, conflicts should be rare. Adding resolution protocol assumes frequent conflicts that may not occur.
 - **Research Dimension Principle scope creep**: Adding theoretical+practice requirement to Phase 0 is unrelated to review improvement and expands scope unnecessarily.
 
-**Verdict:** REJECT
+**Veredito:** REJECT
 
 **Specific reasons:**
 1. **Complexity explosion**: System jumps from 2 reviewer calls to potentially 70 calls (10 rounds × 7 angles) without evidence this improves outcomes
@@ -336,7 +336,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Performance - Check for resource waste, context window bloat, unnecessary subagent calls. Is the cost proportional to the benefit?
 
-**Findings:**
+**Descobertas:**
 - **Massive resource scaling**: Plan increases from 2 subagent calls to potentially 35 calls (7 angles × 5 rounds). Context shows current system uses 1-2 calls total. This is a 17x-35x increase in computational cost.
 - **Context window inefficiency**: Each reviewer receives "plan header + checklist + 3-sentence context" but no size limits. Large plans could generate massive review packets sent to multiple parallel subagents, multiplying context consumption.
 - **Batching overhead**: With 4-subagent parallel limit and up to 7 angles, requires 2 batches per round (4+3), adding orchestration complexity and latency. Sequential execution would be simpler and nearly as fast.
@@ -344,7 +344,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **Redundant verification**: 13 checklist items mostly use simple grep commands that could be consolidated into fewer, more comprehensive checks.
 - **Unnecessary parallel complexity**: Parallel reviewer dispatch adds significant orchestration overhead (batching, error handling, result aggregation) without proven speed benefit over sequential review.
 
-**Verdict:** REJECT
+**Veredito:** REJECT
 
 **Specific reasons:**
 1. **Disproportionate cost increase**: 17x-35x more subagent calls than current system without demonstrated quality improvement
@@ -352,11 +352,11 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 3. **Over-engineering**: Complex parallel orchestration when sequential review would achieve similar results with simpler implementation
 4. **Resource planning failure**: No cost-benefit analysis or performance benchmarks to justify the massive resource increase
 
-## Tasks
+## Tarefas
 
-### Task 1: Update reviewing skill with angle-based review protocol
+### Tarefa 1: Update reviewing skill with angle-based review protocol
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/reviewing/SKILL.md`
 
 **Changes:**
@@ -365,9 +365,9 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - Define: structured output template (Mission / Findings / Verdict)
 - Define: reviewer must deeply challenge from their angle, not rubber-stamp
 
-### Task 2: Add multi-angle orchestration to planning skill
+### Tarefa 2: Add multi-angle orchestration to planning skill
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Changes:**
@@ -377,9 +377,9 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - Define: angle pool table with missions and outputs
 - Define: review packet format (plan summary, checklist, context)
 
-### Task 3: Add research dimension principle to Phase 0
+### Tarefa 3: Add research dimension principle to Phase 0
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Changes:**
@@ -407,7 +407,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Compatibility
 
-**Findings:**
+**Descobertas:**
 - **Existing @review workflow preserved**: Current AGENTS.md routes `@review` command to reviewing skill, and plan only adds new "Angle-Based Plan Review" subsection without modifying existing Plan Review Mode or Code Review Mode. The 4-step devil's advocate approach and structured output format remain intact.
 - **Phase structure maintained**: Plan adds Phase 1.5 between existing Phase 1 (Writing) and Phase 2 (Execution), but all existing phases (0: Deep Understanding, 1: Writing, 2: Execution, 3: Completion) remain unchanged. This is additive insertion, not modification.
 - **Subagent delegation patterns compatible**: Current framework uses "reviewer subagent" for plan review (confirmed in AGENTS.md). Plan enhances this by dispatching multiple reviewer subagents in parallel batches, but maintains the same delegation principle. Resource constraints section addresses the 4-subagent parallel limit.
@@ -415,7 +415,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **No breaking changes to execution strategies**: Phase 2 execution strategies (Sequential/Parallel/Subagent per task) are unaffected since Phase 1.5 occurs before Phase 2 and only modifies the review process, not execution.
 - **Backward compatibility risk**: Plans written before this change will lack the new angle pool table and complexity assessment, but existing plans can still be reviewed using current Plan Review Mode since both modes coexist.
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **Additive design**: Phase 1.5 insertion preserves all existing phase functionality
@@ -428,7 +428,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Security
 
-**Findings:**
+**Descobertas:**
 - **No authentication risks**: Plan modifies only markdown skill files, no auth mechanisms involved
 - **No data exposure concerns**: Review system processes plan content that's already in local files, no external data transmission
 - **No injection surfaces**: Reviewers write structured text to markdown files using predefined templates, no code execution or dynamic content generation
@@ -438,7 +438,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **No network operations**: Entire review process operates on local markdown files, no external API calls or data transmission
 - **Input validation implicit**: Structured output format (Mission/Findings/Verdict) provides natural bounds on reviewer output
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **Minimal attack surface**: Markdown-only modifications with no code execution or external dependencies
@@ -450,7 +450,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Technical Feasibility
 
-**Findings:**
+**Descobertas:**
 - **Parallel batching resolved**: Context confirms batching in groups of 4 explicitly designed since Round 1. Plan specifies "dispatch in batches of 4 then remainder" which addresses the tool limit constraint.
 - **Context window risk mitigated**: Review packet concretized as "plan header + checklist + 3-sentence summary" which is small and bounded, addressing previous context window concerns.
 - **Error handling defined**: Half-complete restart rule and malformed output handling (missing structure) are specified in Resource Constraints section, resolving previous gaps.
@@ -459,7 +459,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **Subagent capabilities confirmed**: Reviewing skill shows reviewer subagents can read files and write structured output, supporting the required functionality.
 - **Integration path clear**: Plan adds "### Angle-Based Plan Review" subsection to existing reviewing skill without breaking current Plan Review Mode, maintaining backward compatibility.
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **Batching constraint addressed**: Groups of 4 design handles parallel limit properly
@@ -473,7 +473,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Testability - Are the checklist verify commands adequate? Can failures be detected?
 
-**Findings:**
+**Descobertas:**
 - **Item 5 angle count verification weak**: `grep -c "| .* | .* | .* |" | awk '{exit ($1 >= 9 ? 0 : 1)}'` counts any 4-column table rows, not specifically angle pool entries. Could pass with unrelated tables.
 - **Item 7 rotation rule too vague**: `grep -q "different angles than the immediately previous round"` only checks for text presence, not implementation of actual rotation logic.
 - **Item 9 review packet verification incomplete**: `grep -q "Goal.*Architecture.*Checklist.*context summary"` uses loose pattern that could match scattered text, doesn't verify proper packet structure.
@@ -484,7 +484,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **Missing verification for angle missions**: No check that each angle in the pool table has both mission and output format defined.
 - **No validation of conflict resolution completeness**: Should verify both goal-aligned evaluation AND user escalation are documented.
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **Significant improvement from Round 1**: Commands upgraded from simple grep to awk-based structural validation and row counting
@@ -497,14 +497,14 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Completeness
 
-**Findings:**
+**Descobertas:**
 - **Missing batch execution details**: Plan states "dispatch in batches of 4" but doesn't specify whether batches run sequentially or if there's delay between batches. Could cause timing issues.
 - **Undefined "half-complete" threshold**: Error handling says "if fewer than half of the round's reviewers complete, restart the round" but doesn't define what constitutes "complete" vs "incomplete" (crashed vs malformed output vs timeout).
 - **Context isolation gaps**: Plan specifies reviewers don't see each other's feedback within a round, but doesn't address whether reviewers in later rounds see previous round feedback, which could bias rotation effectiveness.
 - **Review packet size limits missing**: "3-sentence context summary" is defined but no limits on plan header or checklist size, which could exceed reviewer context windows for large plans.
 - **Angle reuse tracking undefined**: Rotation rule allows reuse "after skipping one round" but doesn't specify how the system tracks which angles were used in which rounds across the 5-round cap.
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **Core execution path complete**: Plan can be executed end-to-end with complexity assessment → angle selection → parallel dispatch → collect results → fix → repeat logic
@@ -516,7 +516,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 
 **Mission:** Clarity
 
-**Findings:**
+**Descobertas:**
 - **"Review packet = plan header + checklist + 3-sentence context"** - Clear definition provided in Resource Constraints section
 - **"Different from immediately previous round"** - Rotation rule is now unambiguous with explicit clarification that angles can be reused after skipping one round
 - **"5 rounds max"** - Hard cap clearly stated with exact termination message specified
@@ -526,7 +526,7 @@ Remaining weaknesses are refinements that don't block implementation. Plan is ex
 - **Conflict Resolution** - Step-by-step process defined with goal-alignment evaluation and user escalation fallback
 - **All technical terms defined** - Resource constraints, review packet format, and error handling procedures are concrete
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 **Specific reasons:**
 1. **All ambiguities from Round 1 resolved** - Rotation rule, review packet format, error handling, and termination conditions are now concrete

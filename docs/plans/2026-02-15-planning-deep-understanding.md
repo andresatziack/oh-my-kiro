@@ -1,8 +1,8 @@
-# Planning Skill: Deep Understanding Before Writing
+# Skill de Planning: Compreensão Profunda Antes de Escrever
 
-**Goal:** Improve planning skill Phase 1 by adding a "deep understanding" pre-phase — agent first understands the goal, then asks high-quality questions incrementally, then optionally researches, then writes the plan.
+**Objetivo:** Improve planning skill Phase 1 by adding a "deep understanding" pre-phase - agent first understands the goal, then asks high-quality questions incrementally, then optionally researches, then writes the plan.
 
-**Architecture:** Modify `skills/planning/SKILL.md` Phase 1 only. Insert a new "Phase 0: Deep Understanding" before the existing plan-writing step. No changes to Phase 2 (execution) or Phase 3 (completion).
+**Arquitetura:** Modify `skills/planning/SKILL.md` Phase 1 only. Insert a new "Phase 0: Deep Understanding" before the existing plan-writing step. No changes to Phase 2 (execution) or Phase 3 (completion).
 
 **Tech Stack:** Markdown skill file only.
 
@@ -71,7 +71,7 @@ User gives goal
 
 ### Verdict: **REQUEST CHANGES**
 
-**Required fixes:**
+**Correções necessárias:**
 1. ~~Add explicit transition mechanism from Phase 0 to existing Phase 1 content~~ → DONE: Added "Transition to Phase 1" subsection
 2. ~~Add error handling for failed initial understanding~~ → DONE: Added "Error Handling" subsection
 3. ~~Add integration verification that tests the full Phase 0 → Phase 1 flow~~ → DONE: Added 3 new checklist items
@@ -128,11 +128,11 @@ User gives goal
 
 Plan is ready for implementation. All Round 1 concerns resolved with adequate detail and verification.
 
-## Tasks
+## Tarefas
 
-### Task 1: Add Phase 0 to planning SKILL.md
+### Tarefa 1: Add Phase 0 to planning SKILL.md
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Step 1: Write the new Phase 0 section**

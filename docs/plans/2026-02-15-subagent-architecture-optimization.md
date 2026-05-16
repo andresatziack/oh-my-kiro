@@ -1,7 +1,7 @@
-# Subagent Architecture Optimization Plan
+# Plano de Otimização da Arquitetura de Subagentes
 
-**Goal:** 将 4 个 subagent 精简为 2 个（reviewer + researcher），通过 MCP 补能力，更新所有相关配置和文档。
-**Architecture:** 删除 implementer/debugger agent，改造 researcher（加 MCP），更新 AGENTS.md 委派规则、planning skill、default.json 白名单、generate-platform-configs.sh。workspace mcp.json 加 ripgrep 供 default subagent 使用。
+**Objetivo:** 将 4 个 subagent 精简为 2 个（reviewer + researcher），通过 MCP 补能力，更新所有相关配置和文档。
+**Arquitetura:** 删除 implementer/debugger agent，改造 researcher（加 MCP），更新 AGENTS.md 委派规则、planning skill、default.json 白名单、generate-platform-configs.sh。workspace mcp.json 加 ripgrep 供 default subagent 使用。
 **Tech Stack:** JSON (jq), Markdown, Shell
 
 ## Key Decisions
@@ -15,11 +15,11 @@
 7. **旧 plan 文件标记废弃**：在旧 plan 顶部加 superseded 标记，不删除（保留历史）
 8. **Task 执行顺序**：先更新 default.json（Task 4）再删除 agent 文件（Task 3），避免引用悬空
 
-## Tasks
+## Tarefas
 
-### Task 1: 创建 workspace mcp.json — 加 ripgrep
+### Tarefa 1: 创建 workspace mcp.json - 加 ripgrep
 
-**Files:**
+**Arquivos:**
 - Create: `.kiro/settings/mcp.json`
 
 创建 workspace 级别 MCP 配置，加入 ripgrep server。所有 subagent 自动继承。
@@ -35,11 +35,11 @@
 }
 ```
 
-**Verify:** `jq '.mcpServers.ripgrep.command' .kiro/settings/mcp.json` 输出非 null
+**Verificação:** `jq '.mcpServers.ripgrep.command' .kiro/settings/mcp.json` 输出非 null
 
-### Task 2: 改造 researcher agent — 加 fetch MCP + 更新 prompt
+### Tarefa 2: 改造 researcher agent - 加 fetch MCP + 更新 prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/researcher.json`
 - Modify: `agents/researcher-prompt.md`
 
@@ -52,30 +52,30 @@ researcher-prompt.md 改动：
 - 去掉 "NOTE: You cannot do web search" 
 - 加上：可用 fetch MCP 读 URL，可用 ripgrep MCP 搜代码，可用 `./scripts/research.sh` 调 Tavily
 
-**Verify:** `jq '.mcpServers.fetch' .kiro/agents/researcher.json` 输出非 null；`grep -c 'cannot do web search' agents/researcher-prompt.md` = 0
+**Verificação:** `jq '.mcpServers.fetch' .kiro/agents/researcher.json` 输出非 null；`grep -c 'cannot do web search' agents/researcher-prompt.md` = 0
 
-### Task 3: 更新 default.json — 精简白名单（先于删除）
+### Tarefa 3: 更新 default.json - 精简白名单（先于删除）
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/default.json`
 
 `availableAgents` 和 `trustedAgents` 改为只包含 `["reviewer", "researcher"]`。
 
-**Verify:** `jq '.toolsSettings.subagent.availableAgents' .kiro/agents/default.json` 输出 `["reviewer", "researcher"]`
+**Verificação:** `jq '.toolsSettings.subagent.availableAgents' .kiro/agents/default.json` 输出 `["reviewer", "researcher"]`
 
-### Task 4: 删除 implementer 和 debugger agent
+### Tarefa 4: 删除 implementer 和 debugger agent
 
-**Files:**
+**Arquivos:**
 - Delete: `.kiro/agents/implementer.json`
 - Delete: `.kiro/agents/debugger.json`
 - Delete: `agents/implementer-prompt.md`
 - Delete: `agents/debugger-prompt.md`
 
-**Verify:** `ls .kiro/agents/*.json | sort` 只含 default.json, researcher.json, reviewer.json；`ls agents/*.md | sort` 只含 researcher-prompt.md, reviewer-prompt.md
+**Verificação:** `ls .kiro/agents/*.json | sort` 只含 default.json, researcher.json, reviewer.json；`ls agents/*.md | sort` 只含 researcher-prompt.md, reviewer-prompt.md
 
-### Task 5: 更新 AGENTS.md — 委派规则重写
+### Tarefa 5: 更新 AGENTS.md - 委派规则重写
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 
 Subagent Delegation section 重写：
@@ -94,11 +94,11 @@ Subagent Delegation section 重写：
 
 Skill Routing 表中删除 implementer/debugger 相关行。
 
-**Verify:** `grep -c 'implementer' AGENTS.md` = 0；`grep -c 'debugger' AGENTS.md` = 0（Skill Routing 中）
+**Verificação:** `grep -c 'implementer' AGENTS.md` = 0；`grep -c 'debugger' AGENTS.md` = 0（Skill Routing 中）
 
-### Task 6: 更新 planning skill — Strategy C 改写
+### Tarefa 6: 更新 planning skill - Strategy C 改写
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 Strategy C 部分：
@@ -106,37 +106,37 @@ Strategy C 部分：
 - 更新 capability limits 注释：grep/glob 已通过 MCP 补回，删除对应条目；保留 code tool（LSP）和 web_search/web_fetch 作为限制
 - 更新执行策略表：去掉 implementer 引用
 
-**Verify:** `grep -c 'implementer' skills/planning/SKILL.md` = 0
+**Verificação:** `grep -c 'implementer' skills/planning/SKILL.md` = 0
 
-### Task 7: 更新 generate-platform-configs.sh
+### Tarefa 7: 更新 generate-platform-configs.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate-platform-configs.sh`
 
 删除 implementer 和 debugger 的生成 section。只保留 default、reviewer、researcher 的生成逻辑。researcher section 加入 fetch MCP 配置。
 
-**Verify:** `grep -c 'implementer' scripts/generate-platform-configs.sh` = 0；`grep -c 'debugger' scripts/generate-platform-configs.sh` = 0
+**Verificação:** `grep -c 'implementer' scripts/generate-platform-configs.sh` = 0；`grep -c 'debugger' scripts/generate-platform-configs.sh` = 0
 
-### Task 8: 更新 README.md 和 knowledge
+### Tarefa 8: 更新 README.md 和 knowledge
 
-**Files:**
+**Arquivos:**
 - Modify: `README.md`（Subagents section 从 4 改为 2）
 - Modify: `knowledge/episodes.md`（记录本次优化）
 - Modify: `knowledge/rules.md`（更新 rule 15、16）
 
-**Verify:** `grep -c '4 specialists' README.md` = 0；`grep -c '2 specialists' README.md` ≥ 1 或类似更新
+**Verificação:** `grep -c '4 specialists' README.md` = 0；`grep -c '2 specialists' README.md` ≥ 1 或类似更新
 
-### Task 9: 标记旧 plan 为 superseded
+### Tarefa 9: 标记旧 plan 为 superseded
 
-**Files:**
+**Arquivos:**
 - Modify: `docs/plans/2026-02-15-subagent-selective-delegation.md`（顶部加 superseded 标记）
 - Modify: `docs/plans/2026-02-15-reduce-context-bloat.md`（如有 implementer/debugger 引用，加注释说明已删除）
 
 在旧 plan 顶部加：`> ⚠️ SUPERSEDED by 2026-02-15-subagent-architecture-optimization.md`
 
-**Verify:** `head -1 docs/plans/2026-02-15-subagent-selective-delegation.md` 包含 SUPERSEDED
+**Verificação:** `head -1 docs/plans/2026-02-15-subagent-selective-delegation.md` 包含 SUPERSEDED
 
-### Task 10: 端到端验证 — subagent 功能回归
+### Tarefa 10: 端到端验证 - subagent 功能回归
 
 **依赖:** Task 1-9 全部完成后执行
 
@@ -155,11 +155,11 @@ grep -r 'implementer\|debugger' --include='*.md' --include='*.json' --include='*
 ```
 预期：只有 knowledge/episodes.md 和 knowledge/rules.md 中的历史记录，无活跃配置/文档引用。
 
-**Verify:** 4 个测试全部通过
+**Verificação:** 4 个测试全部通过
 
 ## Review
 
-### Round 1 — REQUEST CHANGES (addressed)
+### Round 1 - REQUEST CHANGES (addressed)
 
 **CRITICAL ISSUES:**
 
@@ -182,7 +182,7 @@ grep -r 'implementer\|debugger' --include='*.md' --include='*.json' --include='*
 
 6. **Rollback Plan** — git revert 即可，所有改动都是配置文件
 
-### Round 2 — APPROVE
+### Round 2 - APPROVE
 
 **STRENGTHS:**
 
@@ -206,7 +206,7 @@ grep -r 'implementer\|debugger' --include='*.md' --include='*.json' --include='*
 
 **VERDICT: APPROVE** — Plan is execution-ready. The verification gap is minor and won't block implementation. All Round 1 issues resolved, no new critical issues introduced.
 
-### Round 3 — APPROVE
+### Round 3 - APPROVE
 
 **STRENGTHS:**
 

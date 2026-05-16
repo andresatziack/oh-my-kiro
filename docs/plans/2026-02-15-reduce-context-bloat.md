@@ -1,18 +1,18 @@
-# Reduce Context Bloat — Hook Merge + Subagent Strategy
+# Reduzir Inchaço de Contexto - Merge de Hook + Estratégia de Subagentes
 
-**Goal:** 减少对话膨胀速度，缓解 Kiro CLI compaction 失败问题。合并 hooks 降低消息数，优化 subagent 执行策略隔离重活。
+**Objetivo:** 减少对话膨胀速度，缓解 Kiro CLI compaction 失败问题。合并 hooks 降低消息数，优化 subagent 执行策略隔离重活。
 
-**Architecture:** 将 postToolUse 3 个 hooks 合并为 `post-write.sh`，preToolUse 3 个合并为 `pre-write.sh`（security hooks 保持独立）。在 planning skill 中增加 subagent 执行阈值规则。
+**Arquitetura:** 将 postToolUse 3 个 hooks 合并为 `post-write.sh`，preToolUse 3 个合并为 `pre-write.sh`（security hooks 保持独立）。在 planning skill 中增加 subagent 执行阈值规则。
 
 **Tech Stack:** Bash (hooks), Markdown (skill docs), JSON (agent config)
 
-## Tasks
+## Tarefas
 
-### Task 1: 合并 postToolUse hooks → post-write.sh
+### Tarefa 1: 合并 postToolUse hooks → post-write.sh
 
 将 `auto-test.sh` + `auto-lint.sh` + `remind-update-progress.sh` 合并为单文件 `hooks/feedback/post-write.sh`。
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/feedback/post-write.sh`
 - Modify: `.kiro/agents/default.json` (postToolUse 改为单条)
 - Modify: `.kiro/agents/implementer.json` (postToolUse 同步)
@@ -25,11 +25,11 @@
 3. 更新 `implementer.json` postToolUse 同步
 4. 测试：`echo '{"tool_name":"fs_write","tool_input":{"file_path":"test.ts"}}' | bash hooks/feedback/post-write.sh`
 
-### Task 2: 合并 preToolUse hooks → pre-write.sh
+### Tarefa 2: 合并 preToolUse hooks → pre-write.sh
 
 将 `require-workflow.sh` + `scan-skill-injection.sh`（在 security/ 下）+ `inject-plan-context.sh`（在 feedback/ 下）合并为 `hooks/gate/pre-write.sh`。Security hooks for execute_bash 保持独立不动。
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/gate/pre-write.sh`
 - Modify: `.kiro/agents/default.json` (preToolUse fs_write 从 3 条 → 1 条)
 
@@ -40,11 +40,11 @@
 2. 更新 `default.json` preToolUse
 3. 测试：确认无 plan 时 gate 拦截仍 exit 2
 
-### Task 3: 更新 planning skill — subagent 执行阈值
+### Tarefa 3: 更新 planning skill - subagent 执行阈值
 
 在 `skills/planning/SKILL.md` 的 Phase 2 执行策略中，增加明确的 subagent 触发规则。
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Steps:**
@@ -54,11 +54,11 @@
    - 2+ 独立无依赖任务 → Strategy B (并行 subagent)
 2. 确保规则简洁，不超过 10 行
 
-### Task 4: 清理旧 hook 文件
+### Tarefa 4: 清理旧 hook 文件
 
 合并完成且验证通过后，删除被合并的旧文件。
 
-**Files:**
+**Arquivos:**
 - Delete: `hooks/feedback/auto-test.sh`
 - Delete: `hooks/feedback/auto-lint.sh`
 - Delete: `hooks/feedback/remind-update-progress.sh`
