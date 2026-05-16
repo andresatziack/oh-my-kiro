@@ -1,8 +1,8 @@
-# 精简 Hook 输出 — 为 Auto-Compaction 留出 32K 空间
+# 精简 Hook 输出 - 为 Auto-Compaction 留出 32K 空间
 
-**Goal:** 减少 hook 输出的 token 占用，确保 context 在 auto-compact 触发时仍有 ≥32K 空间供 compaction API 调用。
+**Objetivo:** 减少 hook 输出的 token 占用，确保 context 在 auto-compact 触发时仍有 ≥32K 空间供 compaction API 调用。
 
-**Root Cause:** Kiro auto-compact 触发时需要 ~32K max_tokens。如果 input 已超 168K（200K-32K），compact 请求本身会被 API 拒绝（#1531）。Hook 输出是最大的可控 token 消耗源。
+**Causa Raiz:** Kiro auto-compact 触发时需要 ~32K max_tokens。如果 input 已超 168K（200K-32K），compact 请求本身会被 API 拒绝（#1531）。Hook 输出是最大的可控 token 消耗源。
 
 ## 精简方案
 
@@ -60,24 +60,24 @@
 
 ## Review
 
-**VERDICT: REQUEST CHANGES**
+**VERDITO: REQUEST CHANGES**
 
-**Critical Issues:**
-1. ✅ **Checklist exists** with concrete `- [ ]` acceptance criteria
-2. ❌ **Token math error**: Claims 29K total space but need 32K for compaction
-   - Current: ~7K余量 + 22K节省 = 29K < 32K required
-   - **Gap: 3K tokens still missing**
-3. ❌ **Risk assessment incomplete**: Missing analysis of debugging impact when hooks provide less context
+**Problemas críticos:**
+1. ✅ **Checklist existe** com critérios de aceitação concretos `- [ ]`
+2. ❌ **Erro de matemática de tokens**: alega 29K de espaço total, mas precisa de 32K para compaction
+   - Atual: ~7K de margem + 22K economizados = 29K < 32K necessários
+   - **Lacuna: 3K tokens ainda faltam**
+3. ❌ **Avaliação de risco incompleta**: faltam análises sobre impacto no debugging quando os hooks fornecem menos contexto
 
-**Specific Concerns:**
-- **inject-plan-context.sh change is HIGH RISK**: Removing checklist visibility during long coding sessions could cause agents to lose track of requirements. The "ralph-loop reads plan at start" assumption breaks if session has >50 operations pushing checklist out of context window.
-- **verify-completion.sh change reduces debugging efficiency**: When builds fail, agents need to see WHICH items are incomplete, not just count.
+**Preocupações específicas:**
+- **Mudança em inject-plan-context.sh é DE ALTO RISCO**: remover a visibilidade do checklist durante sessões longas de coding pode fazer agentes perderem o rastro dos requisitos. A premissa "ralph-loop lê o plan no início" cai por terra se a sessão tiver >50 operações empurrando o checklist para fora da janela de context.
+- **Mudança em verify-completion.sh reduz a eficiência de debugging**: quando builds falham, agentes precisam ver QUAIS itens estão incompletos, não só a contagem.
 
-**Required Changes:**
-1. Fix token math: Find additional 3K token savings or reduce compaction requirement
-2. Add fallback mechanism for inject-plan-context.sh (e.g., re-inject checklist every 10 operations)
-3. Quantify debugging impact: How much slower will issue resolution be without detailed hook output?
+**Mudanças necessárias:**
+1. Corrigir a matemática de tokens: encontrar 3K adicionais de economia ou reduzir o requisito de compaction
+2. Adicionar mecanismo de fallback para inject-plan-context.sh (por exemplo, reinjetar o checklist a cada 10 operações)
+3. Quantificar o impacto no debugging: quanto mais lenta será a resolução de issues sem a saída detalhada dos hooks?
 
-**Suggestions:**
-- Consider progressive reduction: Start with context-enrichment.sh only (3.8K savings), measure impact before touching plan injection
-- Add metrics to track how often agents re-read plans after hook changes
+**Sugestões:**
+- Considerar redução progressiva: começar apenas pelo context-enrichment.sh (3.8K de economia), medir o impacto antes de mexer na injeção de plan
+- Adicionar métricas para acompanhar com que frequência agentes releem planos após mudanças nos hooks

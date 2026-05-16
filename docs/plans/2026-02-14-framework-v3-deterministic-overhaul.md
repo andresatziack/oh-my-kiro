@@ -1,10 +1,10 @@
-# Framework v3: Deterministic Overhaul
+# Framework v3: Reformulação Determinística
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** 重构 agent 框架，用命令硬编码 + PreToolUse 硬拦截实现确定性触发，激进清理代码和结构，双平台（Kiro + CC）兼容。
+**Objetivo:** 重构 agent 框架，用命令硬编码 + PreToolUse 硬拦截实现确定性触发，激进清理代码和结构，双平台（Kiro + CC）兼容。
 
-**Architecture:** 三层确定性模型 — L1 命令层（用户主动触发完整工作流）、L2 拦截层（PreToolUse block 强制流程）、L3 反馈层（PostToolUse/Stop 提供信息但不阻断）。单一配置源生成双平台配置。
+**Arquitetura:** 三层确定性模型 - L1 命令层（用户主动触发完整工作流）、L2 拦截层（PreToolUse block 强制流程）、L3 反馈层（PostToolUse/Stop 提供信息但不阻断）。单一配置源生成双平台配置。
 
 **Tech Stack:** Bash hooks, jq, Kiro agents JSON, CC settings.json
 
@@ -14,9 +14,9 @@
 
 ## Phase 1: 归档旧资产 + 建立新目录结构
 
-### Task 1.1: Git tag 回滚点 + 归档
+### Tarefa 1.1: Git tag 回滚点 + 归档
 
-**Files:**
+**Arquivos:**
 - Create: `archive/v2/` (move old assets here)
 
 **Step 1: 创建回滚点**
@@ -49,7 +49,7 @@ rm -rf .claude/skills/self-reflect/{commands}
 git add -A && git commit -m "chore: archive v2 assets before v3 overhaul"
 ```
 
-### Task 1.2: 建立新目录结构
+### Tarefa 1.2: 建立新目录结构
 
 **目标结构：**
 ```
@@ -179,9 +179,9 @@ git add -A && git commit -m "refactor: establish v3 unified directory structure"
 
 ## Phase 2: 重写核心拦截机制（require-workflow.sh）
 
-### Task 2.1: 重写 common.sh — 跨平台兼容
+### Tarefa 2.1: 重写 common.sh - 跨平台兼容
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/_lib/common.sh`
 
 **核心改进：**
@@ -201,9 +201,9 @@ file_mtime() {
 - ~~新增 workflow_state_file()~~ ~~废弃：reviewer 指出 /tmp JSON 状态文件有并发竞争问题~~
 - 改为直接检查 `docs/plans/` 目录下的文件（无状态，纯文件系统检查）
 
-### Task 2.2: 创建 require-workflow.sh — 核心拦截 hook
+### Tarefa 2.2: 创建 require-workflow.sh - 核心拦截 hook
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/gate/require-workflow.sh`
 
 **Plan 发现逻辑（解决 reviewer C3）：**
@@ -253,9 +253,9 @@ PreToolUse[Write|Edit|fs_write] 触发时：
 
 **时间窗口：** ~~2h~~ → 4h（可通过 `WORKFLOW_PLAN_WINDOW` 环境变量配置，reviewer W1 建议）
 
-### Task 2.3: 重写 context-enrichment.sh — 精简为纠正检测 + 恢复提醒
+### Tarefa 2.3: 重写 context-enrichment.sh - 精简为纠正检测 + 恢复提醒
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/feedback/context-enrichment.sh`
 
 **改动：**
@@ -266,9 +266,9 @@ PreToolUse[Write|Edit|fs_write] 触发时：
   3. 高频 lessons 注入（硬编码文本）
 - 不再尝试做意图分类或工作流路由（这个交给命令层）
 
-### Task 2.4: 重写 verify-completion.sh — 精简 stop hook
+### Tarefa 2.4: 重写 verify-completion.sh - 精简 stop hook
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/feedback/verify-completion.sh`
 
 **改动：**
@@ -282,9 +282,9 @@ PreToolUse[Write|Edit|fs_write] 触发时：
 
 ## Phase 3: Skill 合并精简
 
-### Task 3.1: 合并 planning skill
+### Tarefa 3.1: 合并 planning skill
 
-**Files:**
+**Arquivos:**
 - Create: `skills/planning/SKILL.md`
 
 **合并源：**
@@ -292,16 +292,16 @@ PreToolUse[Write|Edit|fs_write] 触发时：
 - 一个 skill 覆盖"写 plan"和"执行 plan"两个阶段
 - 去掉冗余的模板和示例，保留核心流程
 
-### Task 3.2: 合并 reviewing skill
+### Tarefa 3.2: 合并 reviewing skill
 
-**Files:**
+**Arquivos:**
 - Create: `skills/reviewing/SKILL.md`
 
 **合并源：**
 - `code-review-expert/SKILL.md` + `requesting-code-review/SKILL.md` + `receiving-code-review/SKILL.md`
 - 一个 skill 覆盖"发起 review"、"执行 review"、"接收 review"三个角色
 
-### Task 3.3: 精简其他 skill
+### Tarefa 3.3: 精简其他 skill
 
 **保留并重命名：**
 - `brainstorming/` → 保持不变
@@ -341,7 +341,7 @@ PreToolUse[Write|Edit|fs_write] 触发时：
 8. `research` — 调研
 9. `find-skills` — skill 发现（保留，方便未来扩展）
 
-### Task 3.4: Commit
+### Tarefa 3.4: Commit
 ```bash
 git add -A && git commit -m "refactor: consolidate 22 skills → 8 core skills"
 ```
@@ -350,9 +350,9 @@ git add -A && git commit -m "refactor: consolidate 22 skills → 8 core skills"
 
 ## Phase 4: 命令层重写
 
-### Task 4.1: 重写 plan 命令
+### Tarefa 4.1: 重写 plan 命令
 
-**Files:**
+**Arquivos:**
 - Create: `commands/plan.md`
 
 **硬编码完整步骤链：**
@@ -369,9 +369,9 @@ You MUST follow this exact sequence. Do NOT skip or reorder any step.
 
 （与 v2 基本相同，但引用路径更新为新结构）
 
-### Task 4.2: 重写 debug 命令
+### Tarefa 4.2: 重写 debug 命令
 
-**Files:**
+**Arquivos:**
 - Create: `commands/debug.md`
 
 **硬编码：**
@@ -381,18 +381,18 @@ You MUST follow this exact sequence. Do NOT skip or reorder any step.
 ## Step 3: Follow debugging methodology (reproduce → hypothesize → verify → fix)
 ```
 
-### Task 4.3: 重写 research 命令
+### Tarefa 4.3: 重写 research 命令
 
-**Files:**
+**Arquivos:**
 - Create: `commands/research.md`
 
-### Task 4.4: 重写 review-code / review-plan 命令
+### Tarefa 4.4: 重写 review-code / review-plan 命令
 
-**Files:**
+**Arquivos:**
 - Create: `commands/review-code.md`
 - Create: `commands/review-plan.md`
 
-### Task 4.5: Commit
+### Tarefa 4.5: Commit
 ```bash
 git add -A && git commit -m "refactor: rewrite command layer with hardcoded step chains"
 ```
@@ -401,9 +401,9 @@ git add -A && git commit -m "refactor: rewrite command layer with hardcoded step
 
 ## Phase 5: 平台配置生成
 
-### Task 5.1: 创建配置生成脚本
+### Tarefa 5.1: 创建配置生成脚本
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/generate-platform-configs.sh`
 
 **功能：**
@@ -443,7 +443,7 @@ jq -n '{
 - 从 `hooks/` 映射到 Kiro hook 格式
 - 输出到 `.kiro/agents/*.json`
 
-### Task 5.2: 运行生成脚本，验证配置
+### Tarefa 5.2: 运行生成脚本，验证配置
 
 ```bash
 bash scripts/generate-platform-configs.sh
@@ -452,7 +452,7 @@ jq . .claude/settings.json
 jq . .kiro/agents/default.json
 ```
 
-### Task 5.3: Commit
+### Tarefa 5.3: Commit
 ```bash
 git add -A && git commit -m "feat: single-source config generation for CC + Kiro"
 ```
@@ -461,7 +461,7 @@ git add -A && git commit -m "feat: single-source config generation for CC + Kiro
 
 ## Phase 6: AGENTS.md 精简 + knowledge 更新
 
-### Task 6.1: 重写 AGENTS.md
+### Tarefa 6.1: 重写 AGENTS.md
 
 **目标：<60 行，只保留：**
 - Identity（2 行）
@@ -478,15 +478,15 @@ git add -A && git commit -m "feat: single-source config generation for CC + Kiro
 - Compound Interest 详细描述（移到 reference.md）
 - Long-Running Tasks 详细描述（移到 reference.md）
 
-### Task 6.2: 更新 knowledge/INDEX.md
+### Tarefa 6.2: 更新 knowledge/INDEX.md
 
 更新路由表指向新路径。
 
-### Task 6.3: 更新 knowledge/lessons-learned.md
+### Tarefa 6.3: 更新 knowledge/lessons-learned.md
 
 添加 v3 重构的 win 记录。
 
-### Task 6.4: Commit
+### Tarefa 6.4: Commit
 ```bash
 git add -A && git commit -m "docs: streamline AGENTS.md and update knowledge index"
 ```
@@ -495,7 +495,7 @@ git add -A && git commit -m "docs: streamline AGENTS.md and update knowledge ind
 
 ## Phase 6.5: 迁移对比测试（解决 reviewer M2）
 
-### Task 6.5.1: 对比新旧 hook 行为
+### Tarefa 6.5.1: 对比新旧 hook 行为
 
 用相同的输入测试新旧 hook，确保行为一致：
 
@@ -522,7 +522,7 @@ echo "$TEST_INPUT" | bash hooks/gate/require-workflow.sh; echo "v3 exit: $?"
 
 ## Phase 7: 端到端验证
 
-### Task 7.1: Hook 功能验证
+### Tarefa 7.1: Hook 功能验证
 
 ```bash
 # 测试 block-dangerous.sh
@@ -538,7 +538,7 @@ echo '{"tool_name":"fs_write","tool_input":{"file_path":"src/app.ts","command":"
 # 先创建一个带 review 的 plan，再测试
 ```
 
-### Task 7.2: 配置生成验证
+### Tarefa 7.2: 配置生成验证
 
 ```bash
 bash scripts/generate-platform-configs.sh
@@ -548,7 +548,7 @@ jq . .kiro/agents/default.json > /dev/null && echo "Kiro config OK"
 jq . .kiro/agents/reviewer.json > /dev/null && echo "Reviewer config OK"
 ```
 
-### Task 7.3: Symlink 验证
+### Tarefa 7.3: Symlink 验证
 
 ```bash
 # 验证所有 symlink 指向正确
@@ -559,7 +559,7 @@ ls -la .kiro/skills   # → ../skills
 ls -la .kiro/prompts  # → ../commands
 ```
 
-### Task 7.4: Skill 完整性验证
+### Tarefa 7.4: Skill 完整性验证
 
 ```bash
 # 验证 9 个 skill 都有 SKILL.md 且有 frontmatter
@@ -572,7 +572,7 @@ for skill in brainstorming planning reviewing debugging verification finishing s
 done
 ```
 
-### Task 7.5: Final commit + tag
+### Tarefa 7.5: Final commit + tag
 
 ```bash
 git add -A && git commit -m "feat: framework v3 — deterministic overhaul complete"
@@ -652,112 +652,112 @@ YAML frontmatter 定义元数据，正文是 agent 的 system prompt。
 
 ### ADVERSARIAL REVIEW - 2026-02-14
 
-**Categorization:** CRITICAL issues found, REQUEST CHANGES required.
+**Categorização:** Foram encontradas issues CRÍTICAS, REQUEST CHANGES obrigatório.
 
-#### STRENGTHS
-- Clear three-layer deterministic model (L1 commands, L2 PreToolUse blocks, L3 feedback)
-- Single-source config generation eliminates dual-maintenance burden
-- Aggressive consolidation from 22→8 skills addresses complexity bloat
-- Git tag rollback point provides safety net
-- Symlink strategy maintains backward compatibility during transition
+#### PONTOS FORTES
+- Modelo determinístico claro de três camadas (L1 commands, L2 PreToolUse blocks, L3 feedback)
+- Geração de config a partir de fonte única elimina o ônus de manutenção dupla
+- Consolidação agressiva de 22 -> 8 skills ataca o inchaço de complexidade
+- Ponto de rollback via git tag oferece rede de segurança
+- Estratégia de symlink mantém compatibilidade reversa durante a transição
 
-#### CRITICAL ISSUES
+#### ISSUES CRÍTICAS
 
-**C1: Missing Hook Migration Strategy**
+**C1: Estratégia de migração de hook ausente**
 ```bash
 # Plan shows copying hooks but missing critical ones:
 cp .claude/hooks/quality/auto-test.sh hooks/feedback/auto-test.sh
 # ❌ Missing: enforce-skill-chain.sh, reviewer-stop-check.sh, enforce-tests.sh
 ```
-These hooks contain business logic that will be lost. Plan must specify which hooks are being deprecated vs. merged into new hooks.
+Esses hooks contêm lógica de negócio que será perdida. O plan precisa especificar quais hooks serão depreciados vs. mesclados em novos hooks.
 
-**C2: Workflow State Race Conditions**
+**C2: Race conditions no estado de workflow**
 ```bash
 # /tmp/agent-workflow-<project-hash>.json
 # ❌ Multiple agent instances will corrupt this file
 ```
-No file locking mechanism. Concurrent agents (reviewer + implementer) will create race conditions. Need atomic operations or per-agent state files.
+Sem mecanismo de file locking. Agentes concorrentes (reviewer + implementer) vão criar race conditions. Precisa de operações atômicas ou arquivos de estado por agente.
 
-**C3: require-workflow.sh Logic Gaps**
+**C3: Lacunas de lógica em require-workflow.sh**
 ```
 5. 检查工作流状态：
    a. 最近 2h 内有 plan 文件被创建？ 没有 → BLOCK
 ```
-❌ What if plan exists but is stale (>2h)? What if multiple plans exist? Logic doesn't handle plan file discovery - which plan file to check?
+❌ E se o plan existir mas estiver obsoleto (>2h)? E se múltiplos plans existirem? A lógica não trata a descoberta do arquivo de plan - qual plan checar?
 
-**C4: Skill Consolidation Data Loss Risk**
-Plan deletes 14 skills but merge strategy is vague:
-- `test-driven-development` → where does TDD methodology go?
-- `dispatching-parallel-agents` → "合并到 planning skill" but no concrete mapping
-- `using-git-worktrees` → "简化为 planning skill 的一个步骤" loses specialized knowledge
+**C4: Risco de perda de dados na consolidação de skills**
+O plan deleta 14 skills mas a estratégia de merge é vaga:
+- `test-driven-development` -> para onde vai a metodologia de TDD?
+- `dispatching-parallel-agents` -> "合并到 planning skill" mas sem mapeamento concreto
+- `using-git-worktrees` -> "简化为 planning skill 的一个步骤" perde conhecimento especializado
 
 #### WARNINGS
 
-**W1: 2-Hour Time Window Too Aggressive**
+**W1: Janela de 2 horas é agressiva demais**
 ```
 # 时间窗口从 24h 缩短到 2h（更紧凑）
 ```
-Real development sessions often span >2h. This will create false blocks during legitimate long coding sessions.
+Sessões reais de desenvolvimento muitas vezes ultrapassam 2h. Isso vai criar bloqueios falsos em sessões longas legítimas de coding.
 
-**W2: Configuration Generation Script Missing**
-Task 5.1 describes `generate-platform-configs.sh` functionality but provides no implementation. Complex jq logic shown but no error handling, validation, or edge case coverage.
+**W2: Script de geração de configuração ausente**
+A Tarefa 5.1 descreve a funcionalidade do `generate-platform-configs.sh` mas não fornece implementação. Mostra lógica jq complexa, mas sem tratamento de erro, validação ou cobertura de casos de borda.
 
-**W3: Symlink Dependency Fragility**
+**W3: Fragilidade na dependência de symlink**
 ```bash
 ln -sf ../hooks .claude/hooks
 ln -sf ../skills .claude/skills
 ```
-Relative symlinks break if directories are moved. Absolute paths or validation needed.
+Symlinks relativos quebram se os diretórios forem movidos. Precisa de paths absolutos ou validação.
 
-#### MISSING CRITICAL COMPONENTS
+#### COMPONENTES CRÍTICOS FALTANDO
 
-**M1: Rollback Procedure**
-Plan creates git tag but no rollback instructions. What if v3 breaks production? Need step-by-step restoration process.
+**M1: Procedimento de rollback**
+O plan cria git tag mas não traz instruções de rollback. E se o v3 quebrar a produção? Precisa de processo de restauração passo a passo.
 
-**M2: Migration Testing**
-No testing of hook behavior during transition. Need verification that new `require-workflow.sh` produces same blocks/passes as old `enforce-skill-chain.sh` on real scenarios.
+**M2: Testes de migração**
+Sem testes do comportamento dos hooks durante a transição. Precisa verificar que o novo `require-workflow.sh` produz os mesmos blocks/passes que o antigo `enforce-skill-chain.sh` em cenários reais.
 
-**M3: Agent Definition Format**
+**M3: Formato de definição de agente**
 ```
 - 从 `agents/*.md` 读取 agent 定义（name, description, tools, resources）
 ```
-No specification of the markdown format. How are tools/resources encoded? What's the schema?
+Sem especificação do formato markdown. Como tools/resources são codificados? Qual o schema?
 
-**M4: Backward Compatibility Plan**
-What happens to existing `.completion-criteria.md` files? Existing workflow state? Plan assumes clean slate but real systems have persistent state.
+**M4: Plano de compatibilidade reversa**
+O que acontece com arquivos `.completion-criteria.md` existentes? Estado de workflow existente? O plan assume clean slate, mas sistemas reais têm estado persistente.
 
-#### EDGE CASES NOT ADDRESSED
+#### CASOS DE BORDA NÃO ENDEREÇADOS
 
-**E1: Cross-Platform stat() Calls**
+**E1: Chamadas stat() multi-plataforma**
 ```bash
 # 新增 `file_mtime()` 函数统一 macOS/Linux stat 差异
 ```
-Plan mentions this but doesn't show implementation. macOS uses `stat -f %m`, Linux uses `stat -c %Y`. Missing implementation = broken hooks.
+O plan menciona isso mas não mostra a implementação. macOS usa `stat -f %m`, Linux usa `stat -c %Y`. Falta a implementação = hooks quebrados.
 
-**E2: Skill Injection Attack Vector**
-Plan removes `scan-skill-injection.sh` from security hooks but doesn't explain why this attack vector is no longer relevant.
+**E2: Vetor de ataque por skill injection**
+O plan remove `scan-skill-injection.sh` dos hooks de security mas não explica por que esse vetor de ataque deixou de ser relevante.
 
-**E3: JSON Corruption Handling**
-Workflow state uses jq but no handling of corrupted JSON files. One bad write breaks entire workflow detection.
+**E3: Tratamento de corrupção de JSON**
+O estado de workflow usa jq mas sem tratamento de arquivos JSON corrompidos. Um único write ruim quebra a detecção de workflow inteira.
 
-#### VERDICT: REQUEST CHANGES
+#### VEREDITO: REQUEST CHANGES
 
-**Required Fixes Before Approval:**
+**Correções obrigatórias antes da aprovação:**
 
-1. **Add hook migration matrix** - explicit mapping of which v2 hooks → v3 hooks, which are deprecated
-2. **Implement file locking** for workflow state or use per-agent files  
-3. **Define plan discovery logic** - how require-workflow.sh finds the relevant plan file
-4. **Provide concrete skill merge mappings** - where does each deleted skill's content go?
-5. **Implement generate-platform-configs.sh** with error handling
-6. **Add rollback procedure** with step-by-step instructions
-7. **Specify agent definition markdown schema**
-8. **Show file_mtime() implementation** for cross-platform compatibility
+1. **Adicionar matriz de migração de hooks** - mapeamento explícito de quais hooks v2 -> hooks v3, quais são depreciados
+2. **Implementar file locking** para o estado de workflow ou usar arquivos por agente  
+3. **Definir lógica de descoberta de plan** - como require-workflow.sh acha o arquivo de plan relevante
+4. **Fornecer mapeamentos concretos de merge de skill** - para onde vai o conteúdo de cada skill deletada?
+5. **Implementar generate-platform-configs.sh** com tratamento de erro
+6. **Adicionar procedimento de rollback** com instruções passo a passo
+7. **Especificar o schema markdown de definição de agente**
+8. **Mostrar implementação de file_mtime()** para compatibilidade multi-plataforma
 
-**Recommended Changes:**
-- Increase time window to 4h or make configurable
-- Add migration testing phase before Phase 7
-- Use absolute symlinks or add validation
-- Add JSON corruption recovery logic
+**Mudanças recomendadas:**
+- Aumentar a janela para 4h ou torná-la configurável
+- Adicionar fase de teste de migração antes da Phase 7
+- Usar symlinks absolutos ou adicionar validação
+- Adicionar lógica de recuperação de corrupção de JSON
 
-This is a high-risk, high-reward refactor. The deterministic approach is sound, but execution gaps could break the entire framework. Fix critical issues before proceeding.
+Este é um refactor de alto risco e alta recompensa. A abordagem determinística é sólida, mas lacunas de execução podem quebrar o framework inteiro. Conserte issues críticas antes de prosseguir.
 
