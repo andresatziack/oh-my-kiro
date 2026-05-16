@@ -1,4 +1,4 @@
-# Auditoria do Codebase - Review Abrangente de Código
+# Codebase Audit — 全面代码审查
 
 **Objetivo:** 修复代码中的类型错误、不一致、冗余、潜在 bug 和死代码，提升代码质量和可维护性
 **Não-Objetivos:** 不做功能变更、不改架构、不加新特性、不改 shell hook 的业务逻辑

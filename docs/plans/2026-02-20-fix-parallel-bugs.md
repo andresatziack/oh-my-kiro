@@ -1,4 +1,4 @@
-> **ABANDONED** - 未执行，已关闭
+> **ABANDONED** — 未执行，已关闭
 
 # ~~Corrigir Bugs de Execução Paralela do Ralph Loop~~ (OBSOLETE)
 

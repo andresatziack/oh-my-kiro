@@ -1,4 +1,4 @@
-# Governança de Hook - Auditoria, Otimização, Consolidação
+# Hook Governance — 审计、优化、固化
 
 **Objetivo:** 全面审计现有 hook 体系，修复不一致和冗余，产出 Hook Architecture Design Doc（含扩展性设计）并用代码层机制固化设计，防止后续迭代破坏，同时保证新 hook 的接入有清晰流程。
 
@@ -13,10 +13,10 @@
 
 ## Audit Findings
 
-### F1: 注册表 drift - enforcement.md 缺失 2 个 hook
+### F1: 注册表 drift — enforcement.md 缺失 2 个 hook
 `enforce-ralph-loop.sh` 和 `require-regression.sh` 在 generate_configs.py 和 Kiro agent JSON 中注册，但 enforcement.md 没有记录。enforcement.md 作为"单一事实来源"不完整。
 
-### F2: 注册表 drift - settings.json 缺失 2 个 hook
+### F2: 注册表 drift — settings.json 缺失 2 个 hook
 `enforce-ralph-loop.sh` 和 `require-regression.sh` 在 Kiro agent JSON 中注册，但 `.claude/settings.json` 没有。CC 用户不会触发这两个 gate。
 
 ### F3: llm-eval.sh 是死代码
@@ -381,7 +381,7 @@ grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md
 
 **Verdict: APPROVE (with post-review enhancements)**
 
-### Round 3 (2026-02-18) - 预填模板 + 填空式
+### Round 3 (2026-02-18) — 预填模板 + 填空式
 
 **Angles:** Goal Alignment + Verify Correctness + Security + Compatibility & Rollback
 

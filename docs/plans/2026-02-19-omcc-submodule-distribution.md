@@ -1,4 +1,4 @@
-> **ABANDONED** - 未执行，已关闭
+> **ABANDONED** — 未执行，已关闭
 
 # Plano: Distribuição do OMCC como Submodule para china-poetry-app
 

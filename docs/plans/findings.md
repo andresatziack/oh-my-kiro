@@ -137,4 +137,3 @@ Manus 的 Peak 警告：agent harness 可能限制模型性能提升。
 | P1 | Agent Teams 支持（需 CC 实验特性） | 并行 agent 间通信 | 中 |
 | P2 | Checklist JSON 分离（改 plan.py + hooks） | 消除 Markdown 解析误判 | 中 |
 | P2 | Bitter Lesson 防护（加环境变量） | 框架不限制模型进步 | 低 |
-

@@ -91,7 +91,7 @@ Agentes Kiro registram scripts dispatcher (linhas 1-2 abaixo). O settings.json d
 ### Adicionando um Novo Hook
 
 1. **Classifique** - Use a árvore de decisão na seção Extensibilidade abaixo.
-2. **Escreva o script** - Coloque em `hooks/<categoria>/`, importe `_lib/common.sh`. Nomeação: `verb-noun.sh`.
+2. **Escreva o script** - Coloque em `hooks/<category>/`, importe `_lib/common.sh`. Nomeação: `verb-noun.sh`.
 3. **Atualize enforcement.md** - Adicione linha ao Registro de Hooks em `.kiro/rules/enforcement.md`.
 4. **Atualize o gerador** - Adicione o hook em `scripts/generate_configs.py` no(s) builder(s) de agente apropriado(s).
 5. **Regenere os configs** - `python3 scripts/generate_configs.py`

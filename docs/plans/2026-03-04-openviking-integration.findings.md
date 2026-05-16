@@ -15,4 +15,3 @@
 
 - A tool fs_write do Kiro reverte mudanças de arquivo entre chamadas de tool. Todas as modificações de código fonte precisam ser feitas em uma única chamada `execute_bash` usando Python, e o git commit feito no mesmo fluxo de chamadas.
 - Isso significa: escreva um script Python que modifique todos os arquivos, execute via execute_bash, depois faça git add+commit na próxima chamada execute_bash.
-

@@ -1,4 +1,4 @@
-# Ralph Loop: Refactor Completo e Hardening
+# Ralph Loop 全面重构与加固
 
 **Objetivo:** 全面重构 ralph_loop.py 及其 lib 模块，消除所有已知风险（竞态、孤儿进程、脏状态、静默失败），提升代码质量和可测试性。
 **Não-Objetivos:** 不改变 ralph loop 的外部行为和 CLI 接口；不改变 plan 文件格式；不添加新功能（如 PR 创建、远程执行）。

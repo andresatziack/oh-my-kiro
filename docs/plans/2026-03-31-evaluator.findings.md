@@ -13,4 +13,3 @@
 
 - O prompt do evaluator usa 7 pontos de enforcement REJECTED (4 regras de tabela vazia por subagent + 3 na agregação) para prevenir avaliações rubber-stamp.
 - Canary questions são por subagent e exigem leitura efetiva do código fonte para serem respondidas - previne que evaluators gerem feedback genérico sem ler o diff.
-

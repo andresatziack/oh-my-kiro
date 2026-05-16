@@ -1,4 +1,4 @@
-# Otimização de Eficiência de Execução do Ralph Loop
+# Ralph Loop 执行效率优化
 
 **Objetivo:** 减少 Ralph Loop 每次迭代的固定开销（实测 ~17-24s/迭代），提升代码稳定性和可维护性
 **Não-Objetivos:** 改变 Ralph Loop 的核心架构（每次新 session = 干净 context）；改变 CLI 调用方式（session resume 已调研证伪）；改变 hook 系统

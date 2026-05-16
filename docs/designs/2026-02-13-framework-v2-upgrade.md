@@ -7,7 +7,7 @@
 
 ---
 
-## Part 0: 调研总结 - 官方最佳实践要点
+## Part 0: 调研总结 — 官方最佳实践要点
 
 ### CLAUDE.md 最佳实践 (来源: Anthropic 官方文档)
 
@@ -103,7 +103,7 @@ CLAUDE.md / AGENTS.md (≤200行，每轮读取)
 
 ---
 
-## Part 2: 目标架构 - "As Code" 渐进式披露框架
+## Part 2: 目标架构 — "As Code" 渐进式披露框架
 
 ### 核心设计原则
 
@@ -605,7 +605,7 @@ fi
 
 ### 4.2 核心 Hook 详细设计
 
-#### 4.2.1 `verify-completion` - Stop Hook (最关键的新增)
+#### 4.2.1 `verify-completion` — Stop Hook (最关键的新增)
 
 **类型:** `agent` (多轮验证，可读文件检查，更可靠)
 
@@ -646,7 +646,7 @@ source "$(dirname "$0")/../_lib/llm-eval.sh"
 
 > **注意:** Kiro 的 Stop hook 不能阻断停止（CC 可以）。但通过 PostToolUse 前移验证 + LLM 语义评估注入 context，可恢复到 CC ~90% 的能力。
 
-#### 4.2.2 `auto-approve-safe` - PermissionRequest Hook (CC 独有，子 agent 自动运行的关键)
+#### 4.2.2 `auto-approve-safe` — PermissionRequest Hook (CC 独有，子 agent 自动运行的关键)
 
 **类型:** `command`
 **策略:** 黑名单 — 只有危险命令需要人工确认，其他全部自动批准
@@ -1201,7 +1201,7 @@ exit 0
 
 ---
 
-## Part 5: Skill 治理 - 审计与重构
+## Part 5: Skill 治理 — 审计与重构
 
 ### 5.1 现有 Skill 审计结果
 
@@ -1251,11 +1251,11 @@ exit 0
 5. 不得包含 `curl|bash`、`wget|sh` 等模式
 6. Task 类 skill 必须设置 `disable-model-invocation: true`
 
-### 5.3 Skill 质量门禁 - 自动审查机制
+### 5.3 Skill 质量门禁 — 自动审查机制
 
 **两层防护:**
 
-#### 层1: PreToolUse[Write|Edit] Hook - 写入时扫描
+#### 层1: PreToolUse[Write|Edit] Hook — 写入时扫描
 
 ```bash
 #!/bin/bash
@@ -1294,7 +1294,7 @@ fi
 exit 0
 ```
 
-#### 层2: PostToolUse[Write|Edit] Hook (async) - 写入后深度检查
+#### 层2: PostToolUse[Write|Edit] Hook (async) — 写入后深度检查
 
 ```bash
 #!/bin/bash
@@ -1814,7 +1814,7 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 
 **Stop hook stdout 行为：** 文档对 Stop hook exit 0 只说 "Hook succeeded"，没有像 AgentSpawn/UserPromptSubmit 那样明确说 "STDOUT is added to agent's context"。但项目现有的 `enforce-lessons.sh` 就是 Stop hook + exit 0 + stdout 输出且一直在正常工作，说明 **Stop hook exit 0 的 stdout 实际上也会加入 context**。
 
-#### 降级点 1: Stop hook 不能阻断 - 🔴 最大差距
+#### 降级点 1: Stop hook 不能阻断 — 🔴 最大差距
 
 | | CC | Kiro |
 |--|-----|------|
@@ -1864,7 +1864,7 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 
 **诚实评估：** PostToolUse 前移验证覆盖了"测试必须通过"的场景（agent 还在运行时就收到反馈）。但无法覆盖"LLM 判断任务是否真正完成"的场景（需要 agent hook 类型）。**恢复率 ~80%。**
 
-#### 降级点 2: 无 SubagentStart/Stop hook - 🟡 中影响
+#### 降级点 2: 无 SubagentStart/Stop hook — 🟡 中影响
 
 | | CC | Kiro |
 |--|-----|------|
@@ -1888,11 +1888,11 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 
 **评估：** ✅ 已验证 hooks 执行。子 agent 的 agentSpawn/preToolUse/stop hooks 全部正常触发。**恢复率 ~90%。**
 
-#### 降级点 3: 无 TaskCompleted hook - 🟡 中影响
+#### 降级点 3: 无 TaskCompleted hook — 🟡 中影响
 
 **Workaround：** TODO 工具 + Stop hook 检查 + PostToolUse 自动测试。**恢复率 ~80%。**
 
-#### 降级点 4: 无 prompt/agent hook 类型 - 🟡 中影响
+#### 降级点 4: 无 prompt/agent hook 类型 — 🟡 中影响
 
 **Workaround：**
 - Shell hook 做确定性检查（文件存在、测试通过、git diff）— 覆盖 ~80% 场景
@@ -1901,7 +1901,7 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 
 **恢复率 ~75%。**
 
-#### 降级点 5: 子 agent 工具受限 - 🟡→🟢 影响下调
+#### 降级点 5: 子 agent 工具受限 — 🟡→🟢 影响下调
 
 **事实修正：** 子 agent 有 shell，可以执行：
 - `grep -rn "pattern" src/` → 替代 grep 工具 ✅
@@ -1915,7 +1915,7 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 
 **恢复率 ~90%。** 只有 researcher 子 agent 需要 web_search 时受影响，可以让调研任务回到主 agent 执行。
 
-#### 降级点 6: 无 SessionEnd hook - 🟢 低影响
+#### 降级点 6: 无 SessionEnd hook — 🟢 低影响
 
 Stop hook 近似替代 + 自动持久化。**恢复率 ~95%。**
 

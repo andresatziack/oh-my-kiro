@@ -1,4 +1,4 @@
-# Block Recovery - Auto-cura e Skip de Fallback após Bloqueio de Comando Perigoso
+# Block Recovery — 危险命令阻断后自愈与兜底跳过
 
 **Objetivo:** 当 security hook 阻断危险命令时，agent 能利用 hook 提供的替代建议自动重试，重试失败后自动 SKIP，不卡死 plan 执行。
 **Arquitetura:** 两层防御：(1) 所有 security blocking hook 共享的计数+重试指引逻辑，抽取到 `_lib/block-recovery.sh`，各 hook 调用（带 fallback）；(2) ralph-loop prompt 加兜底规则。

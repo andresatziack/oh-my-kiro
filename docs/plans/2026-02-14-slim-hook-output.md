@@ -1,4 +1,4 @@
-# 精简 Hook 输出 - 为 Auto-Compaction 留出 32K 空间
+# 精简 Hook 输出 — 为 Auto-Compaction 留出 32K 空间
 
 **Objetivo:** 减少 hook 输出的 token 占用，确保 context 在 auto-compact 触发时仍有 ≥32K 空间供 compaction API 调用。
 
@@ -60,7 +60,7 @@
 
 ## Review
 
-**VERDITO: REQUEST CHANGES**
+**VEREDITO: REQUEST CHANGES**
 
 **Problemas críticos:**
 1. ✅ **Checklist existe** com critérios de aceitação concretos `- [ ]`

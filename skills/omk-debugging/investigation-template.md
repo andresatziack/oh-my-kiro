@@ -27,7 +27,7 @@
 
 ## Evidence Table
 
-### 🔒 L0 - Machine Facts (não pode ser refutado)
+### 🔒 L0 — Machine Facts (不可推翻)
 <!-- 命令输出、代码分析、API 响应、实验结果 -->
 <!-- APPEND-ONLY: 只增不删不改 -->
 
@@ -35,7 +35,7 @@
 |---|------|------|------|------|
 | F1 | {time} | {fact} | {command/code/api} | {相关子问题} |
 
-### 👤 L1 - Human Observations (precisa de razão sólida para questionar)
+### 👤 L1 — Human Observations (需充分理由才能质疑)
 <!-- 用户报告的操作和现象 -->
 <!-- APPEND-ONLY -->
 
@@ -43,7 +43,7 @@
 |---|------|------|--------|--------|
 | H1 | {time} | {observation} | {who} | 高/中/低 |
 
-### 🤖 L2 - Agent Inferences (pode ser corrigido)
+### 🤖 L2 — Agent Inferences (可修正)
 <!-- AI 的推导、假设、分析结论 -->
 <!-- 可标注 ~~struck~~ 表示已推翻，但不删除原文 -->
 

@@ -7,4 +7,3 @@
 - **Timing do hook de plan:** O hook verify-before-checkoff exige que o comando verify seja a chamada `execute_bash` mais recente antes do `str_replace` que marca `- [x]`. Executá-lo antes e fazer outras chamadas de tool no meio aciona o bloqueio.
 
 - **Falhas pré-existentes de teste:** 4 testes em test_ralph_loop.py falham antes de qualquer mudança: test_detect_claude_cli, test_no_cli_found, test_parse_config_defaults, test_claude_cmd_has_no_session_persistence. Todos relacionados a detecção de CLI e defaults de config - provavelmente de uma migração recente do kiro-cli que atualizou o comportamento de detect_cli sem atualizar os testes.
-

@@ -8,4 +8,3 @@ NÃO usado por: `hooks/**/*.sh` (hooks são em bash, sensíveis a latência)
 Hooks (bash, <5ms) ←→ protocolo via arquivo ←→ Scripts (Python, lógica complexa)
 
 Nunca: hooks importando Python | scripts dando source em bash
-

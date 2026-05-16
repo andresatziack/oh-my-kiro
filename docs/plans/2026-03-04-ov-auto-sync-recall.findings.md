@@ -7,4 +7,3 @@
 - **Compat com macOS:** Sem comando `timeout` disponível - use `sleep` em loop
 - **Tratamento de erro em hooks:** Hooks não devem bloquear em falhas do OV - sempre `|| true` em chamadas ov
 - **Guard de session-init:** Usa o arquivo `$LESSONS_FLAG` para rodar uma vez por sessão; código novo vai antes de `touch "$LESSONS_FLAG"`
-
