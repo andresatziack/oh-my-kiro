@@ -1,10 +1,11 @@
-# scripts/lib/ — Python Shared Library
+# scripts/lib/ - Biblioteca compartilhada em Python
 
-Used by: `scripts/ralph_loop.py`, `scripts/generate_configs.py`
-NOT used by: `hooks/**/*.sh` (hooks are bash, latency-sensitive)
+Usado por: `scripts/ralph_loop.py`, `scripts/generate_configs.py`
+NÃO usado por: `hooks/**/*.sh` (hooks são em bash, sensíveis a latência)
 
-## Boundary Rule
+## Regra de Fronteira
 
-Hooks (bash, <5ms) ←→ file protocol ←→ Scripts (Python, complex logic)
+Hooks (bash, <5ms) ←→ protocolo via arquivo ←→ Scripts (Python, lógica complexa)
 
-Never: hooks importing Python | scripts sourcing bash
+Nunca: hooks importando Python | scripts dando source em bash
+

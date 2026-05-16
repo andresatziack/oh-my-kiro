@@ -1,56 +1,56 @@
-# OMK Extension Guide
+# Guia de Extensão do OMK
 
-Quick reference for extending OMK in downstream projects.
+Referência rápida para estender o OMK em projetos downstream.
 
-## Add a Skill
+## Adicionar uma Skill
 
-1. Create `skills/my-skill/SKILL.md` with frontmatter and instructions
-2. Register in `.omk-overlay.json`:
+1. Crie `skills/my-skill/SKILL.md` com frontmatter e instruções
+2. Registre em `.omk-overlay.json`:
    ```json
    { "extra_skills": ["skills/my-skill"], "extra_hooks": {} }
    ```
-3. Validate: `bash tools/validate-project.sh`
-4. Generate configs: `python3 scripts/generate_configs.py --overlay .omk-overlay.json`
+3. Valide: `bash tools/validate-project.sh`
+4. Gere os configs: `python3 scripts/generate_configs.py --overlay .omk-overlay.json`
 
-## Add a Hook
+## Adicionar um Hook
 
-1. Create `hooks/project/my-hook.sh` (must be executable)
-2. Register in `.omk-overlay.json`:
+1. Crie `hooks/project/my-hook.sh` (precisa ser executável)
+2. Registre em `.omk-overlay.json`:
    ```json
    { "extra_hooks": { "postToolUse": [{"command": "hooks/project/my-hook.sh"}] } }
    ```
-3. Valid events (camelCase): `agentSpawn`, `userPromptSubmit`, `preToolUse`, `postToolUse`, `stop`
-4. Validate: `bash tools/validate-project.sh`
+3. Eventos válidos (camelCase): `agentSpawn`, `userPromptSubmit`, `preToolUse`, `postToolUse`, `stop`
+4. Valide: `bash tools/validate-project.sh`
 
-## Install a Community Skill
+## Instalar uma Skill da Comunidade
 
 ```bash
 bash tools/install-skill.sh <SKILL_PATH>
 ```
 
-This copies the skill, registers it in `.omk-overlay.json`, and regenerates configs.
+Isso copia a skill, registra em `.omk-overlay.json` e regenera os configs.
 
-## Validate Your Project
+## Validar seu projeto
 
 ```bash
 bash tools/validate-project.sh [PROJECT_ROOT]
 ```
 
-Exits 1 on errors (broken paths, invalid JSON, missing markers).
-Exits 0 with warnings (missing frontmatter, large files).
+Sai com 1 em caso de erros (paths quebrados, JSON inválido, marcadores faltando).
+Sai com 0 com warnings (frontmatter ausente, arquivos grandes).
 
-## Sync OMK Updates
+## Sincronizar updates do OMK
 
 ```bash
 bash tools/sync-omk.sh
 ```
 
-Updates the OMK submodule, validates, and regenerates all agent configs.
+Atualiza o submodule do OMK, valida e regenera todos os configs de agente.
 
 ## Don'ts
 
-- Do **not** edit files inside `.omk/` — they are regenerated on sync
-- Do **not** duplicate framework skills — add project-specific skills only
-- Do **not** name project hooks the same as framework hooks
-- Do **not** add project rules to `CLAUDE.md` — use `AGENTS.md` project sections
-- Do **not** skip validation — it is a hard gate before config generation
+- **Não** edite arquivos dentro de `.omk/`, eles são regerados no sync
+- **Não** duplique skills do framework, adicione apenas skills específicas do projeto
+- **Não** dê o mesmo nome a hooks de projeto e a hooks do framework
+- **Não** adicione regras de projeto ao `CLAUDE.md`, use as seções de projeto do `AGENTS.md`
+- **Não** pule a validação, ela é um gate obrigatório antes da geração de configs
