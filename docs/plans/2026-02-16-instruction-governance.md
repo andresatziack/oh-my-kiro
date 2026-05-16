@@ -1,8 +1,8 @@
-# Instruction Governance Redesign
+# Redesign da Governança de Instruções
 
-**Goal:** Redesign CLAUDE.md/AGENTS.md governance with clear layering, write protection, content improvement, and clean separation of responsibilities.
+**Objetivo:** Redesign CLAUDE.md/AGENTS.md governance with clear layering, write protection, content improvement, and clean separation of responsibilities.
 
-**Architecture:** Three-layer instruction system: CLAUDE.md (identity + principles + workflow), `.claude/rules/` (topic-specific operational rules), knowledge/rules.md (agent-learned rules as staging area). Hook-enforced write protection. context-enrichment split into 3 single-responsibility scripts.
+**Arquitetura:** Three-layer instruction system: CLAUDE.md (identity + principles + workflow), `.claude/rules/` (topic-specific operational rules), knowledge/rules.md (agent-learned rules as staging area). Hook-enforced write protection. context-enrichment split into 3 single-responsibility scripts.
 
 **Tech Stack:** Bash hooks, Markdown, jq
 
@@ -22,22 +22,22 @@ Key findings from deep research (Anthropic official docs + community + GitHub is
 
 All changes are file-level (markdown + shell scripts). Rollback = `git checkout HEAD~N -- <files>`. No database, no external state. Safe to revert any individual task.
 
-## Tasks
+## Tarefas
 
-### Task 0: Backup Current State
+### Tarefa 0: Backup Current State
 
-**Files:** None created, git handles it.
+**Arquivos:** None created, git handles it.
 
 **Step 1:** Commit current state before starting: `git add -A && git commit -m "chore: snapshot before instruction governance redesign"`
 **Step 2:** Tag for easy rollback: `git tag pre-governance-redesign`
 
-**Verify:** `git tag | grep -q pre-governance-redesign`
+**Verificação:** `git tag | grep -q pre-governance-redesign`
 
-### Task 1: Write Protection Hook for Instruction Files
+### Tarefa 1: Write Protection Hook for Instruction Files
 
 **⚠️ Execution order dependency:** Task 1 的 hook 生效后会拦截 Task 2-3 对 CLAUDE.md 和 `.claude/rules/` 的修改。执行 Task 2-3 时需要 `touch .skip-instruction-guard`，完成后 `rm .skip-instruction-guard`。
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 - Create: `tests/instruction-guard/test-write-protection.sh`
 
@@ -94,11 +94,11 @@ Add `gate_instruction_files` call before `gate_check` in the execute section.
 Run: `bash tests/instruction-guard/test-write-protection.sh`
 Expected: PASS
 
-**Verify:** `bash tests/instruction-guard/test-write-protection.sh`
+**Verificação:** `bash tests/instruction-guard/test-write-protection.sh`
 
-### Task 2: Rewrite CLAUDE.md Content
+### Tarefa 2: Rewrite CLAUDE.md Content
 
-**Files:**
+**Arquivos:**
 - Rewrite: `CLAUDE.md`
 - Sync: `AGENTS.md`
 
@@ -159,11 +159,11 @@ Expected: PASS
 **Step 2:** Copy to AGENTS.md via `generate-platform-configs.sh` (single source — script reads CLAUDE.md and writes AGENTS.md, never manual copy)
 **Step 3:** Verify no Shell Safety section remains, no duplication with `.claude/rules/`
 
-**Verify:** `! grep -q '## Shell Safety' CLAUDE.md && grep -q '## Principles' CLAUDE.md && grep -q '## Authority Matrix' CLAUDE.md && diff CLAUDE.md AGENTS.md`
+**Verificação:** `! grep -q '## Shell Safety' CLAUDE.md && grep -q '## Principles' CLAUDE.md && grep -q '## Authority Matrix' CLAUDE.md && diff CLAUDE.md AGENTS.md`
 
-### Task 3: Expand `.claude/rules/` with Migrated Rules
+### Tarefa 3: Expand `.claude/rules/` with Migrated Rules
 
-**Files:**
+**Arquivos:**
 - Create: `.claude/rules/shell.md`
 - Create: `.claude/rules/workflow.md`
 - Create: `.claude/rules/subagent.md`
@@ -192,11 +192,11 @@ Expected: PASS
 **Step 6:** Clean knowledge/rules.md — remove all migrated sections. Keep only rules 10-13 from workflow section (research findings not yet promoted) and any future agent-discovered rules. Update file header to reflect staging area role. **Important:** Do step 6 only after verifying all `.claude/rules/` files from steps 1-5 exist and have correct content. If any step 1-5 failed, do NOT delete from knowledge/rules.md.
 **Step 7:** Add file header to each `.claude/rules/` file
 
-**Verify:** `test -f .claude/rules/shell.md && test -f .claude/rules/workflow.md && test -f .claude/rules/subagent.md && test -f .claude/rules/debugging.md && grep -q 'Layer: Agent Rule' .claude/rules/shell.md`
+**Verificação:** `test -f .claude/rules/shell.md && test -f .claude/rules/workflow.md && test -f .claude/rules/subagent.md && test -f .claude/rules/debugging.md && grep -q 'Layer: Agent Rule' .claude/rules/shell.md`
 
-### Task 4: Brainstorming Gate Hook
+### Tarefa 4: Brainstorming Gate Hook
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 - Create: `tests/instruction-guard/test-brainstorm-gate.sh`
 
@@ -238,11 +238,11 @@ Run brainstorming first and confirm direction with user."
 **Step 4:** Run test — verify passes
 **Step 5:** Update `commands/plan.md` — in Step 1 (Brainstorming), after "Do NOT proceed until the user confirms the direction", add: `touch .brainstorm-confirmed` when user confirms. In Step 7 (Hand Off), add: `rm -f .brainstorm-confirmed` after writing `.active` file (cleanup).
 
-**Verify:** `bash tests/instruction-guard/test-brainstorm-gate.sh`
+**Verificação:** `bash tests/instruction-guard/test-brainstorm-gate.sh`
 
-### Task 5: Split context-enrichment.sh
+### Tarefa 5: Split context-enrichment.sh
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/feedback/correction-detect.sh`
 - Create: `hooks/feedback/session-init.sh`
 - Modify: `hooks/feedback/context-enrichment.sh`
@@ -297,11 +297,11 @@ echo "Results: $PASS passed, $FAIL failed"; [ "$FAIL" -eq 0 ]
 **Step 3:** Extract correction detection into `correction-detect.sh`, session-init into `session-init.sh`, slim `context-enrichment.sh`
 **Step 4:** Run test — verify passes
 
-**Verify:** `bash tests/context-enrichment/test-split.sh`
+**Verificação:** `bash tests/context-enrichment/test-split.sh`
 
-### Task 6: Update Config Generation & Documentation
+### Tarefa 6: Update Config Generation & Documentation
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate-platform-configs.sh`
 - Modify: `.kiro/rules/enforcement.md`
 - Modify: `knowledge/INDEX.md`
@@ -312,11 +312,11 @@ echo "Results: $PASS passed, $FAIL failed"; [ "$FAIL" -eq 0 ]
 **Step 3:** Update INDEX.md routing table to reflect new `.claude/rules/` files
 **Step 4:** Add "调研后沉淀 checkpoint" step to research skill
 
-**Verify:** `bash scripts/generate-platform-configs.sh && grep -q 'instruction' .kiro/rules/enforcement.md && grep -q 'shell.md' knowledge/INDEX.md && grep -q '沉淀' skills/research/SKILL.md`
+**Verificação:** `bash scripts/generate-platform-configs.sh && grep -q 'instruction' .kiro/rules/enforcement.md && grep -q 'shell.md' knowledge/INDEX.md && grep -q '沉淀' skills/research/SKILL.md`
 
-### Task 7: @lint Health Check Command
+### Tarefa 7: @lint Health Check Command
 
-**Files:**
+**Arquivos:**
 - Create: `commands/lint.md`
 
 **Content:** Define @lint command that checks:
@@ -326,7 +326,7 @@ echo "Results: $PASS passed, $FAIL failed"; [ "$FAIL" -eq 0 ]
 - Each `.claude/rules/` file has Layer header
 - CLAUDE.md and AGENTS.md in sync
 
-**Verify:** `test -f commands/lint.md && grep -q '500' commands/lint.md`
+**Verificação:** `test -f commands/lint.md && grep -q '500' commands/lint.md`
 
 ## Review
 

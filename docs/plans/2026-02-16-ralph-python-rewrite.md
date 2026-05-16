@@ -1,8 +1,8 @@
-# Ralph Loop Python Rewrite
+# Reescrita do Ralph Loop em Python
 
-**Goal:** Rewrite ralph-loop.sh (219 lines) and generate-platform-configs.sh (240 lines) from bash to Python for reliability, debuggability, and maintainability — while keeping all hooks in bash for latency.
-**Non-Goals:** Not rewriting any hooks (hooks/ directory stays bash). Not changing the file-based protocol (lock file, .active pointer, markdown checklist). Not adding new features — pure 1:1 behavioral parity.
-**Architecture:** Two Python scripts (`scripts/ralph_loop.py`, `scripts/generate_configs.py`) replace their bash equivalents. A shared library `scripts/lib/` provides common utilities (plan parsing, lock management). Hooks remain bash, communicate with Python scripts via file protocol only. Language boundary rule enforced by documentation + future lint check.
+**Objetivo:** Rewrite ralph-loop.sh (219 lines) and generate-platform-configs.sh (240 lines) from bash to Python for reliability, debuggability, and maintainability - while keeping all hooks in bash for latency.
+**Não-Objetivos:** Not rewriting any hooks (hooks/ directory stays bash). Not changing the file-based protocol (lock file, .active pointer, markdown checklist). Not adding new features - pure 1:1 behavioral parity.
+**Arquitetura:** Two Python scripts (`scripts/ralph_loop.py`, `scripts/generate_configs.py`) replace their bash equivalents. A shared library `scripts/lib/` provides common utilities (plan parsing, lock management). Hooks remain bash, communicate with Python scripts via file protocol only. Language boundary rule enforced by documentation + future lint check.
 **Tech Stack:** Python 3.10+ (subprocess, pathlib, signal, json, os)
 
 ## Review
@@ -19,11 +19,11 @@
 - **Security**: REQUEST CHANGES — PID reuse, regex dot wildcard, subagent drift → Calibrated: PID reuse is existing behavior not introduced by rewrite; subagent drift is config generator's concern not this plan's. Fixed: regex dot → character class `[-_.]` in Task 5
 - **Performance**: APPROVE ✅
 
-## Tasks
+## Tarefas
 
-### Task 1: Create shared Python library `scripts/lib/`
+### Tarefa 1: Create shared Python library `scripts/lib/`
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/__init__.py`
 - Create: `scripts/lib/plan.py`
 - Create: `scripts/lib/lock.py`
@@ -216,9 +216,9 @@ Expected: PASS
 
 ---
 
-### Task 2: Rewrite ralph-loop.sh → ralph_loop.py
+### Tarefa 2: Rewrite ralph-loop.sh → ralph_loop.py
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/ralph_loop.py`
 - Modify: `commands/execute.md` (update invocation)
 - Test: `tests/ralph-loop/test_ralph_loop.py`
@@ -403,9 +403,9 @@ Change `./scripts/ralph-loop.sh` → `python3 scripts/ralph_loop.py`
 
 ---
 
-### Task 3: Rewrite generate-platform-configs.sh → generate_configs.py
+### Tarefa 3: Rewrite generate-platform-configs.sh → generate_configs.py
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/generate_configs.py`
 - Test: `tests/test_generate_configs.py`
 
@@ -483,9 +483,9 @@ Expected: PASS
 
 ---
 
-### Task 4: Rename default agent → pilot + update references
+### Tarefa 4: Rename default agent → pilot + update references
 
-**Files:**
+**Arquivos:**
 - Rename: `.kiro/agents/default.json` → `.kiro/agents/pilot.json`
 - Modify: `.kiro/agents/pilot.json` (name field: "default" → "pilot")
 - Modify: `scripts/generate_configs.py` (output filename + name field)
@@ -495,7 +495,7 @@ Expected: PASS
 - Modify: `README.md` (agent references)
 - Modify: `AGENTS.md` (if references default agent)
 
-**Why:** `.kiro/agents/default.json` named "default" is easily confused with Kiro's built-in `kiro_default`. Rename to `pilot` for clarity — it's the main orchestrator that dispatches executor/reviewer/researcher.
+**Por que:** `.kiro/agents/default.json` named "default" is easily confused with Kiro's built-in `kiro_default`. Rename to `pilot` for clarity - it's the main orchestrator that dispatches executor/reviewer/researcher.
 
 **Step 1: Rename file and update name field**
 Rename `.kiro/agents/default.json` → `.kiro/agents/pilot.json`, change `"name": "default"` → `"name": "pilot"`.
@@ -521,9 +521,9 @@ Run: `test -f .kiro/agents/pilot.json && ! test -f .kiro/agents/default.json && 
 
 ---
 
-### Task 5: Update enforce-ralph-loop.sh references
+### Tarefa 5: Update enforce-ralph-loop.sh references
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh` (update help message + command allowlist)
 - Modify: `tests/ralph-loop/test-enforcement.sh` (update command path in test)
 - Modify: `tests/ralph-loop/test-timeout-heartbeat.sh` (update invocation)
@@ -548,9 +548,9 @@ Expected: All tests pass
 
 ---
 
-### Task 6: Language boundary rule + cleanup
+### Tarefa 6: Language boundary rule + cleanup
 
-**Files:**
+**Arquivos:**
 - Modify: `.claude/rules/shell.md` (add language boundary rule)
 - Create: `scripts/lib/README.md` (boundary documentation)
 - Modify: `.gitignore` (add `__pycache__/`)
@@ -623,4 +623,4 @@ Expected: No matches (or only historical plan docs)
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas

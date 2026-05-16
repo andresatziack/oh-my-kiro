@@ -1,15 +1,15 @@
-# Codebase Review & Cleanup Plan
+# Plano de Review e Limpeza do Codebase
 
-**Goal:** Clean up dead files/code and fix code quality issues across the project, without breaking any existing functionality.
-**Non-Goals:** Architecture changes, new features, refactoring module boundaries.
-**Architecture:** Scan all modules (hooks, scripts, skills, knowledge, commands, configs, docs) for unused files, stale references, code quality issues. Safe items cleaned directly, risky items listed for user confirmation.
+**Objetivo:** Clean up dead files/code and fix code quality issues across the project, without breaking any existing functionality.
+**Não-Objetivos:** Architecture changes, new features, refactoring module boundaries.
+**Arquitetura:** Scan all modules (hooks, scripts, skills, knowledge, commands, configs, docs) for unused files, stale references, code quality issues. Safe items cleaned directly, risky items listed for user confirmation.
 **Tech Stack:** Bash, Python, Markdown
 
-## Tasks
+## Tarefas
 
-### Task 1: Delete Dead Files
+### Tarefa 1: Delete Dead Files
 
-**Files:**
+**Arquivos:**
 - Delete: `knowledge/lessons-learned.md.bak` (superseded by episodes.md, 12KB of stale v2 data)
 - Delete: `docs/plans/.test-enforce-plan.md` (empty test artifact, 1 byte)
 - Delete: `archive/v2/hooks.bak` (broken symlink → `../.claude/hooks` which is itself a symlink)
@@ -31,13 +31,13 @@ git rm archive/v2/kiro-prompts/commands
 git add -A && git commit -m "chore: remove dead files — broken symlinks, empty dirs, stale .bak"
 ```
 
-**Verify:** `! git ls-files | grep -E 'lessons-learned\.md\.bak$|\.test-enforce-plan\.md$|hooks\.bak$|skills\.bak$|kiro-prompts/commands$'`
+**Verificação:** `! git ls-files | grep -E 'lessons-learned\.md\.bak$|\.test-enforce-plan\.md$|hooks\.bak$|skills\.bak$|kiro-prompts/commands$'`
 
-### Task 2: Fix Stale References in README.md
+### Tarefa 2: Fix Stale References in README.md
 
 README.md references `scripts/ralph-loop.sh` and `scripts/generate-platform-configs.sh` — both replaced by Python equivalents.
 
-**Files:**
+**Arquivos:**
 - Modify: `README.md`
 
 **Step 1: Update references**
@@ -50,11 +50,11 @@ README.md references `scripts/ralph-loop.sh` and `scripts/generate-platform-conf
 git add README.md && git commit -m "docs: update README — fix stale script references to Python rewrites"
 ```
 
-**Verify:** `! grep -E 'ralph-loop\.sh|generate-platform-configs\.sh' README.md`
+**Verificação:** `! grep -E 'ralph-loop\.sh|generate-platform-configs\.sh' README.md`
 
-### Task 3: Fix Stale References in enforcement.md and enforce-ralph-loop.sh
+### Tarefa 3: Fix Stale References in enforcement.md and enforce-ralph-loop.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/rules/enforcement.md` (references `scripts/generate-platform-configs.sh`)
 - Modify: `hooks/gate/enforce-ralph-loop.sh` (comments reference old script names)
 
@@ -70,13 +70,13 @@ Find comment `Allow ralph-loop.sh itself` and replace with `Allow ralph-loop inv
 git add .kiro/rules/enforcement.md hooks/gate/enforce-ralph-loop.sh && git commit -m "docs: fix stale references to old bash scripts"
 ```
 
-**Verify:** `! grep 'generate-platform-configs\.sh' .kiro/rules/enforcement.md && ! grep 'must use ralph-loop\.sh' hooks/gate/enforce-ralph-loop.sh && ! grep 'Allow ralph-loop\.sh itself' hooks/gate/enforce-ralph-loop.sh`
+**Verificação:** `! grep 'generate-platform-configs\.sh' .kiro/rules/enforcement.md && ! grep 'must use ralph-loop\.sh' hooks/gate/enforce-ralph-loop.sh && ! grep 'Allow ralph-loop\.sh itself' hooks/gate/enforce-ralph-loop.sh`
 
-### Task 4: Fix init-project.sh — References Non-existent default.json
+### Tarefa 4: Fix init-project.sh - References Non-existent default.json
 
 `tools/init-project.sh` copies `.kiro/agents/default.json` which no longer exists (renamed to `pilot.json`). This would fail on any new project init.
 
-**Files:**
+**Arquivos:**
 - Modify: `tools/init-project.sh`
 
 **Step 1: Fix agent config copy**
@@ -88,13 +88,13 @@ git add .kiro/rules/enforcement.md hooks/gate/enforce-ralph-loop.sh && git commi
 git add tools/init-project.sh && git commit -m "fix: init-project.sh references non-existent default.json — copy all agent configs"
 ```
 
-**Verify:** `! grep 'default\.json' tools/init-project.sh`
+**Verificação:** `! grep 'default\.json' tools/init-project.sh`
 
-### Task 5: Sync CLAUDE.md ↔ AGENTS.md
+### Tarefa 5: Sync CLAUDE.md ↔ AGENTS.md
 
 AGENTS.md has 3 extra principles (Never skip anomalies, Recommend before asking, Socratic self-check) that CLAUDE.md lacks. These should be in sync.
 
-**Files:**
+**Arquivos:**
 - Modify: `CLAUDE.md`
 
 **Step 1: Add missing principles to CLAUDE.md**
@@ -105,13 +105,13 @@ Copy the 3 missing principles from AGENTS.md to CLAUDE.md after the "Think like 
 git add CLAUDE.md && git commit -m "chore: sync CLAUDE.md with AGENTS.md — add 3 missing principles"
 ```
 
-**Verify:** `diff CLAUDE.md AGENTS.md`
+**Verificação:** `diff CLAUDE.md AGENTS.md`
 
-### Task 6: Fix docs/INDEX.md — Stale and Incomplete
+### Tarefa 6: Fix docs/INDEX.md - Stale and Incomplete
 
 docs/INDEX.md only has 1 entry from Feb 13. There are 20+ plan files and a design doc not listed.
 
-**Files:**
+**Arquivos:**
 - Modify: `docs/INDEX.md`
 
 **Step 1: Regenerate index**
@@ -122,13 +122,13 @@ List all docs/plans/*.md and docs/designs/*.md with dates and titles, update the
 git add docs/INDEX.md && git commit -m "docs: regenerate docs/INDEX.md — add all plan files"
 ```
 
-**Verify:** `[ $(grep -c '|' docs/INDEX.md) -gt 10 ]`
+**Verificação:** `[ $(grep -c '|' docs/INDEX.md) -gt 10 ]`
 
-### Task 7: Regenerate KB Health Report
+### Tarefa 7: Regenerate KB Health Report
 
 The health report shows 14/30 episodes but episodes.md now has ~30 entries. The report was generated Feb 15 and never refreshed.
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/.health-report.md` (regenerate by running the hook)
 
 **Step 1: Regenerate**
@@ -144,7 +144,7 @@ bash hooks/feedback/kb-health-report.sh
 git add knowledge/.health-report.md && git commit -m "chore: regenerate KB health report"
 ```
 
-**Verify:** `grep -q "$(date +%Y-%m-%d)" knowledge/.health-report.md`
+**Verificação:** `grep -q "$(date +%Y-%m-%d)" knowledge/.health-report.md`
 
 ## Review
 
@@ -154,7 +154,7 @@ Rounds 1–2 used the pre-tuning reviewer prompt. Key fixes applied:
 - `rm -d` → `rmdir`, regex anchors added, pipe precedence fixed, hardcoded date → dynamic
 - 3/4 APPROVE in Round 2
 
-### Round 3 (new reviewer prompt — structured findings, anchor examples, severity calibration)
+### Round 3 (new reviewer prompt - structured findings, anchor examples, severity calibration)
 
 **Completeness — REQUEST CHANGES:**
 - Task 5 diff logic "impossible" → **Dismissed**: reviewer misunderstood task. Goal is to make files identical, `diff` returns 0 when identical = correct.

@@ -1,8 +1,8 @@
-# Ralph Loop Output Improvements
+# Melhorias na Saída do Ralph Loop
 
-**Goal:** Improve ralph-loop.sh terminal output: shorter heartbeat interval with real progress info, and cleaner startup banner.
-**Non-Goals:** Not changing kiro-cli invocation logic; not adding tee for full output streaming; not changing the log file format.
-**Architecture:** Modify `scripts/ralph-loop.sh` only — adjust heartbeat to read plan file for live progress, reduce interval, slim startup output.
+**Objetivo:** Improve ralph-loop.sh terminal output: shorter heartbeat interval with real progress info, and cleaner startup banner.
+**Não-Objetivos:** Not changing kiro-cli invocation logic; not adding tee for full output streaming; not changing the log file format.
+**Arquitetura:** Modify `scripts/ralph-loop.sh` only - adjust heartbeat to read plan file for live progress, reduce interval, slim startup output.
 **Tech Stack:** Bash
 
 ## Review
@@ -15,11 +15,11 @@
 
 **Final status:** Testability fix applied. Completeness issues are theoretical (grep fallbacks exist, variable inheritance works). Plan ready for user confirmation.
 
-## Tasks
+## Tarefas
 
-### Task 1: Improve Heartbeat with Live Progress
+### Tarefa 1: Improve Heartbeat with Live Progress
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
 **Step 1: Change default heartbeat interval from 180s to 30s:**
@@ -65,11 +65,11 @@ With:
   ) &
 ```
 
-**Verify:** `grep -q 'local_checked' scripts/ralph-loop.sh && grep -q 'HEARTBEAT_INTERVAL:-30' scripts/ralph-loop.sh`
+**Verificação:** `grep -q 'local_checked' scripts/ralph-loop.sh && grep -q 'HEARTBEAT_INTERVAL:-30' scripts/ralph-loop.sh`
 
-### Task 2: Slim Startup Banner
+### Tarefa 2: Slim Startup Banner
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
 **What to do:**
@@ -91,7 +91,7 @@ echo "🔄 Ralph Loop — ${UNCHECKED_START} tasks remaining (${CHECKED_START}/$
 echo ""
 ```
 
-**Verify:** `grep -q 'tasks remaining' scripts/ralph-loop.sh && ! grep -q 'Max iterations' scripts/ralph-loop.sh`
+**Verificação:** `grep -q 'tasks remaining' scripts/ralph-loop.sh && ! grep -q 'Max iterations' scripts/ralph-loop.sh`
 
 ## Checklist
 
@@ -106,5 +106,5 @@ echo ""
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 

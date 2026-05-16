@@ -1,14 +1,14 @@
-# Ralph Loop Timeout & Heartbeat
+# Ralph Loop: Timeout & Heartbeat
 
-**Goal:** Add per-iteration timeout and periodic heartbeat to ralph-loop.sh so stuck iterations auto-terminate and the operator can see the loop is alive.
-**Architecture:** Pure bash changes to scripts/ralph-loop.sh. Timeout via background watchdog (macOS has no `timeout` command). Heartbeat via background process that prints every N seconds while kiro-cli runs.
+**Objetivo:** Add per-iteration timeout and periodic heartbeat to ralph-loop.sh so stuck iterations auto-terminate and the operator can see the loop is alive.
+**Arquitetura:** Pure bash changes to scripts/ralph-loop.sh. Timeout via background watchdog (macOS has no `timeout` command). Heartbeat via background process that prints every N seconds while kiro-cli runs.
 **Tech Stack:** Bash, POSIX signals
 
-## Tasks
+## Tarefas
 
-### Task 1: Add per-iteration timeout
+### Tarefa 1: Add per-iteration timeout
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 - Test: `tests/ralph-loop/test-timeout-heartbeat.sh`
 
@@ -169,7 +169,7 @@ Expected: PASS
 **Step 5: Commit**
 `feat: add timeout and heartbeat to ralph-loop.sh`
 
-**Verify:**
+**Verificação:**
 `bash tests/ralph-loop/test-timeout-heartbeat.sh`
 
 ## Checklist
