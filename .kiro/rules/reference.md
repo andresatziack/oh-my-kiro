@@ -1,12 +1,12 @@
-# On-Demand Reference Layer
+# Camada de Referência Sob Demanda
 
-> Detailed rules and materials, loaded only when needed.
+> Regras detalhadas e materiais, carregados apenas quando necessários.
 
 ## Templates
 
-### Deep Interview Template
+### Template de Deep Interview
 
-Before making a plan, ask:
+Antes de montar um plan, pergunte:
 ```
 1. [Goal] What's the desired outcome? Success criteria?
 2. [Context] What triggered this need?
@@ -15,18 +15,18 @@ Before making a plan, ask:
 5. [Priority] What's essential vs. nice-to-have?
 ```
 
-### Compound Interest Checklist
+### Checklist de Compound Interest
 
-| Check | Trigger | Update Target |
-|-------|---------|---------------|
-| New knowledge? | User provides context | `knowledge/` |
-| Structured data extracted? | From files/research | `-structured.md` |
-| Final plan/proposal? | Task completion | `plans/` |
-| New directory? | Created during task | Create `INDEX.md` |
+| Verificação | Trigger | Alvo de Atualização |
+|-------------|---------|---------------------|
+| Novo conhecimento? | Usuário fornece contexto | `knowledge/` |
+| Dado estruturado extraído? | De arquivos/research | `-structured.md` |
+| Plan/proposta final? | Conclusão da tarefa | `plans/` |
+| Novo diretório? | Criado durante a tarefa | Criar `INDEX.md` |
 
-### Repeated Behavior Detection
+### Detecção de Comportamento Repetido
 
-When detecting repeated operations ≥3 times:
+Ao detectar operações repetidas ≥3 vezes:
 ```
 💡 Compound Interest Reminder: I've noticed you've [done X] [N] times.
 Suggest creating:
@@ -35,7 +35,7 @@ Suggest creating:
 Create now?
 ```
 
-## Long Script Handling
+## Tratamento de Scripts Longos
 
 ```python
 # ❌ Wrong: Long inline scripts
@@ -46,7 +46,7 @@ fsWrite("script.py", "import xxx\n...")
 executeBash("python script.py")
 ```
 
-## Long Command Execution
+## Execução de Comandos Longos
 
 ```bash
 command &

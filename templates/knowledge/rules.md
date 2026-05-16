@@ -1,5 +1,5 @@
-# Agent Rules — Staging Area
+# Agent Rules - Área de Staging
 
-> Auto-distilled from episodes. Injected by context-enrichment per message.
-> 🔴 = CRITICAL (always injected) | 🟡 = RELEVANT (keyword-matched)
-> Sections auto-created by distill.sh. Max 5 rules per section.
+> Auto-destiladas a partir dos episodes. Injetadas pelo context-enrichment em cada mensagem.
+> 🔴 = CRITICAL (sempre injetada) | 🟡 = RELEVANT (correspondência por palavra-chave)
+> Seções criadas automaticamente por distill.sh. Máximo de 5 regras por seção.
