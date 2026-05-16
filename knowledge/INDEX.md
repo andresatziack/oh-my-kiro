@@ -1,32 +1,32 @@
-# Knowledge Index
+# Índice de Conhecimento
 
-> This index helps the agent quickly locate materials to answer questions.
+> Este índice ajuda o agent a localizar rapidamente os materiais necessários para responder perguntas.
 
-## Routing Table
+## Tabela de Roteamento
 
-| Question Type | Jump To | Example |
+| Tipo de Pergunta | Ir para | Exemplo |
 |--------------|---------|---------|
-| Shell/JSON/platform rules | `.kiro/rules/shell.md` | "What's the rule for JSON?" |
-| Workflow/plan/test rules | `.kiro/rules/workflow.md` | "How should I commit?" |
-| Subagent/MCP rules | `.kiro/rules/subagent.md` | "Can subagent use grep?" |
-| Debugging rules | `.kiro/rules/debugging.md` | "How to fix a bug?" |
-| Security rules | `.kiro/rules/security.md` | "What's blocked?" |
-| Git workflow | `.kiro/rules/git-workflow.md` | "How to branch?" |
-| Agent-learned rules (staging) | `knowledge/rules.md` | "Any new patterns?" |
-| Past mistakes & wins | `knowledge/episodes.md` | "Have we seen this before?" |
-| Framework design & architecture | `docs/designs/2026-02-13-framework-v2-upgrade.md` | "How does the hook system work?" |
-| Hook architecture & governance | `docs/designs/2026-02-18-hook-architecture.md` | "Hook classification? New hook process?" |
-| Reference materials (archived skills) | `knowledge/reference/` | "Mermaid syntax?" |
+| Regras de shell/JSON/plataforma | `.kiro/rules/shell.md` | "Qual é a regra para JSON?" |
+| Regras de workflow/plan/test | `.kiro/rules/workflow.md` | "Como devo fazer o commit?" |
+| Regras de subagent/MCP | `.kiro/rules/subagent.md` | "O subagent pode usar grep?" |
+| Regras de debugging | `.kiro/rules/debugging.md` | "Como corrijo um bug?" |
+| Regras de segurança | `.kiro/rules/security.md` | "O que está bloqueado?" |
+| Workflow de Git | `.kiro/rules/git-workflow.md` | "Como criar uma branch?" |
+| Regras aprendidas pelo agent (staging) | `knowledge/rules.md` | "Algum padrão novo?" |
+| Erros e acertos passados | `knowledge/episodes.md` | "Já vimos isso antes?" |
+| Design e arquitetura do framework | `docs/designs/2026-02-13-framework-v2-upgrade.md` | "Como funciona o sistema de hooks?" |
+| Arquitetura e governança de hooks | `docs/designs/2026-02-18-hook-architecture.md` | "Como classificar hook? Processo de novo hook?" |
+| Materiais de referência (skills arquivadas) | `knowledge/reference/` | "Sintaxe de Mermaid?" |
 
 ## Quick Links
-- [Rules (staging)](rules.md) — Agent-discovered rules, candidates for promotion to `.kiro/rules/`
-- [Episodes](episodes.md) — Mistakes and wins (timeline)
-- [Shell Rules](../.kiro/rules/shell.md) — JSON, bash, platform compatibility
-- [Workflow Rules](../.kiro/rules/workflow.md) — Plans, reviews, testing, commits
-- [Security Rules](../.kiro/rules/security.md) — Hooks, injection, workspace boundaries
-- [Framework v2 Design](../docs/designs/2026-02-13-framework-v2-upgrade.md) — Architecture & hooks
-- [Hook Architecture](../docs/designs/2026-02-18-hook-architecture.md) — Hook governance, classification, lifecycle
-- [Reference Materials](reference/) — Archived skill content (writing style, mermaid, java, etc.)
+- [Rules (staging)](rules.md) - Regras descobertas pelo agent, candidatas a promoção para `.kiro/rules/`
+- [Episodes](episodes.md) - Erros e acertos (linha do tempo)
+- [Shell Rules](../.kiro/rules/shell.md) - JSON, bash, compatibilidade entre plataformas
+- [Workflow Rules](../.kiro/rules/workflow.md) - Plans, reviews, testes, commits
+- [Security Rules](../.kiro/rules/security.md) - Hooks, injeção, fronteiras de workspace
+- [Framework v2 Design](../docs/designs/2026-02-13-framework-v2-upgrade.md) - Arquitetura e hooks
+- [Hook Architecture](../docs/designs/2026-02-18-hook-architecture.md) - Governança, classificação e ciclo de vida de hooks
+- [Reference Materials](reference/) - Conteúdo de skills arquivado (writing style, mermaid, java, etc.)
 
 ---
-*Index version: 8.0 — Added Claude Code research doc*
+*Versão do índice: 8.0 - Adicionado doc de pesquisa sobre Claude Code*

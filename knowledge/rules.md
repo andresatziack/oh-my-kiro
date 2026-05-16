@@ -1,8 +1,8 @@
-# Agent Rules — Staging Area
+# Agent Rules - Área de Staging
 
-> Auto-distilled from episodes. Injected by context-enrichment per message.
-> 🔴 = CRITICAL (always injected) | 🟡 = RELEVANT (keyword-matched)
-> Sections auto-created by distill.sh. Max 5 rules per section.
+> Auto-destiladas a partir dos episodes. Injetadas pelo context-enrichment em cada mensagem.
+> 🔴 = CRITICAL (sempre injetada) | 🟡 = RELEVANT (correspondência por palavra-chave)
+> Seções criadas automaticamente por distill.sh. Máximo de 5 regras por seção.
 
 ## [memory,formation,hot-path,background]
 🟡 1. 记忆形成两种时机: hot-path(对话中实时,即时生效但增加延迟)适合关键纠正; background(对话后异步,不影响响应)适合模式发现和规则蒸馏. 当前auto-capture=hot-path, session-init=background, 组合合理但缺background阶段的自动蒸馏. 来源: langchain-ai.github.io/langmem concepts

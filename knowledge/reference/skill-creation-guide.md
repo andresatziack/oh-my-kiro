@@ -6,47 +6,47 @@ license: Complete terms in LICENSE.txt
 
 # Skill Creator
 
-This skill provides guidance for creating effective skills.
+Esta skill fornece orientação para criar skills efetivas.
 
-## About Skills
+## Sobre Skills
 
-Skills are modular, self-contained packages that extend Claude's capabilities by providing
-specialized knowledge, workflows, and tools. Think of them as "onboarding guides" for specific
-domains or tasks—they transform Claude from a general-purpose agent into a specialized agent
-equipped with procedural knowledge that no model can fully possess.
+Skills são pacotes modulares e auto-contidos que estendem as capacidades do Claude fornecendo
+conhecimento especializado, workflows e ferramentas. Pense nelas como "guias de onboarding" para domínios
+ou tarefas específicas: elas transformam o Claude de um agent de propósito geral em um agent especializado
+equipado com conhecimento procedural que nenhum modelo consegue possuir totalmente.
 
-### What Skills Provide
+### O Que as Skills Fornecem
 
-1. Specialized workflows - Multi-step procedures for specific domains
-2. Tool integrations - Instructions for working with specific file formats or APIs
-3. Domain expertise - Company-specific knowledge, schemas, business logic
-4. Bundled resources - Scripts, references, and assets for complex and repetitive tasks
+1. Workflows especializados - procedimentos multi-etapa para domínios específicos
+2. Integrações com ferramentas - instruções para trabalhar com formatos de arquivo ou APIs específicas
+3. Expertise de domínio - conhecimento específico de empresa, schemas, lógica de negócio
+4. Recursos empacotados - scripts, referências e assets para tarefas complexas e repetitivas
 
-## Core Principles
+## Princípios Centrais
 
-### Concise is Key
+### Conciso é Essencial
 
-The context window is a public good. Skills share the context window with everything else Claude needs: system prompt, conversation history, other Skills' metadata, and the actual user request.
+A janela de contexto é um bem público. As skills compartilham a janela de contexto com tudo o mais que o Claude precisa: system prompt, histórico da conversa, metadados de outras skills e o request real do usuário.
 
-**Default assumption: Claude is already very smart.** Only add context Claude doesn't already have. Challenge each piece of information: "Does Claude really need this explanation?" and "Does this paragraph justify its token cost?"
+**Premissa padrão: o Claude já é muito inteligente.** Adicione apenas contexto que o Claude ainda não tem. Questione cada informação: "O Claude realmente precisa desta explicação?" e "Este parágrafo justifica seu custo em tokens?"
 
-Prefer concise examples over verbose explanations.
+Prefira exemplos concisos a explicações verbosas.
 
-### Set Appropriate Degrees of Freedom
+### Ajuste Graus de Liberdade Apropriados
 
-Match the level of specificity to the task's fragility and variability:
+Combine o nível de especificidade com a fragilidade e variabilidade da tarefa:
 
-**High freedom (text-based instructions)**: Use when multiple approaches are valid, decisions depend on context, or heuristics guide the approach.
+**Alta liberdade (instruções em texto)**: use quando múltiplas abordagens são válidas, decisões dependem do contexto, ou heurísticas guiam a abordagem.
 
-**Medium freedom (pseudocode or scripts with parameters)**: Use when a preferred pattern exists, some variation is acceptable, or configuration affects behavior.
+**Liberdade média (pseudocódigo ou scripts com parâmetros)**: use quando existe um padrão preferido, alguma variação é aceitável, ou a configuração afeta o comportamento.
 
-**Low freedom (specific scripts, few parameters)**: Use when operations are fragile and error-prone, consistency is critical, or a specific sequence must be followed.
+**Baixa liberdade (scripts específicos, poucos parâmetros)**: use quando as operações são frágeis e propensas a erro, a consistência é crítica, ou uma sequência específica precisa ser seguida.
 
-Think of Claude as exploring a path: a narrow bridge with cliffs needs specific guardrails (low freedom), while an open field allows many routes (high freedom).
+Pense no Claude como alguém explorando um caminho: uma ponte estreita com penhascos exige guardrails específicos (baixa liberdade), enquanto um campo aberto permite muitas rotas (alta liberdade).
 
-### Anatomy of a Skill
+### Anatomia de uma Skill
 
-Every skill consists of a required SKILL.md file and optional bundled resources:
+Toda skill consiste em um arquivo SKILL.md obrigatório e recursos empacotados opcionais:
 
 ```
 skill-name/

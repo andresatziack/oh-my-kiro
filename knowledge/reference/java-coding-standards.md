@@ -1,65 +1,65 @@
-# Java Coding Standards
+# Padrões de Código Java
 
-> Prescriptive rules for Agent writing Java code. Loaded when touching Java files.
-> Companion to `java-architect.md` (Spring Boot tech stack reference).
+> Regras prescritivas para o Agent escrever código Java. Carregadas ao tocar em arquivos Java.
+> Companheiro de `java-architect.md` (referência de stack Spring Boot).
 
 ## Effective Java
 
-- Prefer static factory methods over public constructors
-- Use Builder pattern when constructor has more than 3 parameters
-- Use `record` for pure data carriers (DTOs, value objects) — Java 16+
-- Prefer immutability: make fields `final`, do not provide setters
-- Prefer composition over inheritance
-- Prefer interfaces over abstract classes
-- Use `sealed class` to restrict inheritance hierarchy — Java 17+
-- Never use raw types — always parameterize generics
-- Return empty collections instead of null
-- Use `Optional` for return values that may be absent — never for fields or parameters
-- Use enums instead of int/String constants
-- Minimize mutability — fewer moving parts, fewer bugs
+- Prefira métodos factory estáticos a construtores públicos
+- Use o padrão Builder quando o construtor tiver mais de 3 parâmetros
+- Use `record` para portadores puros de dados (DTOs, value objects) - Java 16+
+- Prefira imutabilidade: deixe os campos `final` e não forneça setters
+- Prefira composição em vez de herança
+- Prefira interfaces a classes abstratas
+- Use `sealed class` para restringir a hierarquia de herança - Java 17+
+- Nunca use raw types, sempre parametrize generics
+- Retorne coleções vazias em vez de null
+- Use `Optional` para retornos que podem estar ausentes, nunca para campos ou parâmetros
+- Use enums em vez de constantes int/String
+- Minimize a mutabilidade, menos partes em movimento, menos bugs
 
 ## Clean Code
 
-- Do one thing per method — Single Responsibility Principle
-- Keep methods short, typically under 20 lines — split when longer
-- Use self-documenting names: nouns for classes, verbs for methods, `is/has/can` for booleans
-- Never use boolean flag parameters — split into two methods
-- Never swallow exceptions: catch must log or rethrow
-- Never catch `Exception` or `Throwable` — use specific exception types
-- Must include exception object in log: `log.error("message", e)` not `log.error("message")`
-- No `System.out.println` — use SLF4J logger
-- Use comments to explain WHY, not WHAT — code should be self-explanatory
-- No premature abstraction (YAGNI) — solve the problem at hand, abstract when needed
+- Faça uma coisa por método, Single Responsibility Principle
+- Mantenha métodos curtos, normalmente abaixo de 20 linhas, divida quando ficar maior
+- Use nomes auto-documentados: substantivos para classes, verbos para métodos, `is/has/can` para booleanos
+- Nunca use parâmetros booleanos como flag, divida em dois métodos
+- Nunca engula exceções: o catch precisa logar ou relançar
+- Nunca capture `Exception` ou `Throwable`, use tipos de exceção específicos
+- Inclua o objeto de exceção no log: `log.error("message", e)` e não `log.error("message")`
+- Nada de `System.out.println`, use logger SLF4J
+- Use comentários para explicar POR QUE, não O QUE; o código deve se auto-explicar
+- Sem abstração prematura (YAGNI), resolva o problema atual e abstraia quando precisar
 
 ## Clean Architecture
 
-- Dependency direction: outer layers → inner layers, never reverse
-- No business logic in Controller or Interceptor — delegate to Service
-- Depend on interfaces, not concrete implementations in Service layer
-- Prefer constructor injection over `@Autowired` field injection
-- Do not leak DTO/VO into domain layer
+- Direção de dependência: camadas externas para camadas internas, nunca o contrário
+- Sem lógica de negócio em Controller ou Interceptor, delegue para o Service
+- Dependa de interfaces, não de implementações concretas, na camada de Service
+- Prefira injeção via construtor a `@Autowired` em campo
+- Não vaze DTO/VO para a camada de domínio
 
-## Distributed Systems
+## Sistemas Distribuídos
 
-- Never mix external API calls and local DB operations in the same `@Transactional`
-- Do reversible operations first, irreversible operations last
-- Must consider idempotency for all write operations
-- Do not rely on single-machine in-memory cache for consistency in multi-node systems
-- Must have timeout and retry strategy for cross-service calls
+- Nunca misture chamadas de API externa com operações de DB local na mesma `@Transactional`
+- Faça operações reversíveis primeiro e operações irreversíveis por último
+- Considere idempotência em todas as operações de escrita
+- Não dependa de cache em memória de uma única máquina para consistência em sistemas multi-node
+- Tenha estratégia de timeout e retry para chamadas entre serviços
 
 ## Testing
 
-- Mockito matchers must be consistent: all matchers or all concrete values, never mix
-- Do not mock value objects (records, DTOs) — construct them directly
-- Use naming convention: `methodName_condition_expectedResult`
-- Each test verifies exactly one behavior
-- Prefer specific arguments in `verify()` — avoid `any()` unless truly needed
+- Matchers do Mockito devem ser consistentes: ou todos matchers ou todos valores concretos, nunca misture
+- Não faça mock de value objects (records, DTOs), construa-os diretamente
+- Use a convenção de nomenclatura: `methodName_condition_expectedResult`
+- Cada teste verifica exatamente um comportamento
+- Prefira argumentos específicos em `verify()`, evite `any()` salvo quando realmente necessário
 
-## Agent Workflow
+## Workflow do Agent
 
-- Before modifying an interface: find-references to list all implementations and callers
-- After modifying an interface: immediately run `mvn compile -pl <module> -am`
-- After all changes: run `mvn clean test` — do not trust incremental compilation
-- Before complex refactoring (≥3 files): write a plan, wait for user confirmation
-- Before committing: run `git diff --stat` to confirm change scope matches intent
-- Before creating a new class/interface: search if a similar abstraction already exists
+- Antes de modificar uma interface: faça find-references para listar todas as implementações e callers
+- Após modificar uma interface: rode imediatamente `mvn compile -pl <module> -am`
+- Após todas as mudanças: rode `mvn clean test`, não confie em compilação incremental
+- Antes de refatoração complexa (≥3 arquivos): escreva um plan e aguarde a confirmação do usuário
+- Antes de fazer commit: rode `git diff --stat` para confirmar que o escopo da mudança bate com a intenção
+- Antes de criar uma nova classe/interface: pesquise se uma abstração similar já existe
