@@ -1,0 +1,43 @@
+=== pytest baseline ===
+        r = subprocess.run(
+            ["bash", os.path.join(PROJECT_ROOT, "hooks/feedback/context-enrichment.sh")],
+            input=inp, capture_output=True, text=True, env=env, cwd=str(tmp_path), timeout=10
+        )
+        assert r.returncode == 0
+>       assert "OV unavailable" in r.stdout
+E       AssertionError: assert 'OV unavailable' in ''
+E        +  where '' = CompletedProcess(args=['bash', '/projects/sandbox/oh-my-kiro/hooks/feedback/context-enrichment.sh'], returncode=0, stdout='', stderr='').stdout
+
+tests/test_ov_recall.py:91: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_debug_hook_trigger.py::TestDebugHookTrigger::test_no_false_positive_error_handling
+FAILED tests/test_debug_hook_trigger.py::TestDebugHookTrigger::test_no_false_positive_debug_logging
+FAILED tests/test_ov_capture.py::test_auto_capture_indexes_to_ov - assert 0 >= 1
+FAILED tests/test_ov_capture.py::test_post_write_indexes_findings - assert 0 ...
+FAILED tests/test_ov_capture.py::test_post_bash_indexes_knowledge_changes - a...
+FAILED tests/test_ov_client.py::test_daemon_has_storage_config - assert 'Stor...
+FAILED tests/test_ov_recall.py::test_enrichment_calls_ov_search - AssertionEr...
+FAILED tests/test_ov_recall.py::test_enrichment_warns_when_ov_down - Assertio...
+8 failed, 60 passed in 5.90s
+
+=== bash tests/test-agents-template.sh baseline ===
+FAIL: coding references OMK sections - pattern 'OMK SECTIONS' not found in /projects/sandbox/oh-my-kiro/templates/agents-types/coding.md
+
+Results: 27 passed, 1 failed
+
+=== bash tests/knowledge/run.sh baseline ===
+
+╔══════════════════════════════════════════╗
+║         KNOWLEDGE TEST SUMMARY           ║
+╠══════════════════════════════════════════╣
+║  Scripts: 1 pass / 3 total              ║
+╚══════════════════════════════════════════╝
+
+Failed scripts:
+  ❌ l1-rules-injection
+  ❌ l1-corruption-recall
+
+=== summary ===
+pytest: 60 passed / 8 failed (with documented ignore set)
+tests/test-agents-template.sh: 27 passed / 1 failed (pre-existing 'OMK SECTIONS' mismatch on coding.md)
+tests/knowledge/run.sh: 1 pass / 3 total scripts (l1-rules-injection + l1-corruption-recall fail pre-existing due to context-enrichment dedup)

@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Establish translation conventions, create the feature branch, and audit the test-fixture exclusion list. This is a setup feature that produces no large diff but locks in the global rules every later feature must follow. It also captures the baseline of pre-existing test failures so later features can prove no regressions were introduced.",
+  "status": "in_progress",
+  "steps": [
+    "Verify working directory is /projects/sandbox/oh-my-kiro and current branch is main, working tree clean. If not clean, stop and report.",
+    "Create and switch to a new branch `feat/translate-md-ptbr` (`git checkout -b feat/translate-md-ptbr`). All later features commit on this branch.",
+    "Capture baseline test results into `.agents/tasks/task-translate-md-ptbr/baseline.txt`: (a) `python3 -m pytest -q --ignore=tests/test_generate_configs.py --ignore=tests/test_debugging_skill.py --ignore=tests/ralph-loop/test_evaluator.py --ignore=tests/ralph-loop/test_pty_runner.py --ignore=tests/ralph-loop/test_ralph_loop.py 2>&1 | tail -20`; (b) `bash tests/test-agents-template.sh 2>&1 | tail -5`; (c) `bash tests/knowledge/run.sh 2>&1 | tail -10`. Append a one-line summary recording counts (e.g. '60 passed / 8 failed').",
+    "Write `.agents/tasks/task-translate-md-ptbr/translation-rules.md` containing the canonical translator rules every later feature must follow. Include: (1) NEVER touch tests/knowledge/fixtures/*.md (they are asserted by tests/knowledge/l1-*.sh); (2) inside templates/agents-sections/*.md preserve the literal English strings 'Evidence before claims', 'Explore', 'Skill Routing', 'episodes.md', 'Authority Matrix' and the HTML BEGIN/END markers (`<!-- BEGIN OMK PRINCIPLES -->` etc) verbatim; (3) inside templates/agents-types/coding.md preserve literal 'Coding agent' and 'OMK SECTIONS'; inside templates/agents-types/gtm.md preserve 'GTM'; (4) keep YAML front-matter intact byte-for-byte (name, description, argument-hint, disable-model-invocation values); (5) preserve fenced code blocks (``` ... ```), inline code (`...`), URLs, file paths, CLI commands, variable/function/parameter names; (6) keep technical acronyms (API, SDK, IAM, VPC, DNS, HTTP, JSON, YAML, CLI, LSP, MCP, AST, TDD, SOLID, GAN, etc.); (7) keep tool/product names (AWS, Kiro, MCP, CDK, CloudFormation, Terraform, Docker, GitHub, GraphQL, OpenViking, Ralph Loop, etc.); (8) keep consecrated tech terms in English (deploy, commit, push, pull request, endpoint, payload, token, middleware, runtime, framework, pipeline, webhook, hook, gate, build, lint, test, plan, review, scratchpad, worktree, submodule, branch, merge, rebase, override); (9) translate explanatory prose, headings, list bullets, table cells of natural language; (10) use 'você' (informal technical), no em dashes (—), use a hyphen or rephrase; (11) IF a file is already entirely in Brazilian Portuguese OR entirely in Chinese (no English prose), SKIP it unchanged and record the skip in the feature's findings; (12) for mixed CN+EN files (very common here, e.g. AGENTS.md, most plans), translate ONLY the English passages; leave Chinese passages untouched (do not translate CN→PT-BR).",
+    "Create `.agents/tasks/task-translate-md-ptbr/skip-list.md` listing files that must NOT be modified: tests/knowledge/fixtures/episodes-healthy.md, tests/knowledge/fixtures/rules-healthy.md, tests/knowledge/fixtures/rules-corrupted.md.",
+    "Run a sanity grep to confirm the four test-anchored literal strings still appear unchanged: `grep -l 'Evidence before claims' templates/agents-sections/principles.md && grep -l 'Skill Routing' templates/agents-sections/workflow.md && grep -l 'Authority Matrix' templates/agents-sections/authority.md && grep -l 'Coding agent' templates/agents-types/coding.md`.",
+    "Commit `.agents/tasks/task-translate-md-ptbr/` directory only: `git add .agents/tasks/task-translate-md-ptbr && git commit -m 'chore(translate): set up md translation task plan and conventions'`."
+  ],
+  "acceptance_criteria": [
+    "Branch `feat/translate-md-ptbr` exists locally and is checked out.",
+    "`.agents/tasks/task-translate-md-ptbr/translation-rules.md`, `skip-list.md`, and `baseline.txt` all exist and are committed.",
+    "`bash tests/test-agents-template.sh` still ends with the same 27/1 pass/fail line as the baseline.",
+    "Pytest count (with the documented ignore set) matches baseline.txt verbatim."
+  ],
+  "verification": [
+    "git rev-parse --abbrev-ref HEAD  # expect: feat/translate-md-ptbr",
+    "test -f .agents/tasks/task-translate-md-ptbr/translation-rules.md && test -f .agents/tasks/task-translate-md-ptbr/skip-list.md && test -f .agents/tasks/task-translate-md-ptbr/baseline.txt",
+    "bash tests/test-agents-template.sh 2>&1 | tail -1  # must match baseline counts"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-003",
+  "type": "docs",
+  "description": "Translate the commands/, agents/, and skills/ markdown files. These are the runtime instruction surface the agent reads when a user invokes a command or a skill. Skill SKILL.md files require careful front-matter handling: the `description:` value contains literal English trigger phrases that hooks/feedback/context-enrichment.sh matches against user prompts, and must be kept verbatim. The body of each SKILL.md is translatable prose.",
+  "status": "pending",
+  "steps": [
+    "Targets (~37 files): commands/{auto,ck,cpr,cpu,debug,do,evaluate,execute,fixpr,lint,plan,research,review,skill,wt}.md (15); agents/{researcher-prompt,reviewer-prompt}.md (2); skills/omk-agent/SKILL.md, skills/omk-coding/SKILL.md, skills/omk-context7-docs/SKILL.md, skills/omk-debugging/SKILL.md + reference.md + investigation-template.md, skills/omk-finishing/SKILL.md, skills/omk-know/SKILL.md, skills/omk-pdf-gen/SKILL.md, skills/omk-planning/SKILL.md, skills/omk-research/SKILL.md, skills/omk-reviewing/SKILL.md + references/code-quality-checklist.md + output-format.md + removal-plan.md + security-checklist.md + solid-checklist.md, skills/omk-self-reflect/SKILL.md, skills/omk-skill-creation/SKILL.md + references/authoring-guide.md, skills/omk-stitch/SKILL.md, skills/omk-verification/SKILL.md, skills/omk-youtube/SKILL.md (~20).",
+    "For every commands/*.md: read the file. If the file is mostly Chinese prose, leave Chinese passages alone and translate only English passages. If it is mostly English, translate all prose, headings, list bullets, table cells. PRESERVE: every fenced code block (bash, json, python, markdown samples), every inline backtick literal, every `@command` reference, every file path under skills/, hooks/, docs/, scripts/, every variable/parameter name like `$ARGUMENTS`, every CLI invocation. Keep technical acronyms (LSP, MCP, AST, TDD, JSON, YAML, GraphQL, CI, PR, OAuth) and consecrated terms (commit, push, deploy, plan, review, hook, gate, lint, test, runtime, framework, pipeline, scratchpad, worktree, submodule).",
+    "Special attention for commands/auto.md (mostly English prose): translate the stage descriptions but keep the literal `@auto`, `@plan`, `@execute`, `touch .brainstorm-confirmed`, `unlink .brainstorm-confirmed 2>/dev/null || true`, `.active-submodule`, the file paths `skills/omk-planning/SKILL.md`, `commands/plan.md`, `docs/plans/.active`, and the trailing 'User's requirement:' instruction block. Translate everything else.",
+    "For each agents/*.md prompt file: these prompts are read by subagents at runtime, so translate the human-facing prose and headings. Preserve the literal markdown structure of the example finding format (the `**[SEVERITY] Title**`, `- Problem:`, `- Impact:`, `- Fix:` lines), and preserve the example texts inside each fenced code block verbatim. The verdict-line literals `**Verdict: APPROVE**` and `**Verdict: REQUEST CHANGES**` MUST remain in English (they are matched as literal strings by the orchestrator). Note this fact explicitly in the agents/reviewer-prompt.md translation as a reviewer-facing note if rephrasing makes it ambiguous.",
+    "For each skills/*/SKILL.md: the YAML front-matter between the leading `---` and trailing `---` MUST stay byte-identical. Specifically, the `description:` field contains a long string of English trigger phrases (e.g. 'write code', 'implement', 'fix this', 'add feature', 'apply review' plus Chinese phrases like '改代码', '修复'). DO NOT translate the description value — copy it through unchanged. The body of the SKILL.md (everything after the closing `---`) is the agent-facing instruction text; translate it as you would any other prose document, applying all preservation rules.",
+    "skills/omk-debugging/reference.md and investigation-template.md, skills/omk-reviewing/references/*.md, skills/omk-skill-creation/references/authoring-guide.md: long reference docs, mostly prose, translate fully but preserve all code samples, command lines, table structures, and any literal markdown that examples are demonstrating.",
+    "After all 37 files are edited, run `git diff --stat` and confirm exactly the expected files changed (no untouched-line whitespace drift).",
+    "Verification grep: `grep -l '\\*\\*Verdict: APPROVE\\*\\*\\|\\*\\*Verdict: REQUEST CHANGES\\*\\*' agents/reviewer-prompt.md` must return the file (the literals are still present).",
+    "Verification grep: `for f in skills/*/SKILL.md; do head -10 \"$f\"; done` and confirm every front-matter `description:` line is unchanged from main: `for f in skills/*/SKILL.md; do diff <(sed -n '/^---/,/^---/p' \"$f\") <(git show main:\"$f\" | sed -n '/^---/,/^---/p') && echo \"$f frontmatter clean\"; done`.",
+    "Run `bash tests/test-agents-template.sh 2>&1 | tail -1` to confirm baseline preservation.",
+    "Run `python3 -m pytest -q --ignore=tests/test_generate_configs.py --ignore=tests/test_debugging_skill.py --ignore=tests/ralph-loop/test_evaluator.py --ignore=tests/ralph-loop/test_pty_runner.py --ignore=tests/ralph-loop/test_ralph_loop.py 2>&1 | tail -3` to confirm pytest pass count is unchanged from baseline.",
+    "Commit: `git add commands/ agents/ skills/ && git commit -m 'docs(i18n): translate commands, agent prompts, skills (SKILL.md bodies + reference docs) to pt-BR; preserve YAML front-matter and verdict literals'`."
+  ],
+  "acceptance_criteria": [
+    "All 37 listed files have Portuguese prose diffs.",
+    "Front-matter of every skills/*/SKILL.md is byte-identical to main (verified by diff against `git show main:...`).",
+    "agents/reviewer-prompt.md still contains the literal `**Verdict: APPROVE**` and `**Verdict: REQUEST CHANGES**`.",
+    "tests/test-agents-template.sh result is unchanged from baseline.",
+    "pytest pass count is unchanged from baseline."
+  ],
+  "verification": [
+    "for f in skills/*/SKILL.md; do diff <(awk '/^---/{c++} c==1{print} c==2{print; exit}' \"$f\") <(git show main:\"$f\" | awk '/^---/{c++} c==1{print} c==2{print; exit}') >/dev/null && echo \"$f frontmatter OK\" || echo \"$f FRONTMATTER CHANGED\"; done | grep -c 'CHANGED'  # expect 0",
+    "grep -c '\\*\\*Verdict: APPROVE\\*\\*' agents/reviewer-prompt.md  # expect >= 1",
+    "grep -c '\\*\\*Verdict: REQUEST CHANGES\\*\\*' agents/reviewer-prompt.md  # expect >= 1",
+    "bash tests/test-agents-template.sh 2>&1 | tail -1  # match baseline",
+    "python3 -m pytest -q --ignore=tests/test_generate_configs.py --ignore=tests/test_debugging_skill.py --ignore=tests/ralph-loop/test_evaluator.py --ignore=tests/ralph-loop/test_pty_runner.py --ignore=tests/ralph-loop/test_ralph_loop.py 2>&1 | tail -1  # match baseline pass count"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

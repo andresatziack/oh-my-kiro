@@ -1,0 +1,7 @@
+{
+  "task_id": "task-translate-md-ptbr",
+  "task_description": "Translate every English Markdown (.md) file in /projects/sandbox/oh-my-kiro to Brazilian Portuguese in-place, preserving YAML front-matter, fenced code blocks, inline code, URLs, file paths, CLI commands, identifier names, technical product/tool names (AWS, Kiro, MCP, CDK, CloudFormation, Terraform, Docker), consecrated tech terms left in English (deploy, commit, push, pull request, endpoint, payload, token, middleware, runtime, framework, pipeline, webhook), technical acronyms (API, SDK, IAM, JSON, YAML, etc.), and a small set of test-anchored English literals. Files already in Portuguese or entirely in Chinese are skipped. Test fixtures under tests/knowledge/fixtures/ are NEVER modified because the test scripts (tests/knowledge/l1-*.sh) grep for exact substrings inside them. Use 'você' (informal technical), no em dashes (—). Deliverable: a single feature branch (`feat/translate-md-ptbr`) with reviewable per-area commits.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005", "FEAT-006", "FEAT-007"],
+  "blocked_reason": null
+}
