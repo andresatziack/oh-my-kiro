@@ -1,10 +1,10 @@
-# Kiro CLI Hook Compatibility Audit
+# Auditoria de Compatibilidade de Hooks do Kiro CLI
 
-**Goal:** Audit all 14 hooks (12 wired in Kiro config + 2 unwired) for Kiro CLI compatibility, build a verified compatibility matrix, fix any issues found, and update README.
+**Objetivo:** Audit all 14 hooks (12 wired in Kiro config + 2 unwired) for Kiro CLI compatibility, build a verified compatibility matrix, fix any issues found, and update README.
 
-**Non-Goals:** Adding new hooks; changing hook behavior for Claude Code; redesigning the hook architecture.
+**Não-Objetivos:** Adding new hooks; changing hook behavior for Claude Code; redesigning the hook architecture.
 
-**Architecture:** Each hook is a standalone bash script receiving JSON via stdin. Kiro CLI supports 5 hook events (agentSpawn, userPromptSubmit, preToolUse, postToolUse, stop) with the same exit-code semantics as Claude Code (exit 2 = block). The key compatibility risks are: (1) tool_name differences, (2) tool_input field name differences, (3) missing environment variables like `$CLAUDE_PROJECT_DIR`, (4) hook_event_name field presence in Kiro but not CC.
+**Arquitetura:** Each hook is a standalone bash script receiving JSON via stdin. Kiro CLI supports 5 hook events (agentSpawn, userPromptSubmit, preToolUse, postToolUse, stop) with the same exit-code semantics as Claude Code (exit 2 = block). The key compatibility risks are: (1) tool_name differences, (2) tool_input field name differences, (3) missing environment variables like `$CLAUDE_PROJECT_DIR`, (4) hook_event_name field presence in Kiro but not CC.
 
 **Tech Stack:** Bash, jq, Kiro CLI 1.26.1
 
@@ -42,11 +42,11 @@ Key differences from Claude Code:
 3. CC stdin: `{"tool_name":"Bash","tool_input":{...}}` — Kiro adds `hook_event_name` and `cwd` fields
 4. Kiro fs_write tool_input uses `path` (not `file_path`), `file_text` (not `content`)
 
-## Tasks
+## Tarefas
 
-### Task 1: Build test harness
+### Tarefa 1: Build test harness
 
-**Files:**
+**Arquivos:**
 - Create: `tests/hooks/test-kiro-compat.sh`
 
 Test harness must:
@@ -56,7 +56,7 @@ Test harness must:
 - Use relative paths (no hardcoded `/Users/...`)
 - Output: `PASS hook-name scenario` or `FAIL hook-name scenario`
 
-### Task 2: Audit and fix tool_input field parsing
+### Tarefa 2: Audit and fix tool_input field parsing
 
 **Files to audit** (exhaustive list of hooks that parse tool_input):
 - `hooks/security/block-outside-workspace.sh` — parses `.tool_input.file_path // .tool_input.path` and `.tool_input.command`
@@ -70,14 +70,14 @@ Test harness must:
 
 For each: verify jq fallback chain covers both CC and Kiro field names. Fix any gaps.
 
-### Task 3: Evaluate agentSpawn hook
+### Tarefa 3: Evaluate agentSpawn hook
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/default.json` (if adding agentSpawn)
 
 Kiro supports `agentSpawn` (fires once when agent activates). Evaluate whether `session-init.sh` (currently on userPromptSubmit) should also/instead run on agentSpawn. Decision criteria: does session-init need to run before the first user prompt?
 
-### Task 4: Black-box verification in live Kiro session
+### Tarefa 4: Black-box verification in live Kiro session
 
 Specific test commands to run in this session:
 
@@ -97,9 +97,9 @@ Use fs_write to create `tests/hooks/.kiro-test-marker`. If succeeds → allow pa
 
 **4d: stop hook test** — complete a turn and check if verify-completion fires.
 
-### Task 5: Build compatibility matrix and update README
+### Tarefa 5: Build compatibility matrix and update README
 
-**Files:**
+**Arquivos:**
 - Create: `docs/kiro-hook-compatibility.md`
 - Modify: `README.md`
 
@@ -133,5 +133,5 @@ Update README Compatibility section to reflect actual Kiro hook support includin
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 

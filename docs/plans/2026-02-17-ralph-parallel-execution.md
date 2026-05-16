@@ -1,8 +1,8 @@
-# Ralph Loop Deterministic Parallel Execution
+# Execução Paralela Determinística do Ralph Loop
 
-**Goal:** (1) Make ralph_loop.py deterministically analyze task dependencies and generate batch-aware prompts so kiro-cli reliably dispatches executor subagents in parallel. (2) Improve plan review quality by restructuring reviewer angles, dispatch queries, and calibration rules so all 4 parallel reviewers produce actionable findings.
-**Non-Goals:** Not implementing multi-kiro-cli-instance parallelism (方案 A). Not changing executor.json capabilities. Not modifying the plan file format. Not changing reviewer agent's tools/hooks.
-**Architecture:** Two workstreams: (A) Parallel execution — add task dependency analysis to `scripts/lib/plan.py`, batch scheduler to `scripts/lib/scheduler.py`, batch-aware prompts to `ralph_loop.py`. (B) Review quality — restructure plan review angles in `skills/planning/SKILL.md` (from open-ended to analysis-method-bound), add structured dispatch query template, fix reviewer prompt contradictions, add executor model context.
+**Objetivo:** (1) Make ralph_loop.py deterministically analyze task dependencies and generate batch-aware prompts so kiro-cli reliably dispatches executor subagents in parallel. (2) Improve plan review quality by restructuring reviewer angles, dispatch queries, and calibration rules so all 4 parallel reviewers produce actionable findings.
+**Não-Objetivos:** Not implementing multi-kiro-cli-instance parallelism (方案 A). Not changing executor.json capabilities. Not modifying the plan file format. Not changing reviewer agent's tools/hooks.
+**Arquitetura:** Two workstreams: (A) Parallel execution - add task dependency analysis to `scripts/lib/plan.py`, batch scheduler to `scripts/lib/scheduler.py`, batch-aware prompts to `ralph_loop.py`. (B) Review quality - restructure plan review angles in `skills/planning/SKILL.md` (from open-ended to analysis-method-bound), add structured dispatch query template, fix reviewer prompt contradictions, add executor model context.
 **Tech Stack:** Python 3.10+ (re, pathlib, dataclasses), Markdown (skill/prompt files)
 
 ## Review
@@ -19,15 +19,15 @@
 
 **Final status:** Round 1 fixes applied (non-contiguous test, stronger dispatch test, explicit mapping rule). Round 2 reviewers repeated calibrated-out concerns with no new actionable findings. Round 3 used improved structured dispatch queries — quality significantly better: Performance APPROVE, Compatibility reviewer's only finding was factually wrong (test dir exists), Completeness re-raised 1 rejected finding despite explicit list. Testability found 2 valid Nits (verify grep specificity) — fixed. Plan approved.
 
-## Tasks
+## Tarefas
 
-### Task 1: PlanFile task parser — extract Task structures with file sets
+### Tarefa 1: PlanFile task parser - extract Task structures with file sets
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks tests/ralph-loop/test_plan.py::test_parse_tasks_file_sets tests/ralph-loop/test_plan.py::test_parse_tasks_empty_plan -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks tests/ralph-loop/test_plan.py::test_parse_tasks_file_sets tests/ralph-loop/test_plan.py::test_parse_tasks_empty_plan -v`
 
 **What to implement:**
 
@@ -42,13 +42,13 @@ Test fixtures should use multi-line strings with task headers indented or prefix
 
 ---
 
-### Task 2: Batch scheduler — group independent tasks
+### Tarefa 2: Batch scheduler - group independent tasks
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/scheduler.py`
 - Test: `tests/ralph-loop/test_scheduler.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_scheduler.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_scheduler.py -v`
 
 **What to implement:**
 
@@ -66,13 +66,13 @@ Create `scripts/lib/scheduler.py` with:
 
 ---
 
-### Task 3: Unchecked task filtering — link checklist items to tasks
+### Tarefa 3: Unchecked task filtering - link checklist items to tasks
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks tests/ralph-loop/test_plan.py::test_unchecked_tasks_all_done -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks tests/ralph-loop/test_plan.py::test_unchecked_tasks_all_done -v`
 
 **What to implement:**
 
@@ -87,13 +87,13 @@ Add `unchecked_tasks() -> list[TaskInfo]` to `PlanFile`. Strategy: positional ma
 
 ---
 
-### Task 4: Batch-aware prompt generation
+### Tarefa 4: Batch-aware prompt generation
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_contains_dispatch tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_no_dispatch -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_contains_dispatch tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_no_dispatch -v`
 
 **What to implement:**
 
@@ -107,13 +107,13 @@ Add `build_batch_prompt(batch, plan_path, iteration)` function to `ralph_loop.py
 
 ---
 
-### Task 5: Integrate batch scheduler into ralph_loop.py main loop
+### Tarefa 5: Integrate batch scheduler into ralph_loop.py main loop
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_batch_mode_startup_banner tests/ralph-loop/test_ralph_loop.py::test_dependent_tasks_sequential_banner -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_batch_mode_startup_banner tests/ralph-loop/test_ralph_loop.py::test_dependent_tasks_sequential_banner -v`
 
 **What to implement:**
 
@@ -130,13 +130,13 @@ Modify `ralph_loop.py` main loop:
 
 ---
 
-### Task 6: Fallback for plans without structured tasks
+### Tarefa 6: Fallback for plans without structured tasks
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_fallback_no_task_structure -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_fallback_no_task_structure -v`
 
 **What to implement:**
 
@@ -147,12 +147,12 @@ When `plan.unchecked_tasks()` returns empty but `plan.unchecked > 0` (plan has c
 
 ---
 
-### Task 7: Update planning SKILL.md — document batch-aware execution
+### Tarefa 7: Update planning SKILL.md - document batch-aware execution
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
-**Verify:** `grep -q 'ralph_loop.py now auto' skills/planning/SKILL.md`
+**Verificação:** `grep -q 'ralph_loop.py now auto' skills/planning/SKILL.md`
 
 **What to implement:**
 
@@ -163,12 +163,12 @@ Add to Phase 2 Strategy D section:
 
 ---
 
-### Task 8: Restructure plan review angles and dispatch template
+### Tarefa 8: Restructure plan review angles and dispatch template
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
-**Verify:** `grep -q 'Goal Alignment' skills/planning/SKILL.md && grep -q 'Verify Correctness' skills/planning/SKILL.md && grep -q 'Dispatch Query Template' skills/planning/SKILL.md`
+**Verificação:** `grep -q 'Goal Alignment' skills/planning/SKILL.md && grep -q 'Verify Correctness' skills/planning/SKILL.md && grep -q 'Dispatch Query Template' skills/planning/SKILL.md`
 
 **What to implement:**
 
@@ -217,14 +217,14 @@ Each reviewer query MUST include:
 
 ---
 
-### Task 9: Fix reviewer agentSpawn hook and add executor model to prompt
+### Tarefa 9: Fix reviewer agentSpawn hook and add executor model to prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/reviewer.json`
 - Modify: `agents/reviewer-prompt.md`
 - Modify: `scripts/generate_configs.py`
 
-**Verify:** `jq -r '.hooks.agentSpawn[0].command' .kiro/agents/reviewer.json | grep -q 'Never skip analysis' && grep -q 'Plan Executor Model' agents/reviewer-prompt.md`
+**Verificação:** `jq -r '.hooks.agentSpawn[0].command' .kiro/agents/reviewer.json | grep -q 'Never skip analysis' && grep -q 'Plan Executor Model' agents/reviewer-prompt.md`
 
 **What to implement:**
 
@@ -276,4 +276,4 @@ Focus on: is the approach correct? Is the task order right? Are verify commands 
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas

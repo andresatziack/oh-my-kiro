@@ -1,8 +1,8 @@
-# Ralph Loop Comprehensive Testing
+# Testes Abrangentes do Ralph Loop
 
-**Goal:** Add thorough tests for Ralph Loop covering concurrency (batch scheduling, task dispatch, process-level lock contention), accuracy (checklist tracking edge cases, positional mapping, prompt content correctness), and stability (signal handling, fault tolerance, resource leaks, external interference recovery).
-**Non-Goals:** Not changing Ralph's runtime behavior or fixing bugs (test-only). Not testing kiro-cli itself. Not testing enforce-ralph-loop.sh (already has shell tests). Not adding CI pipeline configuration.
-**Architecture:** All new tests in `tests/ralph-loop/` as pytest. Slow tests marked `@pytest.mark.slow`. No live kiro-cli dependency — use `RALPH_KIRO_CMD` env for process-level tests, direct function calls for unit tests. Add `conftest.py` with shared fixtures.
+**Objetivo:** Add thorough tests for Ralph Loop covering concurrency (batch scheduling, task dispatch, process-level lock contention), accuracy (checklist tracking edge cases, positional mapping, prompt content correctness), and stability (signal handling, fault tolerance, resource leaks, external interference recovery).
+**Não-Objetivos:** Not changing Ralph's runtime behavior or fixing bugs (test-only). Not testing kiro-cli itself. Not testing enforce-ralph-loop.sh (already has shell tests). Not adding CI pipeline configuration.
+**Arquitetura:** All new tests in `tests/ralph-loop/` as pytest. Slow tests marked `@pytest.mark.slow`. No live kiro-cli dependency - use `RALPH_KIRO_CMD` env for process-level tests, direct function calls for unit tests. Add `conftest.py` with shared fixtures.
 **Tech Stack:** Python 3.10+, pytest, threading (for race condition tests), textwrap, subprocess, tempfile
 
 ## Review
@@ -13,15 +13,15 @@
 - **Performance**: APPROVE ✅ — Estimated 30-75s for process-level tests. Timing-dependent tests have conservative timeouts. No N+1 or expensive loops.
 - **Completeness**: APPROVE ✅ — 3 minor nits (heartbeat output format, env var validation, summary write permissions). All assessed as non-core edge cases outside Goal scope. No action needed.
 
-## Tasks
+## Tarefas
 
-### Task 1: Shared test fixtures — conftest.py
+### Tarefa 1: Shared test fixtures - conftest.py
 
-**Files:**
+**Arquivos:**
 - Create: `tests/ralph-loop/conftest.py`
 - Test: `tests/ralph-loop/conftest.py`
 
-**Verify:** `python3 -c "from pathlib import Path; assert Path('tests/ralph-loop/conftest.py').exists()" && python3 -m pytest tests/ralph-loop/ --co -q`
+**Verificação:** `python3 -c "from pathlib import Path; assert Path('tests/ralph-loop/conftest.py').exists()" && python3 -m pytest tests/ralph-loop/ --co -q`
 
 **What to implement:**
 
@@ -32,13 +32,13 @@ Create `tests/ralph-loop/conftest.py` with shared fixtures:
 
 ---
 
-### Task 2: Scheduler parametric tests — equivalence class coverage
+### Tarefa 2: Scheduler parametric tests - equivalence class coverage
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_scheduler.py`
 - Test: `tests/ralph-loop/test_scheduler.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_scheduler.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_scheduler.py -v`
 
 **What to implement:**
 
@@ -58,13 +58,13 @@ Add parametrized tests covering the `(task_count, overlap_pattern, max_parallel)
 
 ---
 
-### Task 3: Checklist accuracy edge cases
+### Tarefa 3: Checklist accuracy edge cases
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py -v`
 
 **What to implement:**
 
@@ -80,13 +80,13 @@ Add tests for checklist parsing edge cases:
 
 ---
 
-### Task 4: Prompt content structural correctness
+### Tarefa 4: Prompt content structural correctness
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_prompt_iteration_number tests/ralph-loop/test_ralph_loop.py::test_prompt_file_paths -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_prompt_iteration_number tests/ralph-loop/test_ralph_loop.py::test_prompt_file_paths -v`
 
 **What to implement:**
 
@@ -99,14 +99,14 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 5: Batch recomputation after partial completion
+### Tarefa 5: Batch recomputation after partial completion
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_scheduler.py`
 - Modify: `tests/ralph-loop/test_plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_recompute_after_partial_completion tests/ralph-loop/test_scheduler.py::test_rebatch_after_removal -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_recompute_after_partial_completion tests/ralph-loop/test_scheduler.py::test_rebatch_after_removal -v`
 
 **What to implement:**
 
@@ -115,13 +115,13 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 6: Summary output verification
+### Tarefa 6: Summary output verification
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_summary_success tests/ralph-loop/test_ralph_loop.py::test_summary_failure -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_summary_success tests/ralph-loop/test_ralph_loop.py::test_summary_failure -v`
 
 **What to implement:**
 
@@ -130,14 +130,14 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 7: Process-level lock contention
+### Tarefa 7: Process-level lock contention
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_lock.py`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_lock.py::test_concurrent_acquire tests/ralph-loop/test_ralph_loop.py::test_double_ralph_no_lock_guard -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_lock.py::test_concurrent_acquire tests/ralph-loop/test_ralph_loop.py::test_double_ralph_no_lock_guard -v`
 
 **What to implement:**
 
@@ -146,13 +146,13 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 8: Signal handling and cleanup
+### Tarefa 8: Signal handling and cleanup
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_sigint_cleanup tests/ralph-loop/test_ralph_loop.py::test_child_process_no_orphan -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_sigint_cleanup tests/ralph-loop/test_ralph_loop.py::test_child_process_no_orphan -v`
 
 **What to implement:**
 
@@ -161,14 +161,14 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 9: Fault tolerance — corrupted/abnormal inputs
+### Tarefa 9: Fault tolerance - corrupted/abnormal inputs
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_plan.py`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_truncated_plan tests/ralph-loop/test_plan.py::test_binary_content_in_plan tests/ralph-loop/test_ralph_loop.py::test_active_points_to_missing_file tests/ralph-loop/test_ralph_loop.py::test_empty_active_file -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_truncated_plan tests/ralph-loop/test_plan.py::test_binary_content_in_plan tests/ralph-loop/test_ralph_loop.py::test_active_points_to_missing_file tests/ralph-loop/test_ralph_loop.py::test_empty_active_file -v`
 
 **What to implement:**
 
@@ -179,13 +179,13 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 10: External interference recovery
+### Tarefa 10: External interference recovery
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_plan_modified_during_iteration tests/ralph-loop/test_ralph_loop.py::test_lock_deleted_during_run -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_plan_modified_during_iteration tests/ralph-loop/test_ralph_loop.py::test_lock_deleted_during_run -v`
 
 **What to implement:**
 
@@ -194,13 +194,13 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 11: Concurrent plan file access (threading race condition)
+### Tarefa 11: Concurrent plan file access (threading race condition)
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_concurrent_reload -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_concurrent_reload -v`
 
 **What to implement:**
 
@@ -208,13 +208,13 @@ Upgrade prompt tests from keyword-existence to structural contract assertions:
 
 ---
 
-### Task 12: Long-running stability (slow tests)
+### Tarefa 12: Long-running stability (slow tests)
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_many_iterations_no_hang tests/ralph-loop/test_ralph_loop.py::test_heartbeat_thread_cleanup -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_many_iterations_no_hang tests/ralph-loop/test_ralph_loop.py::test_heartbeat_thread_cleanup -v`
 
 **What to implement:**
 
@@ -225,13 +225,13 @@ Mark with `@pytest.mark.slow`:
 
 ---
 
-### Task 13: State transition path coverage
+### Tarefa 13: State transition path coverage
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_happy_path_complete tests/ralph-loop/test_ralph_loop.py::test_skip_then_complete tests/ralph-loop/test_ralph_loop.py::test_timeout_then_stale_then_breaker -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_happy_path_complete tests/ralph-loop/test_ralph_loop.py::test_skip_then_complete tests/ralph-loop/test_ralph_loop.py::test_timeout_then_stale_then_breaker -v`
 
 **What to implement:**
 
@@ -243,14 +243,14 @@ State transition path tests using KIRO_CMD scripts that manipulate the plan:
 
 ---
 
-### Task 14: Plan format half-corruption fallback
+### Tarefa 14: Plan format half-corruption fallback
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/ralph-loop/test_plan.py`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_partial_task_parse tests/ralph-loop/test_ralph_loop.py::test_fully_unparseable_plan_fallback tests/ralph-loop/test_ralph_loop.py::test_partial_parse_still_batches -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_partial_task_parse tests/ralph-loop/test_ralph_loop.py::test_fully_unparseable_plan_fallback tests/ralph-loop/test_ralph_loop.py::test_partial_parse_still_batches -v`
 
 **What to implement:**
 
@@ -281,7 +281,7 @@ State transition path tests using KIRO_CMD scripts that manipulate the plan:
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 
 - Review quality analysis revealed: angles with concrete analysis methods (like Verify Correctness) produce significantly better output than angles with vague missions. Fixed by adding explicit analysis methods to all 7 random pool angles and strengthening Goal Alignment in `skills/planning/SKILL.md`.
 - Socratic check found: Tasks 6/7/8 write `.ralph-result` and `.ralph-loop.lock` to project root (hardcoded in ralph_loop.py). This is a pre-existing design issue — changing runtime paths is out of scope (Non-Goals). Tests must clean up these files in teardown. Existing test `test_lock_cleanup_on_signal` has the same issue.
