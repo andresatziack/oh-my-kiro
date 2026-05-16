@@ -1,15 +1,15 @@
-# Ralph Loop Idle Watchdog Implementation Plan
+# Plano de Implementação do Idle Watchdog do Ralph Loop
 
-**Goal:** Add PTY-based unbuffered output and idle watchdog to ralph_loop.py so stuck iterations are killed within 60s instead of waiting the full task_timeout (default 1800s).
-**Non-Goals:** Parallel execution, prompt optimization, adaptive timeout, changing circuit breaker logic.
-**Architecture:** Wrap child CLI process in a PTY (via `pty.openpty()`) so output is line-buffered. A reader thread tees PTY output to the log file. The existing heartbeat thread monitors log file mtime; if no growth for `idle_timeout` seconds, it kills the child process group.
+**Objetivo:** Add PTY-based unbuffered output and idle watchdog to ralph_loop.py so stuck iterations are killed within 60s instead of waiting the full task_timeout (default 1800s).
+**Não-Objetivos:** Parallel execution, prompt optimization, adaptive timeout, changing circuit breaker logic.
+**Arquitetura:** Wrap child CLI process in a PTY (via `pty.openpty()`) so output is line-buffered. A reader thread tees PTY output to the log file. The existing heartbeat thread monitors log file mtime; if no growth for `idle_timeout` seconds, it kills the child process group.
 **Tech Stack:** Python 3 stdlib (`pty`, `os`, `threading`, `subprocess`)
 
-## Tasks
+## Tarefas
 
-### Task 1: PTY subprocess launcher
+### Tarefa 1: PTY subprocess launcher
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/pty_runner.py`
 - Test: `tests/ralph-loop/test_pty_runner.py`
 
@@ -123,9 +123,9 @@ Expected: PASS
 
 ---
 
-### Task 2: Idle watchdog in heartbeat thread
+### Tarefa 2: Idle watchdog in heartbeat thread
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -228,9 +228,9 @@ Expected: PASS
 
 ---
 
-### Task 3: Integration and regression
+### Tarefa 3: Integration and regression
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 

@@ -1,15 +1,15 @@
-# Hook Governance: Reduce False Positives + Slim Output
+# Governança de Hook: Reduzir Falsos Positivos + Slim Output
 
-**Goal:** enforce-ralph-loop.sh allowlist to denylist, narrow block-dangerous/outside-workspace false positives, compress all hook output to reduce context pollution.
-**Non-Goals:** Change hook 3-category architecture. Rewrite ralph-loop core. Add new hooks. Change registration mechanism.
-**Architecture:** (1) enforce-ralph-loop.sh flip to denylist (2) dangerous/outside-workspace narrowing (3) hook output compression
+**Objetivo:** enforce-ralph-loop.sh allowlist to denylist, narrow block-dangerous/outside-workspace false positives, compress all hook output to reduce context pollution.
+**Não-Objetivos:** Change hook 3-category architecture. Rewrite ralph-loop core. Add new hooks. Change registration mechanism.
+**Arquitetura:** (1) enforce-ralph-loop.sh flip to denylist (2) dangerous/outside-workspace narrowing (3) hook output compression
 **Tech Stack:** Bash, Python 3 (pytest)
 
-## Tasks
+## Tarefas
 
-### Task 1: enforce-ralph-loop.sh denylist refactor
+### Tarefa 1: enforce-ralph-loop.sh denylist refactor
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh`
 - Create: `tests/hooks/test-ralph-gate.sh`
 
@@ -19,11 +19,11 @@
 - fs_write mode: allow if file not in protected list
 - Keep: .active guard, lock check, skip bypass
 
-**Verify:** `bash tests/hooks/test-ralph-gate.sh`
+**Verificação:** `bash tests/hooks/test-ralph-gate.sh`
 
-### Task 2: block-dangerous.sh narrowing
+### Tarefa 2: block-dangerous.sh narrowing
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/security/block-dangerous.sh`
 - Modify: `hooks/_lib/patterns.sh`
 - Modify: `tests/hooks/verify-block-dangerous.sh`
@@ -33,22 +33,22 @@
 - Remove overly broad process signal patterns
 - find with delete: only block on system paths
 
-**Verify:** `bash tests/hooks/verify-block-dangerous.sh`
+**Verificação:** `bash tests/hooks/verify-block-dangerous.sh`
 
-### Task 3: block-outside-workspace.sh allow /tmp/
+### Tarefa 3: block-outside-workspace.sh allow /tmp/
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/security/block-outside-workspace.sh`
 - Create: `tests/hooks/test-outside-workspace.sh`
 
 **What to implement:**
 - Remove /tmp/ from OUTSIDE_WRITE_PATTERNS
 
-**Verify:** `bash tests/hooks/test-outside-workspace.sh`
+**Verificação:** `bash tests/hooks/test-outside-workspace.sh`
 
-### Task 4: Block message single-line
+### Tarefa 4: Block message single-line
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/_lib/block-recovery.sh`
 - Modify: `hooks/_lib/common.sh`
 - Modify: `hooks/security/block-dangerous.sh`
@@ -62,11 +62,11 @@
 - hook_block_with_recovery() compressed format
 - All security hooks pass single-line messages
 
-**Verify:** `bash tests/hooks/test-block-output.sh`
+**Verificação:** `bash tests/hooks/test-block-output.sh`
 
-### Task 5: context-enrichment.sh output budget + dedup
+### Tarefa 5: context-enrichment.sh output budget + dedup
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 - Create: `tests/hooks/test-context-budget.sh`
 
@@ -75,11 +75,11 @@
 - 60s dedup
 - Rules injection cap 3
 
-**Verify:** `bash tests/hooks/test-context-budget.sh`
+**Verificação:** `bash tests/hooks/test-context-budget.sh`
 
-### Task 6: Feedback hook output slimming
+### Tarefa 6: Feedback hook output slimming
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 - Modify: `hooks/feedback/post-write.sh`
 - Modify: `hooks/feedback/verify-completion.sh`
@@ -90,11 +90,11 @@
 - post-write: failure tail -3
 - verify-completion: summary only
 
-**Verify:** `bash tests/hooks/test-feedback-output.sh`
+**Verificação:** `bash tests/hooks/test-feedback-output.sh`
 
-### Task 7: Regression test + doc update
+### Tarefa 7: Regression test + doc update
 
-**Files:**
+**Arquivos:**
 - Modify: `docs/designs/2026-02-18-hook-architecture.md`
 
 **What to implement:**
@@ -102,7 +102,7 @@
 - Update hook-architecture.md
 - Validate configs
 
-**Verify:** `bash tests/hooks/test-kiro-compat.sh && python3 scripts/generate_configs.py --validate`
+**Verificação:** `bash tests/hooks/test-kiro-compat.sh && python3 scripts/generate_configs.py --validate`
 
 ## Checklist
 
@@ -125,5 +125,5 @@ All 4 returned Verdict: APPROVE.
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 
