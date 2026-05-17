@@ -66,74 +66,74 @@ case "$FILE" in "$WORKSPACE"/*) FILE="${FILE#$WORKSPACE/}" ;; esac
 
 > Sources: Anthropic "Effective Harnesses for Long-Running Agents" (2025-11-26), Anthropic "Effective Context Engineering for AI Agents" (2025-09-29), Manus context engineering practices, Claude Code Agent Teams/Swarm Mode (2026-02)
 
-### 核心发现
+### Descobertas centrais
 
-**1. Anthropic 论文的两阶段 Agent 架构**
+**1. Arquitetura de Agent em duas etapas no paper da Anthropic**
 
-论文核心创新：Initializer Agent（首次 session 搭建环境）+ Coding Agent（后续 session 增量推进）。
+Inovacao central do paper: Initializer Agent (primeira session monta o ambiente) + Coding Agent (sessions seguintes avancam de forma incremental).
 
-- Initializer Agent 职责：写 feature list（JSON 格式）、写 init.sh、写 progress.txt、做初始 git commit
-- Coding Agent 职责：每次 session 先读 progress + git log + 跑基础测试，然后只做一个 feature，完成后 commit + 更新 progress
-- 关键发现：JSON 格式的 feature list 比 Markdown 更不容易被 agent 篡改
-- 关键发现：不先验证环境就开始新 feature 会让已有 bug 更严重
+- Responsabilidade do Initializer Agent: escrever a feature list (formato JSON), escrever init.sh, escrever progress.txt, fazer o commit inicial no git
+- Responsabilidade do Coding Agent: a cada session, ler primeiro o progress + git log + rodar os testes basicos; em seguida, executar apenas uma feature e, ao terminar, commitar e atualizar o progress
+- Descoberta-chave: feature list em JSON e menos suscetivel a adulteracao pelo agent do que em Markdown
+- Descoberta-chave: comecar uma feature nova sem antes validar o ambiente agrava bugs preexistentes
 
-**2. Context Rot 与 Compaction**
+**2. Context Rot e Compaction**
 
-Anthropic context engineering 论文核心观点：context 是有限资源，随 token 增加注意力预算被稀释（n² pairwise relationships）。
+Tese central do paper de context engineering da Anthropic: contexto e recurso finito; conforme os tokens aumentam, o orcamento de atencao se dilui (n^2 pairwise relationships).
 
-- Manus 实践：tool result 有 full/compact 两种表示，旧 result 自动替换为 compact（只保留路径引用）
-- Anthropic 平台：context editing 功能自动清除 stale tool call results
-- 研究发现：直接移除旧 tool result（不做 LLM summarization）在 observation-heavy 场景下效果等同或更好
-- 关键原则："find the smallest possible set of high-signal tokens that maximize the likelihood of desired outcome"
+- Pratica do Manus: cada tool result tem duas representacoes (full/compact); resultados antigos sao automaticamente substituidos pela versao compact (mantendo apenas a referencia de path)
+- Plataforma Anthropic: o recurso de context editing remove automaticamente tool call results obsoletos
+- Pesquisa: remover tool results antigos diretamente (sem LLM summarization) tem efeito equivalente ou superior em cenarios observation-heavy
+- Principio-chave: "find the smallest possible set of high-signal tokens that maximize the likelihood of desired outcome"
 
-**3. Sub-agent 架构演进 → Agent Teams**
+**3. Evolucao da arquitetura de Sub-agent -> Agent Teams**
 
-Claude Code 2026 年初推出 Agent Teams（Swarm Mode）：
+No inicio de 2026, o Claude Code lancou Agent Teams (Swarm Mode):
 
-- 7 个原语：TeamCreate, TaskCreate, TaskUpdate, TaskList, Task(team_name), SendMessage, TeamDelete
-- 关键区别：subagent 只能报告回 parent，Agent Teams 成员可以互相直接通信
-- 共享 task list（文件系统上的 JSON），自主认领任务
-- 最佳实践：plan first（便宜），parallelize second（贵但快）
-- 成本模型：每个 teammate 是完整 context window，更多 agent = 更多 token
+- 7 primitivas: TeamCreate, TaskCreate, TaskUpdate, TaskList, Task(team_name), SendMessage, TeamDelete
+- Diferenca-chave: subagent so reporta de volta ao parent; membros de Agent Teams podem se comunicar diretamente entre si
+- Task list compartilhada (JSON no filesystem); membros pegam tarefas autonomamente
+- Boa pratica: plan first (barato), parallelize second (caro mas rapido)
+- Modelo de custo: cada teammate ocupa uma context window inteira, ou seja, mais agents = mais tokens
 
-**4. Manus 的 Context Engineering 三策略**
+**4. As tres estrategias de Context Engineering do Manus**
 
-- Reduce：compact stale results → summarize when compaction 收益递减
-- Offload：tool result 存文件系统，用 glob/grep 按需检索；action 推到 sandbox 层（小 tool set + Bash）
-- Isolate：sub-agent 主要目的是隔离 context（不是分工）；简单任务只传指令，复杂任务传完整 context
+- Reduce: compactar stale results -> summarize quando o ganho da compaction comeca a diminuir
+- Offload: armazenar tool results no filesystem, recuperar sob demanda com glob/grep; empurrar acoes para a camada sandbox (tool set pequeno + Bash)
+- Isolate: o objetivo principal de um sub-agent e isolar contexto (nao dividir trabalho); para tarefa simples, repassar so a instrucao; para tarefa complexa, repassar o contexto completo
 
-**5. Bitter Lesson 防护**
+**5. Defesa contra a Bitter Lesson**
 
-Manus 的 Peak 警告：agent harness 可能限制模型性能提升。
+O alerta "Peak" do Manus: o harness do agent pode limitar os ganhos de performance do modelo.
 
-- 做法：跨模型强度运行 eval，如果更强模型没带来性能提升，说明 harness 在拖后腿
-- Claude Code 创始人 Boris Cherny 也受 Bitter Lesson 影响，保持 Claude Code 不 opinionated
-- Manus 自 2025-03 发布以来已重构 5 次
+- Tatica: rodar evals em modelos de forca diferente; se um modelo mais forte nao gera ganho de performance, o harness esta segurando o sistema
+- Boris Cherny, criador do Claude Code, tambem foi influenciado pela Bitter Lesson e mantem o Claude Code com pouca opiniao
+- Desde o lancamento em 2025-03, o Manus ja foi reescrito 5 vezes
 
-### 与现有框架的对照分析
+### Comparacao com o framework atual
 
-| 论文/行业实践 | 框架现状 | 差距 |
+| Paper / pratica do mercado | Estado do framework | Lacuna |
 |---|---|---|
-| Initializer Agent 首次搭建环境 | Ralph Loop 每次 iteration 用相同 prompt | 🔴 缺少 |
-| Tool result compaction | 每次 iteration 新 CLI 实例（天然隔离），但单次内无 compaction | 🔴 缺少 |
-| 每次 session 先跑测试验证环境 | build_prompt 没有"先验证环境"指令 | 🟡 缺少 |
-| Feature list 用 JSON | Checklist 用 Markdown（已有误判 episode） | 🟡 可优化 |
-| Agent 间直接通信（Teams） | Strategy D 是 fire-and-forget | 🟡 可升级 |
-| Bitter Lesson 防护 | Hook 约束较刚性，无松弛模式 | 🟢 低优先 |
-| 增量推进 + commit + progress | ✅ Ralph Loop + progress.md + findings.md | 已覆盖 |
-| Hook 强制执行 | ✅ PreToolUse/PostToolUse/Stop | 领先论文 |
-| Circuit breaker | ✅ 3 轮无进展自动停止 | 领先论文 |
-| Plan review 多角度审查 | ✅ 4 reviewer 并行 | 领先论文 |
-| Knowledge 自进化 | ✅ episodes + self-reflect | 领先论文 |
-| Security hooks | ✅ 多层安全拦截 | 领先论文 |
+| Initializer Agent monta o ambiente na primeira vez | Ralph Loop usa o mesmo prompt em toda iteracao | 🔴 ausente |
+| Tool result compaction | A cada iteracao temos uma instancia nova do CLI (isolamento natural), mas sem compaction dentro de uma iteracao | 🔴 ausente |
+| Cada session valida o ambiente rodando testes primeiro | build_prompt nao tem instrucao de "validar o ambiente primeiro" | 🟡 ausente |
+| Feature list em JSON | Checklist em Markdown (ja teve episode com falso positivo) | 🟡 otimizavel |
+| Comunicacao direta entre agents (Teams) | Strategy D e fire-and-forget | 🟡 atualizavel |
+| Defesa contra a Bitter Lesson | Hooks com restricoes rigidas, sem modo relax | 🟢 baixa prioridade |
+| Avanco incremental + commit + progress | ✅ Ralph Loop + progress.md + findings.md | coberto |
+| Hook enforcement | ✅ PreToolUse/PostToolUse/Stop | a frente do paper |
+| Circuit breaker | ✅ parada automatica apos 3 rounds sem progresso | a frente do paper |
+| Revisao multiangulo do plano | ✅ 4 reviewers em paralelo | a frente do paper |
+| Auto-evolucao do knowledge | ✅ episodes + self-reflect | a frente do paper |
+| Security hooks | ✅ varias camadas de bloqueio de seguranca | a frente do paper |
 
-### 优化建议优先级
+### Prioridade das sugestoes de otimizacao
 
-| 优先级 | 方向 | 预期收益 | 实现难度 |
+| Prioridade | Direcao | Ganho esperado | Dificuldade |
 |---|---|---|---|
-| P0 | Tool Result Compaction 指令（改 prompt） | 单次 iteration 内防降智 | 低 |
-| P0 | 每次 iteration 先跑测试验证环境（改 prompt） | 防止在坏环境上叠加 bug | 低 |
-| P1 | Initializer Agent 模式（改 ralph_loop.py） | 第一个 iteration 更高效 | 中 |
-| P1 | Agent Teams 支持（需 CC 实验特性） | 并行 agent 间通信 | 中 |
-| P2 | Checklist JSON 分离（改 plan.py + hooks） | 消除 Markdown 解析误判 | 中 |
-| P2 | Bitter Lesson 防护（加环境变量） | 框架不限制模型进步 | 低 |
+| P0 | Instrucao de Tool Result Compaction (alterar prompt) | evita queda de QI dentro de uma iteracao | baixa |
+| P0 | Cada iteracao valida o ambiente rodando testes primeiro (alterar prompt) | evita empilhar bugs sobre ambiente quebrado | baixa |
+| P1 | Modo Initializer Agent (alterar ralph_loop.py) | primeira iteracao mais eficiente | media |
+| P1 | Suporte a Agent Teams (depende de feature experimental do CC) | comunicacao entre agents em paralelo | media |
+| P2 | Separar checklist em JSON (alterar plan.py + hooks) | elimina falsos positivos do parse de Markdown | media |
+| P2 | Defesa contra a Bitter Lesson (adicionar variavel de ambiente) | framework nao limita o avanco do modelo | baixa |
