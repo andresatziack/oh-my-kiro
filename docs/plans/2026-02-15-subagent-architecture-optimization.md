@@ -82,14 +82,14 @@ Reescrever a secao Subagent Delegation:
 
 ```markdown
 ## Subagent Delegation
-- Dois subagents: reviewer (review) e researcher (pesquisa na web)
-- Tres principios: capacidade nao degrada / resultado autocontido / tarefa independente
-- Capacidades via MCP: ripgrep (a nivel de workspace, herdado por todos os subagents); fetch (so para o researcher)
-- Tarefas de implementacao/debugging -> processo independente do ralph-loop (toolset completo com LSP) ou agent principal
-- Tarefas de validacao -> default subagent (read + shell ja basta)
-- Pesquisa na web -> dia a dia: agent principal (web_search gratis); cenario paralelo/isolado: researcher subagent
-- Plan review -> reviewer subagent
-- code tool (LSP) nao pode ser obtido via MCP; tarefas que dependem de LSP nunca sao delegadas
+- 两个 subagent：reviewer（review）、researcher（web 调研）
+- 三原则：能力不降级 / 结果自包含 / 任务独立
+- MCP 补能力：ripgrep（workspace 级，所有 subagent 继承）、fetch（researcher 专用）
+- 实现/调试任务 → ralph-loop 独立进程（完整工具含 LSP）或主 agent
+- 验证任务 → default subagent（read + shell 足够）
+- Web 调研 → 日常用主 agent（免费 web_search），并行/隔离场景用 researcher subagent
+- Plan review → reviewer subagent
+- code tool（LSP）无法通过 MCP 补回，需要 LSP 的任务永远不委派
 ```
 
 Na tabela Skill Routing, remover linhas relacionadas a implementer/debugger.

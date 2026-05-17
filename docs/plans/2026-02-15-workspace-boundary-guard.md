@@ -146,43 +146,43 @@ Na geracao dos agents reviewer/researcher:
 **Teste A: fs_write bloqueia caminho externo**
 ```bash
 echo '{"tool_name":"fs_write","tool_input":{"file_path":"/tmp/evil.txt","command":"create"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 2, stderr contem "BLOCKED"
+# 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
 **Teste B: fs_write libera caminho dentro do workspace**
 ```bash
 echo '{"tool_name":"fs_write","tool_input":{"file_path":"hooks/test.txt","command":"create"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 0, sem output
+# 预期: exit 0, 无输出
 ```
 
 **Teste C: bash bloqueia escrita externa**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"echo hello > ~/.zshrc"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 2, stderr contem "BLOCKED"
+# 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
 **Teste D: bash libera comando normal**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"echo hello"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 0, sem output
+# 预期: exit 0, 无输出
 ```
 
 **Teste E: fs_write bloqueia path traversal**
 ```bash
 echo '{"tool_name":"fs_write","tool_input":{"file_path":"../../../etc/passwd","command":"create"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 2, stderr contem "BLOCKED"
+# 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
 **Teste F: bash bloqueia redirect com append**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"echo data >> ~/evil.txt"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 2, stderr contem "BLOCKED"
+# 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
 **Teste G: bash bloqueia tar -C externo**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"tar -xf archive.tar -C /usr/local/"}}' | bash hooks/security/block-outside-workspace.sh
-# Esperado: exit 2, stderr contem "BLOCKED"
+# 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
 **Verificação:** os 4 testes passam

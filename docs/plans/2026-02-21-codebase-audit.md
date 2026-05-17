@@ -1,4 +1,4 @@
-# Codebase Audit - revisao geral do codigo
+# Codebase Audit - review geral do codigo
 
 **Objetivo:** Corrigir erros de tipo, inconsistencias, redundancia, bugs latentes e codigo morto, melhorando qualidade e manutenibilidade
 **Não-Objetivos:** Sem mudancas de funcionalidade; sem alteracao de arquitetura; sem novas features; sem alterar a logica de negocio dos shell hooks

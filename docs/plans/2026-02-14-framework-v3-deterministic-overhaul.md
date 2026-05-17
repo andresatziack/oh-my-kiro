@@ -238,16 +238,16 @@ find_active_plan() {
 
 **Logica completa:**
 ```
-Quando PreToolUse[Write|Edit|fs_write] dispara:
-1. Nao e arquivo de codigo-fonte -> pass
-2. E arquivo de teste -> pass (TDD permite escrever teste primeiro)
-3. E str_replace/Edit (alteracao pequena) -> pass
-4. .skip-plan existe -> pass (bypass)
-5. find_active_plan() encontra plan ativo:
-   a. Nao encontrou -> BLOCK "precisa criar um plan"
-   b. Encontrou -> checar a secao ## Review:
-      - Conteudo < 3 linhas -> BLOCK "precisa de revisao do reviewer"
-      - Veredito REJECT/REQUEST CHANGES -> BLOCK "plan rejeitado"
+PreToolUse[Write|Edit|fs_write] 触发时：
+1. 不是源代码文件 → pass
+2. 是测试文件 → pass（TDD 允许先写测试）
+3. 是 str_replace/Edit（小修改） → pass
+4. .skip-plan 存在 → pass（旁路）
+5. find_active_plan() 找活跃 plan：
+   a. 没找到 → BLOCK "需要先创建 plan"
+   b. 找到 → 检查 ## Review section：
+      - 内容 <3 行 → BLOCK "需要 reviewer 审查"
+      - verdict 是 REJECT/REQUEST CHANGES → BLOCK "plan 被拒绝"
    c. pass
 ```
 
@@ -282,22 +282,22 @@ Quando PreToolUse[Write|Edit|fs_write] dispara:
 
 ## Phase 3: consolidacao das skills
 
-### Tarefa 3.1: mesclar a planning skill
+### Tarefa 3.1: merge da planning skill
 
 **Arquivos:**
 - Create: `skills/planning/SKILL.md`
 
-**Origens da fusao:**
+**Origens do merge:**
 - `writing-plans/SKILL.md` + `executing-plans/SKILL.md`
 - Uma unica skill cobre as duas fases ("escrever plan" e "executar plan")
 - Remover templates e exemplos redundantes; manter apenas o fluxo central
 
-### Tarefa 3.2: mesclar a reviewing skill
+### Tarefa 3.2: merge da reviewing skill
 
 **Arquivos:**
 - Create: `skills/reviewing/SKILL.md`
 
-**Origens da fusao:**
+**Origens do merge:**
 - `code-review-expert/SKILL.md` + `requesting-code-review/SKILL.md` + `receiving-code-review/SKILL.md`
 - Uma skill cobrindo os tres papeis: solicitar review, executar review, receber review
 
@@ -313,7 +313,7 @@ Quando PreToolUse[Write|Edit|fs_write] dispara:
 
 **Remover - destino do conteudo (resolve reviewer C4):**
 
-| Skill removida | Conteudo central | Mesclar em |
+| Skill removida | Conteudo central | Merge em |
 |-----------|---------|--------|
 | `dispatching-parallel-agents` | Padrao de dispatch paralelo, criterios de independencia | `planning/SKILL.md` -> secao "Opcoes de execucao > modo paralelo" |
 | `subagent-driven-development` | Um subagent por task + review | `planning/SKILL.md` -> secao "Opcoes de execucao > modo subagent" |
@@ -607,14 +607,14 @@ git tag v3.0.0
 
 Se o v3 apresentar problema serio:
 ```bash
-# 1. Voltar para o v2
+# 1. 恢复到 v2
 git stash  # 保存当前未提交的改动
 git checkout v2-before-v3-overhaul
 
-# 2. Continuar trabalhando a partir do v2
+# 2. 如果需要在 v2 基础上继续工作
 git checkout -b hotfix-from-v2 v2-before-v3-overhaul
 
-# 3. Se for confirmado o abandono do v3
+# 3. 如果确认 v3 可以放弃
 git branch -D main  # 或 git reset --hard v2-before-v3-overhaul
 ```
 
@@ -680,8 +680,8 @@ Sem mecanismo de file locking. Agentes concorrentes (reviewer + implementer) vã
 
 **C3: Lacunas de lógica em require-workflow.sh**
 ```
-5. Checar estado do workflow:
-   a. Algum plan criado nas ultimas 2h? Se nao -> BLOCK
+5. 检查工作流状态：
+   a. 最近 2h 内有 plan 文件被创建？ 没有 → BLOCK
 ```
 ❌ E se o plan existir mas estiver obsoleto (>2h)? E se múltiplos plans existirem? A lógica não trata a descoberta do arquivo de plan - qual plan checar?
 
@@ -719,7 +719,7 @@ Sem testes do comportamento dos hooks durante a transição. Precisa verificar q
 
 **M3: Formato de definição de agente**
 ```
-- Ler de `agents/*.md` a definicao do agent (name, description, tools, resources)
+- 从 `agents/*.md` 读取 agent 定义（name, description, tools, resources）
 ```
 Sem especificação do formato markdown. Como tools/resources são codificados? Qual o schema?
 
@@ -730,7 +730,7 @@ O que acontece com arquivos `.completion-criteria.md` existentes? Estado de work
 
 **E1: Chamadas stat() multi-plataforma**
 ```bash
-# Adicionar funcao file_mtime() unificando diferencas de stat entre macOS/Linux
+# 新增 `file_mtime()` 函数统一 macOS/Linux stat 差异
 ```
 O plan menciona isso mas não mostra a implementação. macOS usa `stat -f %m`, Linux usa `stat -c %Y`. Falta a implementação = hooks quebrados.
 

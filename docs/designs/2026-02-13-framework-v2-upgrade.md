@@ -1240,7 +1240,7 @@ Nos criterios de avaliacao da dimensao REVIEWED:
 | **Core** | Workflow central | Claude invoca automaticamente | brainstorming, writing-plans, research, code-review, debug, verify |
 | **Domain** | Especialista de dominio | Claude invoca sob demanda | java-architect, mermaid-diagrams |
 | **Utility** | Utilitario | Usuario invoca via `/skill` | humanizer, doc-coauthoring, find-skills, git-worktrees |
-| **Deprecated** | A descontinuar | Remover ou mesclar | security-review (ja removida) |
+| **Deprecated** | A descontinuar | Remover ou merge | security-review (ja removida) |
 
 **Padroes de qualidade de skill:**
 
@@ -1707,7 +1707,7 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 - [ ] **Apagar a skill security-review** (contem prompt injection)
 - [ ] Adicionar o hook scan-skill-injection para evitar problemas futuros
 
-### Phase 2: reconstrucao do sistema de Hook (Day 1-2)
+### Phase 2: rebuild do sistema de Hook (Day 1-2)
 - [ ] Criar a estrutura unificada de `.claude/hooks/`
 - [ ] Criar `.claude/hooks/_lib/llm-eval.sh` (biblioteca de avaliacao LLM, Gemini/Anthropic/OpenAI/Ollama)
 - [ ] Migrar block-dangerous-commands.sh -> versao unificada (PreToolUse[bash])
@@ -1741,7 +1741,7 @@ You are a senior reviewer. You have TWO modes based on what you're asked to revi
 - [ ] Dividir skill-creator
 - [ ] Reduzir test-driven-development, systematic-debugging, subagent-driven-development
 - [ ] Manter self-reflect skill (auto-evolucao central) e reduzir o que se duplica com Stop hook
-- [ ] Mesclar a logica central de verification-before-completion no Stop hook
+- [ ] Merge da logica central de verification-before-completion no Stop hook
 - [ ] Adicionar/otimizar frontmatter em todas as skills
 - [ ] Adicionar o hook scan-skill-injection
 
@@ -2174,7 +2174,7 @@ Apos adotar a Estrategia A, ajustar a recuperacao:
 - Stop hook nao bloqueia: 80% -> **~85%** (julgamento semantico via LLM + delegate em background + persistencia via completion-criteria)
 - **Recuperacao geral: ~87% -> ~91%**
 
-### Avaliacao do impacto sobre os objetivos (apos compensacao, segunda revisao)
+### Avaliacao do impacto sobre os objetivos (apos compensacao, segundo review)
 
 | Objetivo | Implementacao em CC | Implementacao em Kiro com compensacao | Recuperacao |
 |------|---------|---------------|--------|
@@ -2320,7 +2320,7 @@ Apagar `.cursor/`, `.trae/`, `.agents/`, `.agent/` e seus symlinks. Manter so `.
 | 2 | 🔴 | A marca `## Review` do plan podia ser bypassada com cabecalho vazio | Mudar para checagem de >=3 linhas substantivas em Review |
 | 3 | 🔴 | Regex de correction disparava em discussao | Apertar para combo "voce + acao errada" |
 | 4 | 🔴 | auto-test/enforce-tests com `npm test` hardcoded | Adicionar `detect_test_command()` cobrindo 7 sistemas de build |
-| 5 | 🔴 | Escape de JSON com sed em llm-eval.sh inseguro | Trocar tudo para construcao via `jq -n` |
+| 5 | 🔴 | Escape de JSON com sed em llm-eval.sh inseguro | Trocar tudo para build via `jq -n` |
 | 6 | 🔴 | Plano de migracao sem rollback | Incluir git tag + chave global `HOOKS_DRY_RUN` + ativacao gradual |
 | 7 | 🔴 | `is_source_file` perdia `.sh/.yaml/.toml/.tf` | Shell scripts e config IaC tambem sao codigo e devem seguir o fluxo de plan. Estender para `.ts\|js\|py\|java\|rs\|go\|rb\|swift\|kt\|sh\|bash\|zsh\|yaml\|yml\|toml\|tf\|hcl` |
 | 8 | 🔴 | enforce-skill-chain sem checagem de skill referenciada | Plan que toca parallel/subagent precisa referenciar `dispatching-parallel-agents`; debug exige `systematic-debugging`; senao exit 2 |

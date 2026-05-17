@@ -2,7 +2,7 @@
 
 **Objetivo:** Reduzir o overhead fixo por iteracao do Ralph Loop (medido em ~17-24s/iteracao), aumentar estabilidade e manutenibilidade do codigo
 **Não-Objetivos:** Mudar a arquitetura central do Ralph Loop (toda iteracao = nova session com context limpo); mudar como o CLI e invocado (session resume foi descartado pela pesquisa); mudar o sistema de hooks
-**Arquitetura:** Cachear o resultado de detect_cli para evitar pings repetidos; precheck so roda uma vez; mesclar funcoes de prompt redundantes; corrigir posse de fd em pty_runner; simplificar a logica do heartbeat; modo claude recebe --no-session-persistence
+**Arquitetura:** Cachear o resultado de detect_cli para evitar pings repetidos; precheck so roda uma vez; merge de funcoes de prompt redundantes; corrigir posse de fd em pty_runner; simplificar a logica do heartbeat; modo claude recebe --no-session-persistence
 **Tech Stack:** Python 3, pytest
 
 ## Tarefas
@@ -77,7 +77,7 @@ Expected: PASS
 
 ---
 
-### Tarefa 3: mesclar build_prompt e build_init_prompt
+### Tarefa 3: merge de build_prompt e build_init_prompt
 
 **Arquivos:**
 - Modify: `scripts/ralph_loop.py`

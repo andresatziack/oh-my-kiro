@@ -123,7 +123,7 @@ O alerta "Peak" do Manus: o harness do agent pode limitar os ganhos de performan
 | Avanco incremental + commit + progress | ✅ Ralph Loop + progress.md + findings.md | coberto |
 | Hook enforcement | ✅ PreToolUse/PostToolUse/Stop | a frente do paper |
 | Circuit breaker | ✅ parada automatica apos 3 rounds sem progresso | a frente do paper |
-| Revisao multiangulo do plano | ✅ 4 reviewers em paralelo | a frente do paper |
+| Review multiangulo do plano | ✅ 4 reviewers em paralelo | a frente do paper |
 | Auto-evolucao do knowledge | ✅ episodes + self-reflect | a frente do paper |
 | Security hooks | ✅ varias camadas de bloqueio de seguranca | a frente do paper |
 

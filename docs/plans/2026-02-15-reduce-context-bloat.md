@@ -1,16 +1,16 @@
 # Reduzir Inchaço de Contexto - Merge de Hook + Estratégia de Subagentes
 
-**Objetivo:** Reduzir a velocidade de inflar a conversa e mitigar falhas de compaction do Kiro CLI. Mesclar hooks para diminuir mensagens e otimizar a estrategia de subagent para isolar trabalho pesado.
+**Objetivo:** Reduzir a velocidade de inflar a conversa e mitigar falhas de compaction do Kiro CLI. Merge de hooks para diminuir mensagens e otimizar a estrategia de subagent para isolar trabalho pesado.
 
-**Arquitetura:** Mesclar os 3 hooks de postToolUse em `post-write.sh`, mesclar os 3 de preToolUse em `pre-write.sh` (security hooks permanecem independentes). Adicionar regras de threshold para subagent na planning skill.
+**Arquitetura:** Merge dos 3 hooks de postToolUse em `post-write.sh`, merge dos 3 de preToolUse em `pre-write.sh` (security hooks permanecem independentes). Adicionar regras de threshold para subagent na planning skill.
 
 **Tech Stack:** Bash (hooks), Markdown (skill docs), JSON (agent config)
 
 ## Tarefas
 
-### Tarefa 1: mesclar hooks postToolUse -> post-write.sh
+### Tarefa 1: merge dos hooks postToolUse -> post-write.sh
 
-Mesclar `auto-test.sh` + `auto-lint.sh` + `remind-update-progress.sh` em um unico arquivo `hooks/feedback/post-write.sh`.
+Merge de `auto-test.sh` + `auto-lint.sh` + `remind-update-progress.sh` em um unico arquivo `hooks/feedback/post-write.sh`.
 
 **Arquivos:**
 - Create: `hooks/feedback/post-write.sh`
@@ -25,9 +25,9 @@ Mesclar `auto-test.sh` + `auto-lint.sh` + `remind-update-progress.sh` em um unic
 3. Atualizar `implementer.json` postToolUse para refletir a mudanca
 4. Testar: `echo '{"tool_name":"fs_write","tool_input":{"file_path":"test.ts"}}' | bash hooks/feedback/post-write.sh`
 
-### Tarefa 2: mesclar hooks preToolUse -> pre-write.sh
+### Tarefa 2: merge dos hooks preToolUse -> pre-write.sh
 
-Mesclar `require-workflow.sh` + `scan-skill-injection.sh` (em security/) + `inject-plan-context.sh` (em feedback/) em `hooks/gate/pre-write.sh`. Security hooks de execute_bash permanecem independentes.
+Merge de `require-workflow.sh` + `scan-skill-injection.sh` (em security/) + `inject-plan-context.sh` (em feedback/) em `hooks/gate/pre-write.sh`. Security hooks de execute_bash permanecem independentes.
 
 **Arquivos:**
 - Create: `hooks/gate/pre-write.sh`

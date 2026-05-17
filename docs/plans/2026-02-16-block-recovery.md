@@ -88,7 +88,7 @@ Assim, se `block-recovery.sh` estiver ausente ou tiver erro de sintaxe, `hook_bl
 Parametros key de cada hook:
 
 - `block-dangerous.sh`: `$CMD`
-- `block-outside-workspace.sh`: ramo fs_write usa `$FILE`, ramo bash usa `$CMD`
+- `block-outside-workspace.sh`: branch fs_write usa `$FILE`, branch bash usa `$CMD`
 - `block-secrets.sh`: `$CMD`
 - `block-sed-json.sh`: `$CMD`
 

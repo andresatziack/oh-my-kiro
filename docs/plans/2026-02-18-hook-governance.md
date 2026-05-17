@@ -64,7 +64,7 @@ Atualizar enforcement.md, contemplando todos os 15 hooks (incluindo os 2 shadow 
 
 **Verificação:**
 ```bash
-# Validar que llm-eval.sh foi removido
+# 验证 llm-eval.sh 已移除
 test ! -f hooks/_lib/llm-eval.sh
 ```
 
@@ -83,7 +83,7 @@ python3 scripts/generate_configs.py
 
 **Verificação:**
 ```bash
-# Validar que settings.json contem enforce-ralph-loop
+# 验证 settings.json 包含 enforce-ralph-loop
 jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-loop'
 ```
 
@@ -104,7 +104,7 @@ Renumerar conforme a ordem real de execucao:
 
 **Verificação:**
 ```bash
-# Validar numeracao de Phase contigua e crescente
+# 验证 Phase 编号连续且递增
 grep -E '^# Phase [0-9]' hooks/gate/pre-write.sh | awk '{print $3}' | sort -n -c 2>&1; echo "exit: $?"
 ```
 
@@ -118,7 +118,7 @@ Apagar `echo "⚡ Delegation: >3 independent tasks → use subagent per task. Ne
 
 **Verificação:**
 ```bash
-# Validar que o delegation reminder foi removido
+# 验证 delegation reminder 已移除
 ! grep -q 'Delegation:' hooks/feedback/session-init.sh
 ```
 
@@ -173,7 +173,7 @@ Incluir o link para o Hook Architecture Doc.
 
 **Verificação:**
 ```bash
-# Validar que o architecture doc existe e tem secoes principais (incluindo extensibilidade)
+# 验证 architecture doc 存在且包含关键 section（含扩展性）
 test -f docs/designs/2026-02-18-hook-architecture.md && \
 grep -q '## Design Principles' docs/designs/2026-02-18-hook-architecture.md && \
 grep -q '## Hook Registry' docs/designs/2026-02-18-hook-architecture.md && \
@@ -200,7 +200,7 @@ if FILE matches hooks/**/*.sh:
 
 **Verificação:**
 ```bash
-# Validar que ao alterar a pasta hooks/ o advisory aparece
+# 验证 hooks/ 目录修改时有 advisory 提醒
 echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangerous.sh","file_text":"test","command":"str_replace"}}' | bash hooks/gate/pre-write.sh 2>&1 | grep -q 'Hook file modified'
 ```
 
@@ -221,7 +221,7 @@ Cada `python3 scripts/generate_configs.py` roda a validacao antes de gerar; se i
 
 **Verificação:**
 ```bash
-# Validar que o modo validate esta disponivel e o estado atual e consistente
+# 验证 validate 模式可用且当前状态一致
 python3 scripts/generate_configs.py --validate
 ```
 
@@ -257,7 +257,7 @@ Em Output Structure, transformar `**What I checked and found no issues:**` em ob
 
 **Verificação:**
 ```bash
-# Validar que reviewer-prompt.md contem as regras Show your work
+# 验证 reviewer-prompt.md 包含 show-your-work 规则
 grep -q 'Show your work' agents/reviewer-prompt.md && grep -q 'Per-item analysis' agents/reviewer-prompt.md
 ```
 
@@ -317,7 +317,7 @@ NOT in Non-Goals. Findings outside scope are noise — discard silently.
 
 **Verificação:**
 ```bash
-# Validar que a planning skill contem o formato de output e o scope guard
+# 验证 planning skill 包含 output format 和 scope guard
 grep -q 'Exit code (correct impl)' skills/planning/SKILL.md && grep -q 'SCOPE:' skills/planning/SKILL.md
 ```
 
@@ -331,7 +331,7 @@ Na Routing Table de INDEX.md, adicionar entradas relacionadas a Hook Architectur
 
 **Verificação:**
 ```bash
-# Validar que INDEX.md inclui o roteamento de hook architecture
+# 验证 INDEX.md 包含 hook architecture 路由
 grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md
 ```
 

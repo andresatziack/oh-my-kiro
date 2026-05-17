@@ -17,9 +17,9 @@
 
 **Investigation Tree:**
 ```
-{problema}
-├── {direcao de investigacao 1} → ⬜
-└── {direcao de investigacao 2} → ⬜
+{问题}
+├── {排查方向 1} → ⬜
+└── {排查方向 2} → ⬜
 ```
 
 **Proximo passo**: {acao concreta}

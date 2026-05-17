@@ -90,13 +90,13 @@ Apos os 3 ramos `elif` existentes, adicionar um quarto cobrindo:
 
 **Step 2: validacao (incluindo testes de falso positivo)**
 ```bash
-# Devem disparar
+# 应触发
 echo '{"prompt":"这不是我想要的效果"}' | bash hooks/feedback/context-enrichment.sh
 echo '{"prompt":"换个思路吧"}' | bash hooks/feedback/context-enrichment.sh
 echo '{"prompt":"not what I wanted"}' | bash hooks/feedback/context-enrichment.sh
 echo '{"prompt":"try a different approach"}' | bash hooks/feedback/context-enrichment.sh
 echo '{"prompt":"完全不对"}' | bash hooks/feedback/context-enrichment.sh
-# Nao devem disparar
+# 不应触发
 echo '{"prompt":"今天天气不错"}' | bash hooks/feedback/context-enrichment.sh
 echo '{"prompt":"帮我写个函数"}' | bash hooks/feedback/context-enrichment.sh
 echo '{"prompt":"这个方案不错，继续"}' | bash hooks/feedback/context-enrichment.sh
