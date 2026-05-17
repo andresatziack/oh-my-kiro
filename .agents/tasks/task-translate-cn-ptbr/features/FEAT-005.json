@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "docs",
   "description": "Translate the Chinese passages remaining in the active knowledge base files: knowledge/episodes.md (16 CJK lines, structured DATE | STATUS | KEYWORDS | SUMMARY) and knowledge/rules.md (6 CJK lines, structured `## [keywords]` headings followed by `<priority> <number>. <summary>` entries). These files are READ at every prompt by hooks/feedback/context-enrichment.sh - the SUMMARY content is what gets injected as context when keywords match. The structure is parsed by hook code; only the human-readable SUMMARY text changes.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Read .agents/tasks/task-translate-md-ptbr/translation-rules.md AND .agents/tasks/task-translate-cn-ptbr/translation-rules-cn.md before editing.",
     "Inspect knowledge/episodes.md structure: front-matter is non-existent (no `---` block), the file starts with `# Episodes (...)`. Schema HTML comments at the top (`<!-- FORMAT: DATE | STATUS | KEYWORDS | SUMMARY -->`, `<!-- STATUS: active / resolved / promoted -->`, `<!-- Promotion candidates ... -->`) are referenced by hook scripts and tests; keep them verbatim or only translate purely human-readable parenthetical bits if any (most are already English/PT-BR).",
@@ -29,5 +29,5 @@
     "Run `bash tests/knowledge/run.sh 2>&1 | tail -10` - must contain `Scripts: 1 pass / 3 total`."
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Translated 16 CJK lines in knowledge/episodes.md and 6 in knowledge/rules.md. Schema HTML comments, ## [keyword] headings, dated-line column structure, priority emoji + number prefixes, code spans, paths, hook names, citation URLs/issue refs, and English DO/DON'T markers preserved verbatim. Chinese punctuation normalized to ASCII per rules-cn section H. Used (1)/(2)/(3) instead of CJK ① ② ③. No em dashes introduced. Special line 23 in episodes.md (markdown table format with leading/trailing pipes) translated in place keeping the table column count. Verification: pytest 8 failed / 60 passed; tests/test-agents-template.sh 27 passed / 1 failed; tests/knowledge/run.sh Scripts: 1 pass / 3 total - all match baseline exactly."
 }
