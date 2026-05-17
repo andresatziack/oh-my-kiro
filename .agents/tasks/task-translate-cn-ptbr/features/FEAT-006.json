@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-006",
+  "type": "docs",
+  "description": "Translate the bulk of docs/ Chinese content: docs/designs/2026-02-13-framework-v2-upgrade.md (the 853-CJK-line monster, 2347 total lines) and the 2026-02-* docs/plans/*.md files (≈40 plan files with CJK). This is the largest batch in the pass. The design doc is structured into Part 0..N sections, each with technical tables, fenced code blocks (preserve verbatim), bullet lists, and prose. Plans typically have ## Goal / ## Tasks / ## Checklist / ## Verify / ## Review sections in the same shape as already-translated 2026-03 plans.",
+  "status": "pending",
+  "steps": [
+    "Read .agents/tasks/task-translate-md-ptbr/translation-rules.md AND .agents/tasks/task-translate-cn-ptbr/translation-rules-cn.md before editing.",
+    "Inspect docs/designs/2026-02-13-framework-v2-upgrade.md to map its structure: `grep -n '^## \\|^### ' docs/designs/2026-02-13-framework-v2-upgrade.md > /tmp/design-headings.txt`. Then translate top-down in chunks of ~200 lines, committing intermediate progress only at the very end of this feature (one commit at the end is fine).",
+    "For each chunk of the design doc: translate Chinese prose, table cells, and bullet text to PT-BR. Keep verbatim: every fenced code block (preserve language tag and contents byte-identical), every YAML/JSON snippet, every CLI command, every file path, every identifier, every citation URL, every emoji, every `**bold**` keyword that names a concept (`**精简至上**` becomes `**Concisao acima de tudo**` or `**Conciseness above all**` if it is a doctrine name; choose PT-BR for narrative concepts). Headings that mix CN+EN (`## Part 0: 调研总结 - 官方最佳实践要点`) translate the CN tail keeping the English/numerical prefix.",
+    "Watch out for the `(来源: ...)` citations: `(来源: Anthropic 官方文档)` -> `(Fonte: documentacao oficial da Anthropic)`. Issue references like `kirodotdev/Kiro#5792` stay verbatim.",
+    "After the design doc is done, identify all docs/plans/2026-02-*.md files with remaining CJK: `grep -l -P '[\\x{4e00}-\\x{9fff}]' docs/plans/2026-02-*.md > /tmp/plans-2026-02-cjk.txt`. There should be roughly 40-45 files. Translate each.",
+    "Plan files use a stable structure (Goal, Background, Tasks, Checklist, Verify, Review). Translate prose; keep verbatim every fenced code block, every checklist `- [ ] desc | \\`cmd\\`` line's command part (the `cmd` after the pipe is shell to be executed), every Verify command, every plan-section heading (`## Tasks`, `## Checklist`, `## Verify`, `## Review`), every English literal that test-anchors might depend on (`**Verdict: APPROVE**`, `**Verdict: REQUEST CHANGES**`).",
+    "Pay special attention to docs/plans/2026-02-14-framework-v3-deterministic-overhaul.md (236 CJK lines), docs/plans/2026-02-14-knowledge-base-overhaul.md (174), docs/plans/2026-02-18-hook-governance.md (163), docs/plans/2026-02-15-subagent-architecture-optimization.md (92), docs/plans/2026-02-15-tdd-checklist-enforcement.md (77).",
+    "After all 2026-02 plan files are done, verify: `grep -l -P '[\\x{4e00}-\\x{9fff}]' docs/designs/*.md docs/plans/2026-02-*.md` returns nothing.",
+    "Verify the test-anchored Verdict literals are preserved IF they were present in the source: `grep -F -l '**Verdict: APPROVE**' docs/plans/*.md docs/designs/*.md` should return the same file list before and after this feature.",
+    "Run pytest, bash tests/test-agents-template.sh, bash tests/knowledge/run.sh - counts unchanged.",
+    "Stage and commit. Because of the size, prefer a single commit for this whole batch with message: `docs(i18n): translate 2026-02 designs and plans CN -> pt-BR`. Acceptable to split into 2 commits if the diff is unwieldy: one for docs/designs/ and one for docs/plans/2026-02-*.md. `git diff --stat HEAD~N` must list ONLY paths under docs/designs/ and docs/plans/2026-02-*.md."
+  ],
+  "acceptance_criteria": [
+    "docs/designs/2026-02-13-framework-v2-upgrade.md has zero CJK characters.",
+    "Every docs/plans/2026-02-*.md file has zero CJK characters.",
+    "Every fenced code block in those files is byte-identical to its original content (verify via diff: `git diff main -- docs/designs/2026-02-13-framework-v2-upgrade.md | grep -c '^[+-]```'` should be 0; the count of opening/closing fence lines added/removed should be 0).",
+    "All `**Verdict: APPROVE**` and `**Verdict: REQUEST CHANGES**` literals that existed before still exist after.",
+    "Test counts unchanged from baseline.",
+    "git diff main HEAD --stat for the new commits lists only paths under docs/designs/ and docs/plans/2026-02-*.md (plus prior plan-state files)."
+  ],
+  "verification": [
+    "Run `grep -P -l '[\\x{4e00}-\\x{9fff}]' docs/designs/*.md docs/plans/2026-02-*.md` - returns no files.",
+    "Run `for lit in '**Verdict: APPROVE**' '**Verdict: REQUEST CHANGES**'; do before=$(git show main -- docs/plans/2026-02-*.md docs/designs/*.md 2>/dev/null | grep -F -c \"$lit\" || true); after=$(grep -r -F -c \"$lit\" docs/plans/2026-02-*.md docs/designs/*.md 2>/dev/null | awk -F: '{s+=$2} END{print s}'); echo \"$lit before=$before after=$after\"; done` - before and after counts must match.",
+    "Run pytest with the documented ignore set - tail must contain `8 failed, 60 passed`.",
+    "Run `bash tests/test-agents-template.sh` - must end with `Results: 27 passed, 1 failed`.",
+    "Run `bash tests/knowledge/run.sh 2>&1 | tail -10` - must contain `Scripts: 1 pass / 3 total`."
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

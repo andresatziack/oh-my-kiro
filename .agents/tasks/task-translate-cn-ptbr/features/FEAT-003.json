@@ -1,0 +1,32 @@
+{
+  "id": "FEAT-003",
+  "type": "docs",
+  "description": "Translate all Chinese passages in skill markdowns to PT-BR. There are 15 SKILL.md files plus skills/omk-debugging/investigation-template.md (42 CJK lines). Most of the Chinese is in `## Trigger Examples` lists, body prose, and the investigation template's table cells / placeholders. The YAML front-matter (including the `description:` value with its Chinese trigger keywords like '改代码', '修复', '生成 PDF', '设计稿', '看看这个视频') MUST remain byte-identical because hooks/feedback/context-enrichment.sh and the skill router pattern-match against it.",
+  "status": "pending",
+  "steps": [
+    "Read .agents/tasks/task-translate-md-ptbr/translation-rules.md AND .agents/tasks/task-translate-cn-ptbr/translation-rules-cn.md before editing.",
+    "For each of the 15 SKILL.md files (skills/omk-agent, omk-coding, omk-context7-docs, omk-debugging, omk-finishing, omk-know, omk-pdf-gen, omk-planning, omk-research, omk-reviewing, omk-self-reflect, omk-skill-creation, omk-stitch, omk-verification, omk-youtube): identify the front-matter block (between the first two `---` lines) and DO NOT TOUCH IT. Translate every Chinese line in the body to PT-BR.",
+    "Trigger Examples lists are the most common place: `- \"帮我实现这个功能\"` -> `- \"me ajude a implementar essa funcionalidade\"`, `- \"重构一下这段代码\"` -> `- \"refatore esse trecho de codigo\"`, `- \"修复 PR review 发现的问题\"` -> `- \"corrija os problemas apontados no PR review\"`, etc. These are user-facing examples - translate naturally to PT-BR with `voce`-style address. Keep technical tokens (`PR review`, `hook`, `model`, `worktree`, `submodule`, etc.) in English.",
+    "Edit skills/omk-debugging/investigation-template.md: this is a structured template with HTML comments containing Chinese instructions, table headers and cells with placeholders, and a status legend. Translate every Chinese sentence and placeholder. Keep verbatim: HTML comment markers (`<!-- ... -->`), heading anchors, emoji (🔒 🔴 🟡 🟢 ⚡ ⬜ ❌ ✅ 🤖 👤), the literals `L0`, `L1`, `L2`, `F1`, `H1`, `I1`, `D1`, `R1`, `EXP-001` (these are referenced as identifier patterns), table column structure, and the `{date}` `{time}` `{title}` `{conclusion}` placeholders. The investigation template is consumed by skills/omk-debugging body prose; rendered output examples in tests should remain compatible. Translate the section bodies (`## Problem Statement`, `## Status Overview`, etc. - keep English headings) keeping table structure exactly the same width/columns. Confidence levels `高/中/低` -> `alto/medio/baixo`.",
+    "After editing, verify EACH skill front-matter byte-equality: `for f in skills/omk-*/SKILL.md; do diff <(awk '/^---$/{c++; if(c==2){print; exit} } c{print}' \"$f\") <(git show main:\"$f\" | awk '/^---$/{c++; if(c==2){print; exit} } c{print}'); done` - must produce no output.",
+    "Verify no Chinese remains in any skill file: `grep -P -l '[\\x{4e00}-\\x{9fff}]' skills/omk-*/SKILL.md skills/omk-debugging/investigation-template.md` - must return nothing.",
+    "Run pytest and the bash test harnesses; counts must match baseline exactly.",
+    "Stage and commit only files under skills/ with message: `docs(i18n): translate skill markdowns CN -> pt-BR`. `git diff --stat HEAD~1` should only list paths under skills/."
+  ],
+  "acceptance_criteria": [
+    "Every SKILL.md YAML front-matter (between the two `---` lines) is byte-identical to the version on `main`.",
+    "Zero CJK characters remain in any file under skills/.",
+    "All test-anchored literals still present (Skill Routing, Authority Matrix, etc. live in templates/, not skills/, but check anyway).",
+    "pytest, tests/test-agents-template.sh, tests/knowledge/run.sh counts unchanged from baseline.",
+    "git diff main HEAD --name-only contains only paths under skills/ for this commit (plus the prior commits)."
+  ],
+  "verification": [
+    "Run `for f in skills/omk-*/SKILL.md; do head=$(awk '/^---$/{c++; if(c==2){print NR; exit} } c{print}' \"$f\" | head -1); if ! diff -q <(sed -n '1,/^---$/p;/^---$/q' \"$f\") <(git show main:\"$f\" | sed -n '1,/^---$/p;/^---$/q') > /dev/null 2>&1; then echo FRONTMATTER DRIFT: $f; fi; done` - prints nothing.",
+    "Run `grep -P -l '[\\x{4e00}-\\x{9fff}]' skills/ -r` - returns no files.",
+    "Run pytest with the documented ignore set - tail must contain `8 failed, 60 passed`.",
+    "Run `bash tests/test-agents-template.sh` - must end with `Results: 27 passed, 1 failed`.",
+    "Run `bash tests/knowledge/run.sh 2>&1 | tail -10` - must contain `Scripts: 1 pass / 3 total`."
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-translate-cn-ptbr",
+  "task_description": "Translate every Chinese (Mandarin / CJK) passage in markdown files under /projects/sandbox/oh-my-kiro to Brazilian Portuguese in-place, on top of the already-merged EN -> PT-BR pass. Same translation contract as the previous pass: preserve YAML front-matter byte-identical (description: pattern-matched at runtime), preserve fenced code blocks, inline code, URLs, file paths, CLI commands, identifier names, technical product/tool names, consecrated tech terms left in English (deploy, commit, push, pull request, endpoint, payload, token, middleware, runtime, framework, pipeline, webhook), technical acronyms (API, SDK, IAM, JSON, YAML, etc.), and the 9 test-anchored English literals. Test-fixture files under tests/knowledge/fixtures/ are NEVER modified. For mixed CN+EN files, translate ONLY the Chinese passages; do not re-translate existing PT-BR text. Use 'voce' (informal technical), no em dashes (-). Deliverable: a single feature branch (`feat/translate-cn-to-ptbr`) branched from current main with reviewable per-area commits.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005", "FEAT-006", "FEAT-007"],
+  "blocked_reason": null
+}

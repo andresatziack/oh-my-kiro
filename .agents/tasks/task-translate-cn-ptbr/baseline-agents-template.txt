@@ -1,0 +1,3 @@
+FAIL: coding references OMK sections - pattern 'OMK SECTIONS' not found in /projects/sandbox/oh-my-kiro/templates/agents-types/coding.md
+
+Results: 27 passed, 1 failed

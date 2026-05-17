@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-005",
+  "type": "docs",
+  "description": "Translate the Chinese passages remaining in the active knowledge base files: knowledge/episodes.md (16 CJK lines, structured DATE | STATUS | KEYWORDS | SUMMARY) and knowledge/rules.md (6 CJK lines, structured `## [keywords]` headings followed by `<priority> <number>. <summary>` entries). These files are READ at every prompt by hooks/feedback/context-enrichment.sh - the SUMMARY content is what gets injected as context when keywords match. The structure is parsed by hook code; only the human-readable SUMMARY text changes.",
+  "status": "pending",
+  "steps": [
+    "Read .agents/tasks/task-translate-md-ptbr/translation-rules.md AND .agents/tasks/task-translate-cn-ptbr/translation-rules-cn.md before editing.",
+    "Inspect knowledge/episodes.md structure: front-matter is non-existent (no `---` block), the file starts with `# Episodes (...)`. Schema HTML comments at the top (`<!-- FORMAT: DATE | STATUS | KEYWORDS | SUMMARY -->`, `<!-- STATUS: active / resolved / promoted -->`, `<!-- Promotion candidates ... -->`) are referenced by hook scripts and tests; keep them verbatim or only translate purely human-readable parenthetical bits if any (most are already English/PT-BR).",
+    "For each CJK line in knowledge/episodes.md (line numbers from `grep -P -n '[\\x{4e00}-\\x{9fff}]' knowledge/episodes.md`): split on the THREE pipes into 4 columns. Keep DATE, STATUS, KEYWORDS verbatim. Translate ONLY the SUMMARY. Apply the translation rules: keep function names, file names, paths, hook names, identifier names, citation URLs/issue refs, `①` `②` `③`, emoji, English technical phrases, issue numbers, `DO:`/`DON'T:` markers. Convert Chinese punctuation per rules section H. Strikethrough `~~...~~` markup is preserved (translate the contents inside).",
+    "Edit knowledge/rules.md: structure is `## [comma,separated,keywords]` heading followed by one or more `🔴 N. <summary>` or `🟡 N. <summary>` lines. Keep the `## [...]` headings AND the priority emoji + number prefix verbatim (these are parsed by distill.sh and context-enrichment.sh per hooks/_lib/distill.sh:53). Translate only the summary text after the `N. ` marker. Same rules: keep identifiers, paths, citations, `①`/`②`/`③`, emoji, English tech phrases.",
+    "After editing, verify the schema HTML comments in episodes.md are unchanged: `git diff main -- knowledge/episodes.md | grep '^-<!--' | wc -l` should equal `git diff main -- knowledge/episodes.md | grep '^+<!--' | wc -l` (no schema-comment drift).",
+    "Verify zero CJK remains in knowledge/{episodes,rules}.md: `grep -P -l '[\\x{4e00}-\\x{9fff}]' knowledge/episodes.md knowledge/rules.md` returns nothing.",
+    "Run pytest and the bash test harnesses; counts must match baseline. The l1-rules-injection.sh and l1-corruption-recall.sh scripts assert against tests/knowledge/fixtures/rules-{healthy,corrupted}.md (NOT against knowledge/rules.md), so this edit cannot regress them.",
+    "Stage and commit with message: `docs(i18n): translate knowledge episodes/rules CN -> pt-BR`. git diff --stat HEAD~1 should show only knowledge/episodes.md + knowledge/rules.md."
+  ],
+  "acceptance_criteria": [
+    "knowledge/episodes.md and knowledge/rules.md have zero CJK characters.",
+    "DATE | STATUS | KEYWORDS pipe structure preserved on every line in episodes.md (i.e. each translated line still has exactly 3 unescaped pipes).",
+    "All `## [keywords]` headings in rules.md unchanged (verify with `git diff main -- knowledge/rules.md | grep '^[-+]## \\['`: should produce balanced `-`/`+` lines or none).",
+    "All `🔴` / `🟡` priority + number prefixes preserved.",
+    "Test counts unchanged from baseline."
+  ],
+  "verification": [
+    "Run `grep -P -l '[\\x{4e00}-\\x{9fff}]' knowledge/episodes.md knowledge/rules.md` - returns nothing.",
+    "Run `awk -F'|' 'NF>1 && NF!=4 && /^20[0-9][0-9]-/{print NR\": \"NF\" cols: \"$0}' knowledge/episodes.md` - prints nothing (every dated line has exactly 4 pipe-separated columns).",
+    "Run `git diff main -- knowledge/rules.md | grep -c '^[-+]## \\['` - if non-zero, the count of `-## [` lines must equal the count of `+## [` lines (no heading additions/deletions).",
+    "Run pytest with the documented ignore set - tail must contain `8 failed, 60 passed`.",
+    "Run `bash tests/test-agents-template.sh` - must end with `Results: 27 passed, 1 failed`.",
+    "Run `bash tests/knowledge/run.sh 2>&1 | tail -10` - must contain `Scripts: 1 pass / 3 total`."
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
