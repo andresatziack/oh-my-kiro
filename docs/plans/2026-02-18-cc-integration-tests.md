@@ -1,8 +1,8 @@
 # Testes de Integração CC - Verificação Baseada em Efeito
 
-**Objetivo:** 将 CC 集成测试从 keyword-grep 断言升级为 effect-based（文件系统副作用）断言，通过真实 `claude -p` CLI 调用证明每类 hook 实际触发。
-**Não-Objetivos:** 修复认证环境；修改 hook 实现；测试 Kiro 格式（unit tests 已覆盖）；测试 Stop hook（需要完整会话生命周期，复杂度过高，留待后续）。
-**Arquitetura:** 新增 `lib/helpers.sh` 提供状态工具和断言函数；重写 `test-hooks-fire.sh` 改用文件系统效果断言；新增 3 个针对性测试；更新 `run.sh` 纳入新测试。
+**Objetivo:** Promover os testes de integracao do CC, saindo de asserts via grep de keywords para asserts baseados em efeito (efeito colateral no filesystem); usar chamadas reais do CLI `claude -p` para provar que cada categoria de hook efetivamente dispara.
+**Não-Objetivos:** Corrigir o ambiente de autenticacao; alterar a implementacao dos hooks; testar o formato Kiro (ja coberto pelos unit tests); testar o Stop hook (precisa de ciclo completo de session, complexidade alta, deixar para depois).
+**Arquitetura:** Adicionar `lib/helpers.sh` com utilitarios de estado e funcoes de assert; reescrever `test-hooks-fire.sh` usando assert por efeito de filesystem; criar 3 testes especificos; atualizar `run.sh` para incluir os novos testes.
 **Tech Stack:** bash, `claude -p` headless CLI, mktemp, shasum (SHA-1)
 
 ## Review
@@ -11,29 +11,29 @@
 
 ### Round Summary
 - R1: 0 APPROVE, 4 REQUEST CHANGES (P0: ws_hash SHA mismatch; P1: BSD sed false positive)
-- R2: 2 APPROVE, 2 REQUEST CHANGES (P1 Testability: secrets需absence-of-key; P1 Verify Correctness: `/tmp/`未blocked → **REJECTED，事实错误**，line 60有该模式)
+- R2: 2 APPROVE, 2 REQUEST CHANGES (P1 Testability: secrets precisava de absence-of-key; P1 Verify Correctness: `/tmp/` nao bloqueado -> **REJECTED, erro factual**, linha 60 tem essa pattern)
 - R3: 4/4 APPROVE (Goal Alignment, Verify Correctness, Security, Clarity)
 
 ### Conflict Resolution
-- R2 Verify Correctness P1「workspace-boundary /tmp/ 未被 block」：主 agent 读取 `block-outside-workspace.sh:60` 实测确认 `'>+\s*/tmp/'` 存在 → REJECTED
-- R2 同一 P1 被3位 reviewer 中的2位（Completeness、Testability）依据同一源代码独立认为有效 → 总 4 reviewer 中 3 人认为 `/tmp/` 有效，1 人错误 → REJECTED 正确
+- R2 Verify Correctness P1 "workspace-boundary /tmp/ nao foi block": agent principal leu `block-outside-workspace.sh:60` e confirmou em teste real que `'>+\s*/tmp/'` existe -> REJECTED
+- R2 mesma P1 considerada valida por 2 dos 3 reviewers (Completeness, Testability) com base no mesmo codigo-fonte -> entre 4 reviewers, 3 julgaram `/tmp/` valido e 1 errou -> REJECTED esta correto
 
 ### Key Fixes Applied
-- P0 R1: `ws_hash()` 改用 `pwd | shasum | cut -c1-8`（SHA-1，匹配 post-bash.sh line 17）
-- P1 R1: Test 2 改用 `perl -i -pe`（跨平台，block-sed-json 同样命中 `perl.*\.json`）
-- P1 R2: Test 3 改用 absence-of-key 断言 `! grep -qE "AKIA[0-9A-Z]{16}"`
-- Nit: run.sh summary 改用 `$((PASS+FAIL+SKIP)) total`（动态计算）
+- P0 R1: `ws_hash()` mudou para `pwd | shasum | cut -c1-8` (SHA-1, casa com post-bash.sh linha 17)
+- P1 R1: Test 2 mudou para `perl -i -pe` (cross-platform; block-sed-json tambem casa `perl.*\.json`)
+- P1 R2: Test 3 mudou para assert por absence-of-key `! grep -qE "AKIA[0-9A-Z]{16}"`
+- Nit: summary do run.sh passou a usar `$((PASS+FAIL+SKIP)) total` (calculo dinamico)
 
 ## Checklist
 
-- [x] helpers.sh 语法正确 | `bash -n tests/cc-integration/lib/helpers.sh`
-- [x] test-hooks-fire.sh 语法正确 | `bash -n tests/cc-integration/test-hooks-fire.sh`
-- [x] test-workspace-boundary.sh 语法正确 | `bash -n tests/cc-integration/test-workspace-boundary.sh`
-- [x] test-instruction-guard.sh 语法正确 | `bash -n tests/cc-integration/test-instruction-guard.sh`
-- [x] test-posttooluse.sh 语法正确 | `bash -n tests/cc-integration/test-posttooluse.sh`
-- [x] run.sh 语法正确 | `bash -n tests/cc-integration/run.sh`
-- [x] shellcheck 通过（所有新增文件）| `shellcheck tests/cc-integration/lib/helpers.sh tests/cc-integration/test-hooks-fire.sh tests/cc-integration/test-workspace-boundary.sh tests/cc-integration/test-instruction-guard.sh tests/cc-integration/test-posttooluse.sh`
-- [x] 现有单元测试不受影响 | `bash tests/hooks/test-cc-compat.sh && bash tests/hooks/test-kiro-compat.sh`
+- [x] sintaxe correta de helpers.sh | `bash -n tests/cc-integration/lib/helpers.sh`
+- [x] sintaxe correta de test-hooks-fire.sh | `bash -n tests/cc-integration/test-hooks-fire.sh`
+- [x] sintaxe correta de test-workspace-boundary.sh | `bash -n tests/cc-integration/test-workspace-boundary.sh`
+- [x] sintaxe correta de test-instruction-guard.sh | `bash -n tests/cc-integration/test-instruction-guard.sh`
+- [x] sintaxe correta de test-posttooluse.sh | `bash -n tests/cc-integration/test-posttooluse.sh`
+- [x] sintaxe correta de run.sh | `bash -n tests/cc-integration/run.sh`
+- [x] shellcheck passa (todos os arquivos novos) | `shellcheck tests/cc-integration/lib/helpers.sh tests/cc-integration/test-hooks-fire.sh tests/cc-integration/test-workspace-boundary.sh tests/cc-integration/test-instruction-guard.sh tests/cc-integration/test-posttooluse.sh`
+- [x] testes unitarios existentes nao sao afetados | `bash tests/hooks/test-cc-compat.sh && bash tests/hooks/test-kiro-compat.sh`
 
 ## Tarefas
 
@@ -141,10 +141,10 @@ assert_verify_log_written() {
 **Arquivos:**
 - Modify: `tests/cc-integration/test-hooks-fire.sh`
 
-**核心设计：** 用文件系统副作用验证 hook 触发，不依赖 output 文本。
-- Test 1 (rm-rf): mktemp 建目录 → 请 Claude 删除 → 目录仍在 = hook 触发
-- Test 2 (sed-json): 建 JSON → 请 Claude 用 **`perl -i -pe`** 修改（跨平台，`block-sed-json` pattern `(sed|awk|perl).*\.json` 同样命中）→ 内容不变 = hook 触发。避免 BSD `sed -i`（macOS 无 extension suffix 时会直接报错导致假阳性）。
-- Test 3 (secrets): 仍用 output grep，但拆分 key 避免自触发
+**Design central:** validar o disparo do hook por efeito colateral no filesystem, sem depender do texto do output.
+- Test 1 (rm-rf): mktemp cria diretorio -> Claude e instruido a remover -> diretorio segue existindo = hook disparou
+- Test 2 (sed-json): cria JSON -> Claude usa **`perl -i -pe`** para alterar (cross-platform; o pattern `(sed|awk|perl).*\.json` de `block-sed-json` casa com perl tambem) -> conteudo nao muda = hook disparou. Evita o BSD `sed -i` (no macOS, sem extension suffix da erro direto e gera falso positivo).
+- Test 3 (secrets): segue com grep no output, mas a key e quebrada para evitar autotrigger
 
 **Implementação:**
 
@@ -303,9 +303,9 @@ echo "=== instruction-guard: $PASS passed, $FAIL failed ==="
 **Arquivos:**
 - Create: `tests/cc-integration/test-posttooluse.sh`
 
-**设计亮点：** 这是最能区分 "hook 真实触发" vs "Claude 自然拒绝" 的测试。`echo` 完全安全，Claude 必然调用 Bash；若 post-bash.sh 未触发则 verify-log 为空 → 测试失败。
+**Destaque do design:** este e o teste que melhor diferencia "hook disparou de verdade" de "Claude recusou naturalmente". `echo` e totalmente seguro, entao Claude obrigatoriamente chama Bash; se post-bash.sh nao disparar, o verify-log fica vazio -> teste falha.
 
-**重要前置：** 执行前需读 `hooks/_lib/common.sh` 确认 `WS_HASH` 精确计算方式，`ws_hash()` 必须与其完全一致。
+**Pre-requisito importante:** antes de executar, ler `hooks/_lib/common.sh` para confirmar a forma exata de calcular `WS_HASH`; `ws_hash()` precisa ser identica.
 
 **Implementação:**
 
@@ -348,7 +348,7 @@ echo "=== post-tooluse: $PASS passed, $FAIL failed ==="
 **Arquivos:**
 - Modify: `tests/cc-integration/run.sh`
 
-在 `run_integration "plan-workflow" ...` 之后插入：
+Apos `run_integration "plan-workflow" ...`, inserir:
 
 ```bash
 run_integration "workspace-boundary" "$SCRIPT_DIR/test-workspace-boundary.sh"
@@ -356,7 +356,7 @@ run_integration "instruction-guard"  "$SCRIPT_DIR/test-instruction-guard.sh"
 run_integration "post-tooluse"       "$SCRIPT_DIR/test-posttooluse.sh"
 ```
 
-更新结尾 summary 行（动态计算 total，避免硬编码）：
+Atualizar a linha do summary final (calculo dinamico do total, sem hardcode):
 ```bash
 echo "=== CC Integration Results: $PASS passed, $FAIL failed, $SKIP skipped ($((PASS+FAIL+SKIP)) total) ==="
 ```
@@ -367,20 +367,20 @@ echo "=== CC Integration Results: $PASS passed, $FAIL failed, $SKIP skipped ($((
 
 ## Coverage Map
 
-| Hook / Capability | 原测试 | 新测试 | 断言方式 |
+| Hook / Capability | Teste original | Teste novo | Forma do assert |
 |---|---|---|---|
-| block-dangerous (rm -rf) | output grep | filesystem effect | dir 仍存在 ✓ |
-| block-sed-json | ✗ | filesystem effect | file 内容不变 ✓ (via perl -i -pe) |
-| block-secrets | output grep | absence-of-key ✓ | key 未出现在 output 中 |
-| block-outside-workspace (Write) | ✗ | filesystem effect | file 未创建 ✓ |
-| block-outside-workspace (Bash) | ✗ | filesystem effect | file 未创建 ✓ |
-| pre-write CLAUDE.md | ✗ | filesystem effect | hash 不变 ✓ |
-| pre-write rules/ | ✗ | filesystem effect | hash 不变 ✓ |
-| post-bash.sh (verify-log) | ✗ | log presence check | verify-log 有记录 ✓ |
-| skills-load | output grep | 保留不变 | — |
-| subagent-dispatch | output grep | 保留不变 | — |
-| knowledge-retrieval | output grep | 保留不变 | — |
-| plan-workflow | output grep | 保留不变 | — |
+| block-dangerous (rm -rf) | output grep | filesystem effect | dir segue existindo ✓ |
+| block-sed-json | ✗ | filesystem effect | conteudo do file nao muda ✓ (via perl -i -pe) |
+| block-secrets | output grep | absence-of-key ✓ | a key nao aparece no output |
+| block-outside-workspace (Write) | ✗ | filesystem effect | file nao foi criado ✓ |
+| block-outside-workspace (Bash) | ✗ | filesystem effect | file nao foi criado ✓ |
+| pre-write CLAUDE.md | ✗ | filesystem effect | hash nao muda ✓ |
+| pre-write rules/ | ✗ | filesystem effect | hash nao muda ✓ |
+| post-bash.sh (verify-log) | ✗ | log presence check | verify-log tem registro ✓ |
+| skills-load | output grep | mantido sem alteracao | - |
+| subagent-dispatch | output grep | mantido sem alteracao | - |
+| knowledge-retrieval | output grep | mantido sem alteracao | - |
+| plan-workflow | output grep | mantido sem alteracao | - |
 
 ## Errors
 

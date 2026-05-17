@@ -186,16 +186,16 @@ Run full regression. Fix any tests broken by changes. Expected: All pass.
 
 ## Checklist
 
-- [x] WorktreeManager.create 创建 worktree + 分支 | `python3 -c "from scripts.lib.worktree import WorktreeManager; print('import ok')"`
-- [x] WorktreeManager.merge 合并 worker 分支 | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_success -v`
-- [x] WorktreeManager.merge 冲突返回 False | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_conflict_returns_false -v`
-- [x] Merge 后 plan 文件恢复 | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_restore_plan_after_merge -v`
-- [x] WorktreeManager.cleanup_all 清理所有 worktree | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_create_multiple -v`
-- [x] enforce-ralph-loop 环境变量放行 | `grep -q '_RALPH_LOOP_RUNNING' hooks/gate/enforce-ralph-loop.sh`
-- [x] build_worker_prompt 不含 plan 更新指令 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_no_plan_update -v`
-- [x] 空文件集 task 不并行 | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_empty_file_sets_sequential -v`
-- [x] time.sleep(2) 已移除 | `! grep -q 'time\.sleep(2)' scripts/ralph_loop.py`
-- [x] precheck 缓存（上次成功跳过） | `grep -q 'prev_exit' scripts/ralph_loop.py`
-- [x] Stall 检测提前终止 | `grep -q 'STALL_TIMEOUT' scripts/ralph_loop.py`
-- [x] 并行 batch 创建 worktree 并行执行 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_batch_creates_worktrees -v`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] WorktreeManager.create cria worktree + branch | `python3 -c "from scripts.lib.worktree import WorktreeManager; print('import ok')"`
+- [x] WorktreeManager.merge mescla branch do worker | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_success -v`
+- [x] WorktreeManager.merge retorna False em conflito | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_conflict_returns_false -v`
+- [x] arquivo de plano restaurado apos merge | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_restore_plan_after_merge -v`
+- [x] WorktreeManager.cleanup_all limpa todos os worktrees | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_create_multiple -v`
+- [x] enforce-ralph-loop libera passagem com variavel de ambiente | `grep -q '_RALPH_LOOP_RUNNING' hooks/gate/enforce-ralph-loop.sh`
+- [x] build_worker_prompt nao contem instrucao de update do plan | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_no_plan_update -v`
+- [x] task com conjunto de arquivos vazio nao paraleliza | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_empty_file_sets_sequential -v`
+- [x] time.sleep(2) removido | `! grep -q 'time\.sleep(2)' scripts/ralph_loop.py`
+- [x] cache de precheck (sucesso anterior pula) | `grep -q 'prev_exit' scripts/ralph_loop.py`
+- [x] deteccao de stall encerra antes do tempo | `grep -q 'STALL_TIMEOUT' scripts/ralph_loop.py`
+- [x] batch paralelo cria worktrees e executa em paralelo | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_batch_creates_worktrees -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`

@@ -260,21 +260,21 @@ State transition path tests using KIRO_CMD scripts that manipulate the plan:
 
 ## Checklist
 
-- [x] conftest.py fixtures 可用 | `python3 -c "from pathlib import Path; assert Path('tests/ralph-loop/conftest.py').exists()" && python3 -m pytest tests/ralph-loop/ --co -q`
-- [x] scheduler 参数化等价类全通过 | `python3 -m pytest tests/ralph-loop/test_scheduler.py -v`
-- [x] checklist 边界条件全通过 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_counts_with_extra_whitespace tests/ralph-loop/test_plan.py::test_counts_mixed_skip_states tests/ralph-loop/test_plan.py::test_reload_after_external_modify tests/ralph-loop/test_plan.py::test_task_count_mismatch_more_checklist tests/ralph-loop/test_plan.py::test_task_count_mismatch_fewer_checklist tests/ralph-loop/test_plan.py::test_checklist_with_skip_positional tests/ralph-loop/test_plan.py::test_parse_tasks_malformed_header -v`
-- [x] prompt 结构契约断言全通过 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_prompt_iteration_number tests/ralph-loop/test_ralph_loop.py::test_prompt_file_paths -v`
-- [x] batch 重算测试通过 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_recompute_after_partial_completion tests/ralph-loop/test_scheduler.py::test_rebatch_after_removal -v`
-- [x] summary 输出验证通过 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_summary_success tests/ralph-loop/test_ralph_loop.py::test_summary_failure -v`
-- [x] lock 竞争测试通过 | `python3 -m pytest tests/ralph-loop/test_lock.py::test_concurrent_acquire tests/ralph-loop/test_ralph_loop.py::test_double_ralph_no_lock_guard -v`
-- [x] 信号清理测试通过 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_sigint_cleanup tests/ralph-loop/test_ralph_loop.py::test_child_process_no_orphan -v`
-- [x] 异常输入容错通过 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_truncated_plan tests/ralph-loop/test_plan.py::test_binary_content_in_plan tests/ralph-loop/test_ralph_loop.py::test_active_points_to_missing_file tests/ralph-loop/test_ralph_loop.py::test_empty_active_file -v`
-- [x] 外部干扰恢复通过 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_plan_modified_during_iteration tests/ralph-loop/test_ralph_loop.py::test_lock_deleted_during_run -v`
-- [x] 并发 reload 无崩溃 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_concurrent_reload -v`
-- [x] 慢测试通过 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_many_iterations_no_hang tests/ralph-loop/test_ralph_loop.py::test_heartbeat_thread_cleanup -v`
-- [x] 状态转换路径通过 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_happy_path_complete tests/ralph-loop/test_ralph_loop.py::test_skip_then_complete tests/ralph-loop/test_ralph_loop.py::test_timeout_then_stale_then_breaker -v`
-- [x] 半损坏 plan fallback 通过 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_partial_task_parse tests/ralph-loop/test_ralph_loop.py::test_fully_unparseable_plan_fallback tests/ralph-loop/test_ralph_loop.py::test_partial_parse_still_batches -v`
-- [x] 全部测试通过（含新增） | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] fixtures conftest.py disponiveis | `python3 -c "from pathlib import Path; assert Path('tests/ralph-loop/conftest.py').exists()" && python3 -m pytest tests/ralph-loop/ --co -q`
+- [x] classes de equivalencia parametrizadas do scheduler todas passam | `python3 -m pytest tests/ralph-loop/test_scheduler.py -v`
+- [x] casos de borda da checklist todos passam | `python3 -m pytest tests/ralph-loop/test_plan.py::test_counts_with_extra_whitespace tests/ralph-loop/test_plan.py::test_counts_mixed_skip_states tests/ralph-loop/test_plan.py::test_reload_after_external_modify tests/ralph-loop/test_plan.py::test_task_count_mismatch_more_checklist tests/ralph-loop/test_plan.py::test_task_count_mismatch_fewer_checklist tests/ralph-loop/test_plan.py::test_checklist_with_skip_positional tests/ralph-loop/test_plan.py::test_parse_tasks_malformed_header -v`
+- [x] asserts do contrato estrutural do prompt todos passam | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_structure tests/ralph-loop/test_ralph_loop.py::test_prompt_iteration_number tests/ralph-loop/test_ralph_loop.py::test_prompt_file_paths -v`
+- [x] testes de recomputo de batch passam | `python3 -m pytest tests/ralph-loop/test_plan.py::test_recompute_after_partial_completion tests/ralph-loop/test_scheduler.py::test_rebatch_after_removal -v`
+- [x] verificacao de saida do summary passa | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_summary_success tests/ralph-loop/test_ralph_loop.py::test_summary_failure -v`
+- [x] testes de competicao por lock passam | `python3 -m pytest tests/ralph-loop/test_lock.py::test_concurrent_acquire tests/ralph-loop/test_ralph_loop.py::test_double_ralph_no_lock_guard -v`
+- [x] testes de limpeza por sinal passam | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_sigint_cleanup tests/ralph-loop/test_ralph_loop.py::test_child_process_no_orphan -v`
+- [x] tolerancia a entradas anomalas passa | `python3 -m pytest tests/ralph-loop/test_plan.py::test_truncated_plan tests/ralph-loop/test_plan.py::test_binary_content_in_plan tests/ralph-loop/test_ralph_loop.py::test_active_points_to_missing_file tests/ralph-loop/test_ralph_loop.py::test_empty_active_file -v`
+- [x] recuperacao de interferencia externa passa | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_plan_modified_during_iteration tests/ralph-loop/test_ralph_loop.py::test_lock_deleted_during_run -v`
+- [x] reload concorrente sem crash | `python3 -m pytest tests/ralph-loop/test_plan.py::test_concurrent_reload -v`
+- [x] testes lentos passam | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_many_iterations_no_hang tests/ralph-loop/test_ralph_loop.py::test_heartbeat_thread_cleanup -v`
+- [x] caminhos de transicao de estado passam | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_happy_path_complete tests/ralph-loop/test_ralph_loop.py::test_skip_then_complete tests/ralph-loop/test_ralph_loop.py::test_timeout_then_stale_then_breaker -v`
+- [x] fallback para plano semi-corrompido passa | `python3 -m pytest tests/ralph-loop/test_plan.py::test_partial_task_parse tests/ralph-loop/test_ralph_loop.py::test_fully_unparseable_plan_fallback tests/ralph-loop/test_ralph_loop.py::test_partial_parse_still_batches -v`
+- [x] todos os testes passam (incluindo novos) | `python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 

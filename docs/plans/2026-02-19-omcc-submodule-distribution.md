@@ -1,4 +1,4 @@
-> **ABANDONED** — 未执行，已关闭
+> **ABANDONED** - nao executado, ja fechado
 
 # Plano: Distribuição do OMCC como Submodule para china-poetry-app
 
@@ -118,7 +118,7 @@
 
 **Do:**
 - Rewrite CPA's `AGENTS.md` in OMCC v3 format:
-  - Keep: MoXun Agent identity, 中文优先, 3 roles (Engineer/iOS QA/Design), knowledge retrieval, self-learning, end-to-end problem solving
+  - Keep: MoXun Agent identity, prioridade ao chines, 3 roles (Engineer/iOS QA/Design), knowledge retrieval, self-learning, end-to-end problem solving
   - Add: Skill Routing table (mapping OMCC skills + CPA project skills), Authority Matrix, Workflow section referencing OMCC skills
   - Remove: old 3-Layer Architecture header (replaced by v3 structure), old custom commands section (moved to commands/)
 - Update `CLAUDE.md` to match (same content, different filename for Claude Code compatibility)

@@ -59,12 +59,12 @@ test -f docs/releases/v1.0.0-beta.md && grep -q 'Highlights' docs/releases/v1.0.
 
 ## Checklist
 
-- [x] README 包含 release badge | `grep -q 'img.shields.io/github/v/release' README.md`
-- [x] release notes 文件存在 | `test -f docs/releases/v1.0.0-beta.md`
-- [x] release notes 包含 highlights | `grep -q 'Highlights' docs/releases/v1.0.0-beta.md`
-- [x] release notes 包含 compare link | `grep -q 'v3.0.0...v1.0.0-beta' docs/releases/v1.0.0-beta.md`
-- [x] git tag 存在 | `git tag -l v1.0.0-beta | grep -q v1.0.0-beta`
-- [SKIP] GitHub Release 是 prerelease — blocked: `gh auth` token invalid (401 Unauthorized). User must run `gh auth login` then `gh release create v1.0.0-beta --title "v1.0.0-beta" --notes-file docs/releases/v1.0.0-beta.md --prerelease` | `gh release view v1.0.0-beta --json isPrerelease -q '.isPrerelease' | grep -q true`
+- [x] README contem release badge | `grep -q 'img.shields.io/github/v/release' README.md`
+- [x] arquivo de release notes existe | `test -f docs/releases/v1.0.0-beta.md`
+- [x] release notes contem highlights | `grep -q 'Highlights' docs/releases/v1.0.0-beta.md`
+- [x] release notes contem compare link | `grep -q 'v3.0.0...v1.0.0-beta' docs/releases/v1.0.0-beta.md`
+- [x] git tag existe | `git tag -l v1.0.0-beta | grep -q v1.0.0-beta`
+- [SKIP] GitHub Release marcado como prerelease - bloqueado: `gh auth` token invalid (401 Unauthorized). User must run `gh auth login` then `gh release create v1.0.0-beta --title "v1.0.0-beta" --notes-file docs/releases/v1.0.0-beta.md --prerelease` | `gh release view v1.0.0-beta --json isPrerelease -q '.isPrerelease' | grep -q true`
 
 ## Errors
 

@@ -1,15 +1,15 @@
 # Corrigir Bugs de Dispatch Paralelo do Ralph Loop
 
-**Objetivo:** 修复 ralph loop 并行执行的 2 个核心 bug：(1) 已完成 task 被反复调度（unchecked_tasks fallback 返回所有 task），(2) 无改动 worker 的空 merge 被当作冲突浪费 iteration。
-**Não-Objetivos:** 不改变 scheduler 算法；不改变 worktree 隔离策略；不添加新功能。
-**Arquitetura:** 修改 plan.py 的 unchecked_tasks() 和 worktree.py 的 merge()。所有改动向后兼容。
+**Objetivo:** corrigir os 2 bugs centrais da execucao paralela do ralph loop: (1) tarefas ja concluidas sao reagendadas (o fallback de unchecked_tasks retorna todas as tarefas), (2) o merge vazio de um worker sem alteracoes e tratado como conflito e desperdica iteracoes.
+**Não-Objetivos:** nao alterar o algoritmo do scheduler; nao alterar a estrategia de isolamento por worktree; nao adicionar novas funcionalidades.
+**Arquitetura:** modificar `unchecked_tasks()` em plan.py e `merge()` em worktree.py. Todas as mudancas sao retrocompativeis.
 **Tech Stack:** Python 3, pytest
 
 ## Tarefas
 
 ### Tarefa 1: Fix unchecked_tasks() unmatched fallback
 
-当 checklist 项（如"回归测试通过"）无法匹配到任何 task 时，当前 fallback 返回所有 task。这导致已完成的 task 被反复调度。
+Quando um item de checklist (como "testes de regressao passam") nao casa com nenhuma tarefa, o fallback atual retorna todas as tarefas. Isso faz com que tarefas ja concluidas sejam reagendadas repetidamente.
 
 **Arquivos:**
 - Modify: `scripts/lib/plan.py`
@@ -47,7 +47,7 @@ Expected: FAIL (returns all 2 tasks due to unmatched fallback)
 
 **Step 3: Write minimal implementation**
 
-修改 `unchecked_tasks()` 的 unmatched fallback 逻辑（约 L90）：当有 unmatched unchecked 项时，不再返回所有 task，而是只返回自身有 unchecked matched 项的 task。如果没有任何 task 有 unchecked matched 项，返回空列表。
+Modificar a logica de fallback de unmatched de `unchecked_tasks()` (~L90): quando houver itens unmatched unchecked, parar de retornar todas as tarefas e retornar apenas as tarefas que tem itens matched unchecked proprios. Se nenhuma tarefa tiver itens matched unchecked, retornar lista vazia.
 
 ```python
 # Replace:
@@ -68,7 +68,7 @@ Expected: PASS
 
 ### Tarefa 2: Handle empty squash merge gracefully
 
-当 worker 在 worktree 中没有产生新 commit（task 已完成或 worker 没做改动），`git merge --squash` 报 "nothing to squash"，`git commit` 因无 staged changes 失败，整个 merge 被当作冲突处理。
+Quando um worker nao gera novos commits no worktree (tarefa ja concluida ou worker sem alteracoes), `git merge --squash` reporta "nothing to squash", `git commit` falha por ausencia de staged changes, e o merge inteiro e tratado como conflito.
 
 **Arquivos:**
 - Modify: `scripts/lib/worktree.py`
@@ -93,7 +93,7 @@ Expected: FAIL (CalledProcessError from git commit with nothing to commit)
 
 **Step 3: Write minimal implementation**
 
-修改 `worktree.py` 的 `merge()` 方法（L26-48）：在 `git merge --squash` 之后、`git commit` 之前，检查是否有 staged changes。如果没有，跳过 commit 直接返回 True。
+Modificar o metodo `merge()` em `worktree.py` (L26-48): apos `git merge --squash` e antes de `git commit`, verificar se ha staged changes. Se nao houver, pular o commit e retornar True.
 
 ```python
 # After git merge --squash and git restore docs/plans/:
@@ -116,10 +116,10 @@ Expected: PASS
 
 ## Checklist
 
-- [x] unchecked_tasks 不返回已完成 task | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_skips_completed_with_unmatched_items -v`
-- [x] 空 merge 返回 True 而非冲突 | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_no_changes_returns_true -v`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
-- [x] 全量测试通过 | `python3 -m pytest tests/ -v`
+- [x] unchecked_tasks nao retorna tarefas concluidas | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_skips_completed_with_unmatched_items -v`
+- [x] merge vazio retorna True em vez de conflito | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_no_changes_returns_true -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] suite completa de testes passa | `python3 -m pytest tests/ -v`
 
 ## Review
 <!-- Reviewer writes here -->

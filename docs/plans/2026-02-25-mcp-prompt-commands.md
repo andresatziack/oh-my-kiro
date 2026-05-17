@@ -1,6 +1,6 @@
 # MCP Prompt Commands - `@o/agent` e `@o/know`
 
-**Objetivo:** Replace file-based custom commands with MCP prompts (Kiro) and CC skills (Claude Code) to enable parameter passing. Two commands: `agent` (沉淀顶层纲领 → `knowledge/rules.md`) and `know` (沉淀知识 → `knowledge/episodes.md`).
+**Objetivo:** Replace file-based custom commands with MCP prompts (Kiro) and CC skills (Claude Code) to enable parameter passing. Two commands: `agent` (registra principios de alto nivel em `knowledge/rules.md`) and `know` (registra conhecimento em `knowledge/episodes.md`).
 
 **Não-Objetivos:** Changing the knowledge distillation pipeline (distill.sh, auto-capture). Modifying AGENTS.md directly. Adding new knowledge categories beyond rules/episodes.
 
@@ -289,7 +289,7 @@ Add rows:
 
 **Step 1a: Remove @reflect row from Skill Routing table**
 
-Replace the row `| 纠正/学习 | self-reflect | context-enrichment 检测 | 按需读取 |` — keep it but also add the two new rows right after it.
+Replace the row `| Correcao/aprendizado | self-reflect | deteccao via context-enrichment | sob demanda |` - keep it but also add the two new rows right after it.
 
 **Step 1b: Add new rows to Skill Routing table**
 
@@ -316,15 +316,15 @@ Round 2: Goal Alignment APPROVE + Verify Correctness APPROVE.
 
 ## Checklist
 
-- [x] CC skill `agent` 存在且包含 $ARGUMENTS | `test -f .claude/skills/agent/SKILL.md && grep -q 'ARGUMENTS' .claude/skills/agent/SKILL.md && echo PASS`
-- [x] CC skill `know` 存在且包含 $ARGUMENTS | `test -f .claude/skills/know/SKILL.md && grep -q 'ARGUMENTS' .claude/skills/know/SKILL.md && echo PASS`
-- [x] `commands/reflect.md` 已删除 | `! test -f commands/reflect.md && echo PASS`
-- [x] MCP server 脚本存在 | `test -f scripts/mcp-prompts.py && python3 -c "import ast; ast.parse(open('scripts/mcp-prompts.py').read())" && echo PASS`
-- [x] mcp.json 包含 o server | `jq -e '.mcpServers.o.command' .kiro/settings/mcp.json | grep -q python3 && echo PASS`
-- [x] generate_configs.py 包含 skill 生成 | `grep -q "CC skill files" scripts/generate_configs.py && echo PASS`
-- [x] sync-omcc.sh 包含 MCP 注册 | `grep -q "mcp-prompts" tools/sync-omcc.sh && echo PASS`
-- [x] AGENTS.md 包含新命令 | `grep -q '@o/agent' AGENTS.md && grep -q '@o/know' AGENTS.md && echo PASS`
-- [x] 回归测试通过 | `python3 -m pytest tests/ -v --timeout=30; test $? -eq 0 && echo PASS`
+- [x] CC skill `agent` existe e contem $ARGUMENTS | `test -f .claude/skills/agent/SKILL.md && grep -q 'ARGUMENTS' .claude/skills/agent/SKILL.md && echo PASS`
+- [x] CC skill `know` existe e contem $ARGUMENTS | `test -f .claude/skills/know/SKILL.md && grep -q 'ARGUMENTS' .claude/skills/know/SKILL.md && echo PASS`
+- [x] `commands/reflect.md` removido | `! test -f commands/reflect.md && echo PASS`
+- [x] script do MCP server existe | `test -f scripts/mcp-prompts.py && python3 -c "import ast; ast.parse(open('scripts/mcp-prompts.py').read())" && echo PASS`
+- [x] mcp.json contem o server | `jq -e '.mcpServers.o.command' .kiro/settings/mcp.json | grep -q python3 && echo PASS`
+- [x] generate_configs.py inclui geracao de skill | `grep -q "CC skill files" scripts/generate_configs.py && echo PASS`
+- [x] sync-omcc.sh inclui registro do MCP | `grep -q "mcp-prompts" tools/sync-omcc.sh && echo PASS`
+- [x] AGENTS.md contem novos comandos | `grep -q '@o/agent' AGENTS.md && grep -q '@o/know' AGENTS.md && echo PASS`
+- [x] testes de regressao passam | `python3 -m pytest tests/ -v --timeout=30; test $? -eq 0 && echo PASS`
 
 ## Errors
 

@@ -1,20 +1,20 @@
 # Knowledge System v2: Memória de Longo Prazo + Injeção Inteligente + Auto-cleanup
 
-**Objetivo:** 改造知识库体系：rules 成为真正的长期记忆（永久保留、keyword section 自然聚类、按需注入），episodes 有遗忘机制（promoted 自动清除）。
-**Arquitetura:** rules.md 改为 keyword section 结构（section header = keyword 集合），context-enrichment 按消息关键词匹配 section 注入，episodes promoted 自动清除。聚类由 agent 在 self-reflect skill 中语义判断。
+**Objetivo:** Reformular a knowledge base: rules vira memoria de longo prazo de verdade (preservacao permanente, agrupamento natural por keyword section, injecao sob demanda); episodes ganha mecanismo de esquecimento (entradas promoted sao removidas automaticamente).
+**Arquitetura:** rules.md adota estrutura por keyword section (cabecalho da secao = conjunto de keywords); o context-enrichment casa pela keyword da mensagem e injeta a secao correspondente; entradas promoted em episodes sao apagadas. O agrupamento e feito pelo agent dentro da self-reflect skill via decisao semantica.
 **Tech Stack:** Shell (bash), Markdown
 
 ## Key Decisions
 
-1. **单文件 keyword section**：rules.md 保持单文件，内部按 `## [keyword1, keyword2, ...]` 分 section。去掉 30 条上限
-2. **聚类自然涌现**：section 从 episode keywords 自然产生，不预定义类别。新 rule 无匹配 section 时自动创建
-3. **聚类由 agent 执行**：promotion 时 agent 读 section headers，语义判断归入哪个 section。规则写在 self-reflect skill 中
-4. **section header 会扩展**：归入时 agent 可把新 keywords 追加到 section header，section 自然生长
-5. **context-enrichment 按需注入**：用消息关键词匹配 section header，只注入匹配的 section。多个匹配全部注入。无匹配注入最大的 section（最通用）
-6. **episodes promoted 自动清除**：context-enrichment session 启动时删除 promoted 行
-7. **向后兼容**：如果 rules.md 没有 section header（旧格式），fallback 到全量注入
+1. **Arquivo unico com keyword sections**: rules.md continua um unico arquivo, agora dividido internamente por `## [keyword1, keyword2, ...]`. Sem o limite de 30 itens
+2. **Agrupamento emergente**: as secoes nascem naturalmente das keywords dos episodes; nao definimos categorias antes. Se uma rule nova nao casa com nenhuma secao, criar secao nova
+3. **Agrupamento feito pelo agent**: na promotion, o agent le os section headers e decide semanticamente em qual secao a regra entra. Essas regras moram na self-reflect skill
+4. **Section header pode crescer**: ao incluir uma rule, o agent pode adicionar novas keywords ao header da secao; ela cresce conforme necessario
+5. **context-enrichment injeta sob demanda**: casar pelas keywords da mensagem com o header da secao e injetar apenas as secoes que casam. Multiplas casamentos -> injeta todas. Nenhum casamento -> injetar a maior secao (mais geral)
+6. **episodes promoted sao auto-removidas**: ao iniciar a session, o context-enrichment apaga as linhas promoted
+7. **Compatibilidade com formato antigo**: se rules.md nao tiver section header (formato antigo), volta a injetar tudo
 
-## Rules 新格式
+## Novo formato de Rules
 
 ```markdown
 # Agent Rules (Long-term Memory)
@@ -50,21 +50,21 @@
 
 ## Tarefas
 
-### Tarefa 1: 改造 rules.md 为 keyword section 格式
+### Tarefa 1: converter rules.md para o formato keyword section
 
 **Arquivos:**
 - Modify: `knowledge/rules.md`
 
-将当前 17 条 rules 按上述格式重组。保留所有 rule 内容，只改结构。
+Reorganizar as 17 rules atuais no formato acima. Manter o conteudo de todas as rules; apenas mudar a estrutura.
 
-**Verificação:** `grep -c '^[0-9]' knowledge/rules.md` = 17（rule 数不变）；`grep -c '^## \[' knowledge/rules.md` = 4（4 个 section）
+**Verificação:** `grep -c '^[0-9]' knowledge/rules.md` = 17 (numero de rules nao muda); `grep -c '^## \[' knowledge/rules.md` = 4 (4 secoes)
 
-### Tarefa 2: 改造 context-enrichment.sh - 按 section 注入
+### Tarefa 2: ajustar context-enrichment.sh - injecao por secao
 
 **Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
-替换当前 rules 注入逻辑。用 awk 一次性解析 section，避免复杂 bash 循环：
+Substituir a logica atual de injecao de rules. Usar awk para parsear as secoes em uma unica passada e evitar loops bash complicados:
 
 ```bash
 inject_rules() {
@@ -120,16 +120,16 @@ inject_rules() {
 inject_rules
 ```
 
-关键简化：用 awk 一次解析替代多次 grep + while 循环。用 `grep -qiw`（word boundary）减少误匹配。
+Simplificacao chave: parser awk em uma unica passada substitui o loop encadeado de grep + while. `grep -qiw` (com word boundary) reduz falsos positivos.
 
-**Verificação:** 手动测试 3 个场景（见 checklist）
+**Verificação:** rodar manualmente os 3 cenarios da checklist
 
-### Tarefa 3: episodes promoted 自动清除
+### Tarefa 3: limpeza automatica de episodes promoted
 
 **Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
-在 session 启动块（`if [ ! -f "$LESSONS_FLAG" ]`）中，inject_rules 调用前加：
+No bloco de inicio de session (`if [ ! -f "$LESSONS_FLAG" ]`), antes da chamada de inject_rules, adicionar:
 
 ```bash
 # 遗忘机制：清除已晋升的 episodes
@@ -142,18 +142,18 @@ if [ -f "knowledge/episodes.md" ]; then
 fi
 ```
 
-**Verificação:** 手动测试 promoted 行被清除
+**Verificação:** validar manualmente que as linhas promoted foram removidas
 
-### Tarefa 4: 更新 self-reflect skill - 聚类规则
+### Tarefa 4: atualizar a self-reflect skill - regras de agrupamento
 
 **Arquivos:**
 - Modify: `skills/self-reflect/SKILL.md`
 
-更新 Promotion Process 和 Sync Targets：
+Atualizar Promotion Process e Sync Targets:
 
-Sync Targets: `knowledge/rules.md` 的对应 keyword section
+Sync Targets: a keyword section correspondente em `knowledge/rules.md`
 
-Promotion Process 改为：
+Promotion Process passa a ser:
 ```
 1. Read episodes.md, find keywords appearing ≥3 times in active episodes
 2. Distill into 1-2 line rule with DO/DON'T + trigger
@@ -168,27 +168,27 @@ Promotion Process 改为：
 7. Output: ⬆️ Promoted to rules.md [section]: 'RULE'
 ```
 
-**Verificação:** `grep -c 'Clustering' skills/self-reflect/SKILL.md` ≥ 1
+**Verificação:** `grep -c 'Clustering' skills/self-reflect/SKILL.md` >= 1
 
-### Tarefa 5: 更新 INDEX.md + AGENTS.md
+### Tarefa 5: atualizar INDEX.md + AGENTS.md
 
 **Arquivos:**
 - Modify: `knowledge/INDEX.md`
 - Modify: `AGENTS.md`
 
-INDEX.md：更新 rules 描述为 "keyword section 结构，按需注入"。
-AGENTS.md：Knowledge Retrieval 和 Self-Learning section 更新。
+INDEX.md: atualizar a descricao de rules para "estrutura por keyword section, injecao sob demanda".
+AGENTS.md: atualizar as secoes Knowledge Retrieval e Self-Learning.
 
-**Verificação:** `grep -c 'keyword section' knowledge/INDEX.md` ≥ 1
+**Verificação:** `grep -c 'keyword section' knowledge/INDEX.md` >= 1
 
-### Tarefa 6: 记录到 episodes
+### Tarefa 6: registrar em episodes
 
 **Arquivos:**
 - Modify: `knowledge/episodes.md`
 
-追加本次改造记录。
+Fazer append do registro desta refatoracao.
 
-**Verificação:** `grep -c 'knowledge-v2' knowledge/episodes.md` ≥ 1
+**Verificação:** `grep -c 'knowledge-v2' knowledge/episodes.md` >= 1
 
 ## Review
 
@@ -270,18 +270,18 @@ AGENTS.md：Knowledge Retrieval 和 Self-Learning section 更新。
 The Round 1 feedback has been adequately addressed. The awk-based implementation significantly reduces bash complexity while maintaining functionality. Word boundary matching resolves false positive issues. The remaining risks are acceptable for a configuration change affecting 4 sections with manual testing validation.
 
 ## Checklist
-- [x] rules.md 改为 keyword section 格式，4 个 section
-- [x] 17 条 rule 全部保留，无丢失
-- [x] section header 格式为 `## [keyword1, keyword2, ...]`
-- [x] context-enrichment 按消息关键词匹配 section 注入
-- [x] context-enrichment 无匹配时注入最大 section
-- [x] context-enrichment 兼容旧格式（无 section header 时全量注入）
-- [x] episodes promoted 行在 session 启动时自动清除
-- [x] self-reflect skill 包含聚类规则（语义匹配 section）
-- [x] self-reflect skill 支持创建新 section
-- [x] INDEX.md 更新
-- [x] AGENTS.md 更新
-- [x] episodes.md 记录本次改造
-- [x] 手动测试：shell 关键词消息 → 注入 shell section
-- [x] 手动测试：无关键词消息 → 注入最大 section
-- [x] 手动测试：promoted episodes 被自动清除
+- [x] rules.md no formato keyword section, com 4 secoes
+- [x] todas as 17 rules preservadas, sem perda
+- [x] header de secao no formato `## [keyword1, keyword2, ...]`
+- [x] context-enrichment injeta secao correspondente as keywords da mensagem
+- [x] context-enrichment injeta a maior secao quando nao ha casamento
+- [x] context-enrichment compativel com o formato antigo (sem section header injeta tudo)
+- [x] linhas promoted em episodes sao removidas automaticamente no inicio da session
+- [x] self-reflect skill contem as regras de agrupamento (semantic match em sections)
+- [x] self-reflect skill suporta criar secao nova
+- [x] INDEX.md atualizado
+- [x] AGENTS.md atualizado
+- [x] episodes.md registra esta refatoracao
+- [x] teste manual: mensagem com keyword shell -> injeta a secao shell
+- [x] teste manual: mensagem sem keyword -> injeta a maior secao
+- [x] teste manual: episodes promoted sao removidas automaticamente

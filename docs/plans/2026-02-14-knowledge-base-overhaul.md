@@ -1,8 +1,8 @@
 # Reformulação da Knowledge Base - Arquitetura de Memória de Canal Duplo
 
-**Objetivo:** 将混合知识库重构为 rules + episodes 双层结构，通过自动落库 + 人工落库双通道实现知识持续演进，用 hook 硬约束替代 prompt 软约束。
+**Objetivo:** Refatorar a knowledge base mista para uma arquitetura em duas camadas (rules + episodes), com captura automatica + manual em paralelo, evoluindo conhecimento de forma continua e trocando coercao por prompt por hook como restricao forte.
 
-**Insight Central:** 没有 hook 强制的行为 = 不会发生（sed/JSON ×10 验证）。知识库的落库、召回、治理必须尽可能由 hook 驱动。
+**Insight Central:** Comportamento sem hook que forca = nao acontece (validado em sed/JSON 10x). Captura, recall e governanca da knowledge base devem ser conduzidos por hook sempre que possivel.
 
 ## Arquitetura
 
@@ -44,41 +44,41 @@
 
 ## Decisões
 
-| # | 决策 | 原因 | 状态 |
+| # | Decisao | Motivo | Status |
 |---|------|------|------|
-| 1 | 双层：rules.md + episodes.md + reference/ | 行业共识 + 项目验证 | ✅ |
-| 2 | 双通道落库：hook 自动 + @reflect 人工 | 自动防遗漏，人工补复杂洞察 | ✅ |
-| 3 | 自动落库只处理简单模式（别用X/换成Y） | shell regex 能力有限，宁可漏掉不写垃圾 | ✅ |
-| 4 | episodes.md append-only，hook 不做删除 | 避免 sed -i 跨平台问题 | ✅ |
-| 5 | 去重用 grep -c 实时计数，不原地更新 ×N | shell 原地修改不可靠 | ✅ |
-| 6 | 质量报告写文件，context 只放一行指针 | 避免 Stop hook 频繁输出消耗 context | ✅ |
-| 7 | 容量淘汰由人/agent 执行，hook 只报告 | hook 只 append 不 delete，简单可靠 | ✅ |
-| 8 | 落库 pipeline 拆独立脚本 | context-enrichment.sh 不宜过重 | ✅ |
-| 9 | promote_candidate 不存储，实时计算 | append-only 原则，不原地改 status | ✅ |
-| 10 | keywords 只提取英文技术术语 | grep -iw 对中文 word boundary 无效 | ✅ |
-| 11 | auto-capture 用 exit code 区分结果 | 避免自动捕获后仍提醒 self-reflect | ✅ |
+| 1 | Duas camadas: rules.md + episodes.md + reference/ | Consenso da industria + validacao no projeto | ✅ |
+| 2 | Captura em dois canais: hook automatico + @reflect manual | Automatico evita esquecimento; manual cobre insights complexos | ✅ |
+| 3 | Captura automatica trata so padroes simples (nao use X / use Y) | Limites do regex em shell; melhor perder do que escrever lixo | ✅ |
+| 4 | episodes.md e append-only; o hook nao apaga | Evitar problemas de portabilidade de sed -i entre plataformas | ✅ |
+| 5 | Dedup com grep -c em tempo real, sem update in-place x N | Edicao in-place em shell e instavel | ✅ |
+| 6 | Relatorio de qualidade vai para arquivo; o context recebe so um pointer de uma linha | Evitar saida frequente de Stop hook consumindo context | ✅ |
+| 7 | Eliminacao por capacidade fica com humano/agent; hook so reporta | Hook so faz append, nunca delete: simples e seguro | ✅ |
+| 8 | Pipeline de captura em script separado | context-enrichment.sh nao deve ficar pesado demais | ✅ |
+| 9 | promote_candidate nao e armazenado; e calculado em runtime | Coerencia com a politica append-only; sem alterar status in-place | ✅ |
+| 10 | keywords sao apenas termos tecnicos em ingles | grep -iw nao reconhece word boundary em chines | ✅ |
+| 11 | auto-capture usa exit code para diferenciar resultados | Evitar lembrete de self-reflect mesmo apos a captura automatica | ✅ |
 
 ### Limitações Conhecidas
-- 并发写入：多 agent 同时 append episodes.md 理论上有竞争，当前规模（≤30 条，低频）可接受
+- Escrita concorrente: varios agents podem fazer append em episodes.md em paralelo, com competicao teorica; na escala atual (<=30 itens, baixa frequencia) e aceitavel
 
 ---
 
 ## Passos
 
-### Tarefa 0: 备份
+### Tarefa 0: backup
 
 ```bash
 cp knowledge/lessons-learned.md knowledge/lessons-learned.md.bak
 git status --short knowledge/
 ```
 
-### Tarefa 1: 创建 rules.md + episodes.md
+### Tarefa 1: criar rules.md + episodes.md
 
 **Arquivos:** Create `knowledge/rules.md`, `knowledge/episodes.md`; Delete `knowledge/lessons-learned.md`
 
-**Step 1: 提炼 rules.md**
+**Step 1: destilar rules.md**
 
-从 lessons-learned.md 的 Mistakes/Wins/Rules Extracted 中提炼，格式：
+Extrair de Mistakes/Wins/Rules Extracted em lessons-learned.md, no formato:
 
 ```markdown
 # Agent Rules (Semantic Memory)
@@ -97,18 +97,18 @@ git status --short knowledge/
 10. Skill 文件不得包含 HTML 注释（防 prompt injection）。[hook: scan-skill-injection]
 ```
 
-每条规则要求：
-- 有明确 DO/DON'T 动作
-- ≤2 行
-- 有触发场景
-- 不含叙事（叙事在 episodes.md）
-- 已有 hook 的标注 `[hook: xxx]`
+Cada rule precisa:
+- Ter acao DO/DON'T explicita
+- Maximo de 2 linhas
+- Cenario de trigger
+- Sem narrativa (a narrativa vai em episodes.md)
+- Marcar `[hook: xxx]` se ja existir hook correspondente
 
-**Step 2: 创建 episodes.md**
+**Step 2: criar episodes.md**
 
-从 lessons-learned.md 重构，合并重复，格式改为 shell-friendly 行格式。
+Refatorar o lessons-learned.md mesclando duplicatas; usar formato de linha amigavel a shell.
 
-**格式约束：所有条目的 SUMMARY 字段不得包含 `|` 字符（用 `/` 替代），确保 `cut -d'|'` 字段解析正确。**
+**Restricao de formato: o campo SUMMARY de cada entrada nao pode conter `|` (use `/` no lugar) para garantir que `cut -d'|'` funcione corretamente.**
 
 ```markdown
 # Episodes (Episodic Memory)
@@ -127,13 +127,13 @@ git status --short knowledge/
 2026-02-14 | resolved | skill-chain,skip | 跳过skill-chain直接写代码 [hook: enforce-skill-chain]
 ```
 
-**Step 3: 删除旧文件**
+**Step 3: apagar arquivo antigo**
 
 ```bash
 rm knowledge/lessons-learned.md
 ```
 
-**Step 4: 验证**
+**Step 4: validacao**
 
 ```bash
 wc -c knowledge/rules.md                                          # ≤2048
@@ -142,13 +142,13 @@ grep -c '[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} |' knowledge/episodes.md  # ≤30
 test ! -f knowledge/lessons-learned.md && echo "DELETED"
 ```
 
-### Tarefa 2: 自动落库 pipeline（hook）
+### Tarefa 2: pipeline de captura automatica (hook)
 
 **Arquivos:** Create `hooks/feedback/auto-capture.sh`; Modify `hooks/feedback/context-enrichment.sh`
 
-**Step 1: 创建 auto-capture.sh**
+**Step 1: criar auto-capture.sh**
 
-独立脚本，由 context-enrichment.sh 在检测到纠正后调用。
+Script independente, chamado por context-enrichment.sh apos detectar correction.
 
 ```bash
 #!/bin/bash
@@ -217,9 +217,9 @@ touch "/tmp/kb-changed-$(pwd | shasum 2>/dev/null | cut -c1-8 || echo default).f
 exit 0
 ```
 
-**Step 2: 修改 context-enrichment.sh**
+**Step 2: alterar context-enrichment.sh**
 
-纠正检测后调用 auto-capture.sh：
+Apos detectar correction, chamar auto-capture.sh:
 
 ```bash
 if [ "$DETECTED" -eq 1 ]; then
@@ -232,7 +232,7 @@ if [ "$DETECTED" -eq 1 ]; then
 fi
 ```
 
-rules.md 注入改为动态读取：
+A injecao de rules.md passa a ser dinamica:
 
 ```bash
 LESSONS_FLAG="/tmp/lessons-injected-$(pwd | shasum 2>/dev/null | cut -c1-8 || echo default).flag"
@@ -262,7 +262,7 @@ FALLBACK
 fi
 ```
 
-**Step 3: 验证**
+**Step 3: validacao**
 
 ```bash
 # 模拟纠正消息测试 pipeline
@@ -270,11 +270,11 @@ echo '别用sed处理JSON，用jq' | bash hooks/feedback/auto-capture.sh "别用
 cat knowledge/episodes.md | tail -1
 ```
 
-### Tarefa 3: 质量报告生成
+### Tarefa 3: relatorio de saude
 
 **Arquivos:** Create `hooks/feedback/kb-health-report.sh`; Modify Stop hook
 
-**Step 1: 创建 kb-health-report.sh**
+**Step 1: criar kb-health-report.sh**
 
 ```bash
 #!/bin/bash
@@ -361,13 +361,13 @@ fi
 touch "$COOLDOWN"
 ```
 
-**Step 2: 在 Stop hook 中调用**
+**Step 2: chamar do Stop hook**
 
 ```bash
 bash "$(dirname "$0")/../feedback/kb-health-report.sh"
 ```
 
-**Step 3: 验证**
+**Step 3: validacao**
 
 ```bash
 touch "/tmp/kb-changed-$(pwd | shasum | cut -c1-8).flag"
@@ -375,11 +375,11 @@ bash hooks/feedback/kb-health-report.sh
 cat knowledge/.health-report.md
 ```
 
-### Tarefa 4: @reflect 命令（人工落库通道）
+### Tarefa 4: comando @reflect (canal manual de captura)
 
-**Arquivos:** Create `.kiro/prompts/reflect.md` (Kiro) 或 `.claude/commands/reflect.md` (CC)
+**Arquivos:** Create `.kiro/prompts/reflect.md` (Kiro) ou `.claude/commands/reflect.md` (CC)
 
-**Step 1: 创建 reflect prompt**
+**Step 1: criar o prompt reflect**
 
 ```markdown
 # Reflect — Manual Knowledge Capture
@@ -403,7 +403,7 @@ Read the current conversation and identify insights worth preserving.
 - If episodes.md has ≥30 entries, warn user to clean up first
 ```
 
-**Step 2: 验证**
+**Step 2: validacao**
 
 ```bash
 # Kiro
@@ -412,11 +412,11 @@ test -f .kiro/prompts/reflect.md && echo "EXISTS"
 test -f .claude/commands/reflect.md && echo "EXISTS"
 ```
 
-### Tarefa 5: self-reflect skill 简化
+### Tarefa 5: simplificar a self-reflect skill
 
 **Arquivos:** Modify `skills/self-reflect/SKILL.md`
 
-收窄职责为两个场景：
+Restringir a responsabilidade a dois cenarios:
 
 ```markdown
 ## Scope (v3)
@@ -433,7 +433,7 @@ NOT responsible for: daily capture (hook does it), dedup (hook does it),
 quality reporting (hook does it).
 ```
 
-更新 Sync Targets 表：
+Atualizar a tabela Sync Targets:
 
 ```markdown
 ## Sync Targets
@@ -445,9 +445,9 @@ quality reporting (hook does it).
 | Code-enforceable rule | .kiro/rules/enforcement.md |
 ```
 
-### Tarefa 6: 更新 INDEX.md、AGENTS.md 和全局引用
+### Tarefa 6: atualizar INDEX.md, AGENTS.md e referencias globais
 
-**Arquivos:** Modify `knowledge/INDEX.md`, `AGENTS.md`, grep 全项目清理
+**Arquivos:** Modify `knowledge/INDEX.md`, `AGENTS.md`, limpar referencias por grep no projeto inteiro
 
 **Step 1: INDEX.md**
 
@@ -464,7 +464,7 @@ quality reporting (hook does it).
 
 **Step 2: AGENTS.md**
 
-Knowledge Retrieval 段更新：
+Atualizar a secao Knowledge Retrieval:
 ```markdown
 ## Knowledge Retrieval
 - rules.md 由 hook 自动注入（会话首次 prompt）
@@ -477,14 +477,14 @@ Knowledge Retrieval 段更新：
 - 晋升提醒（🔥/⬆️）→ self-reflect skill 执行
 ```
 
-**Step 3: 全局引用清理**
+**Step 3: limpar referencias globais**
 
 ```bash
 grep -r 'lessons-learned' . --include='*.md' --include='*.sh' | grep -v '.git' | grep -v '.bak' | grep -v 'archive/'
 # 将所有引用更新为 rules.md 或 episodes.md
 ```
 
-**Step 4: 验证**
+**Step 4: validacao**
 
 ```bash
 grep -r 'lessons-learned' . --include='*.md' --include='*.sh' | grep -v '.git' | grep -v '.bak' | grep -v 'archive/' || echo "CLEAN"
@@ -495,51 +495,51 @@ grep -r 'lessons-learned' . --include='*.md' --include='*.sh' | grep -v '.git' |
 ## Review
 
 ### Strengths
-- **双通道互补**: hook 自动防遗漏 + @reflect 人工补复杂洞察
-- **hook 驱动**: 落库、召回、报告全部 hook 保证，不依赖 agent 自主行为
-- **事前质量控制**: 4-Gate pipeline 过滤低价值、去重、容量控制
-- **事后低门槛治理**: 质量报告写文件，一行指针进 context，人看报告就知道该做什么
-- **shell 操作简单可靠**: append-only，不原地修改，不跨平台 sed -i
-- **context 成本可控**: rules 注入仅首次，报告仅一行指针，晋升提醒仅一行
-- **exit code 区分**: auto-capture 成功 vs 被过滤，避免冗余 self-reflect 提醒
-- **实时计算晋升**: 不存储 promote_candidate 状态，和 append-only 原则一致
+- **Dois canais complementares**: hook automatico evita esquecimento, @reflect manual cobre insights complexos
+- **Conduzido por hooks**: captura, recall e relatorio sao garantidos pelo hook, sem depender da iniciativa do agent
+- **Controle de qualidade no momento da captura**: 4-Gate pipeline filtra de baixo valor, dedup e capacidade
+- **Governanca pos-fato sem atrito**: relatorio de qualidade vai para arquivo, e o context recebe so um pointer; basta ler o relatorio para saber o que fazer
+- **Operacao shell simples e estavel**: append-only, sem alteracao in-place; sem sed -i cross-platform
+- **Custo de context controlado**: rules so injeta na primeira vez, relatorio so um pointer, lembrete de promotion em uma linha
+- **Distincao por exit code**: auto-capture sucesso vs filtrada, evitando lembrete redundante de self-reflect
+- **Promotion calculado em runtime**: nao armazena promote_candidate, alinhado ao append-only
 
 ### Risks & Mitigations
-- **自动落库写入垃圾**: Gate 1 严格过滤（问句/无动作 → 丢弃），有动作的不受长度限制，SUMMARY 截断到 80 字符
-- **关键词 grep 误匹配**: 仅英文技术术语 ≥4 字符 + grep -iw（word boundary）
-- **episodes.md 格式损坏**: 用户消息中 `|` 替换为 `/`，行格式而非表格
-- **容量溢出**: 满 30 条时拒绝写入 + 报告提醒，不自动删除
-- **@reflect 人忘记用**: 可接受——复杂洞察本身低频，自动通道已覆盖高频场景
-- **并发写入**: 多 agent 同时 append 理论有竞争，当前规模可接受
+- **Captura automatica gera lixo**: Gate 1 filtra com rigor (perguntas/sem acao -> descartar); itens com acao explicita nao tem limite de tamanho; SUMMARY truncado em 80 caracteres
+- **Falso positivo do grep para keywords**: apenas termos tecnicos em ingles >= 4 caracteres + grep -iw (word boundary)
+- **Formato de episodes.md corrompido**: trocar `|` por `/` no texto do usuario; formato em linha em vez de tabela
+- **Estouro de capacidade**: ao chegar em 30, recusa novas escritas + lembrete via relatorio; sem deletes automaticos
+- **Esquecer de usar @reflect**: aceitavel - insights complexos sao raros; o canal automatico cobre o de alta frequencia
+- **Escrita concorrente**: append simultaneo de varios agents tem competicao teorica; na escala atual e aceitavel
 
 ### Verdict: **APPROVED**
 
 ## Checklist
 
-- [ ] knowledge/lessons-learned.md.bak 备份已创建
-- [ ] knowledge/rules.md 已创建，≤2KB，≤30 条，每条有 DO/DON'T + 触发场景
-- [ ] knowledge/episodes.md 已创建，行格式（非表格），重复已合并，有 status 列
-- [ ] hooks/feedback/auto-capture.sh 已创建，4-Gate pipeline，exit 0/1 区分
-- [ ] auto-capture Gate 1: 问句丢弃、无动作丢弃（有动作不受长度限制，SUMMARY 截断 80 字符）
-- [ ] auto-capture 预检查: episodes.md 不存在时 exit 1
-- [ ] auto-capture Gate 2: 仅英文技术术语 ≥4 字符，排除常见词
-- [ ] auto-capture Gate 3: grep -iwE 去重，实时 grep -c 计数晋升提醒
-- [ ] auto-capture Gate 4: 容量 ≥30 拒绝写入
-- [ ] context-enrichment.sh 根据 auto-capture exit code 决定是否提醒 self-reflect
-- [ ] context-enrichment.sh 动态读 rules.md，有 fallback 硬编码
-- [ ] context-enrichment.sh 会话开始实时计算晋升候选（关键词频次 ≥3）
-- [ ] context-enrichment.sh 会话开始检查 .health-report.md 有无 issues
-- [ ] hooks/feedback/kb-health-report.sh 已创建，三条件触发（变更+有问题+首次）
-- [ ] kb-health-report 晋升候选通过实时关键词频次计算，不依赖存储状态
-- [ ] kb-health-report 日期匹配用 `[0-9]{4}-[0-9]{2}-[0-9]{2} |` 而非 `^20`
-- [ ] Stop hook 调用 kb-health-report.sh
-- [ ] knowledge/.health-report.md 自动生成，context 只一行指针
-- [ ] @reflect prompt 已创建（.kiro/prompts/ 和/或 .claude/commands/）
-- [ ] self-reflect SKILL.md 已简化（只负责晋升执行 + 复杂洞察辅助）
-- [ ] knowledge/INDEX.md 路由表已更新
-- [ ] AGENTS.md 已更新（双通道描述）
-- [ ] grep -r 'lessons-learned' 全项目无残留引用（.bak 和 archive/ 除外）
-- [ ] 模拟测试：简单纠正 → auto-capture exit 0 → episodes.md 有新条目
-- [ ] 模拟测试：复杂纠正 → auto-capture exit 1 → 提醒 self-reflect
-- [ ] 模拟测试：重复纠正 → 去重跳过 → ≥3 次输出 🔥 晋升提醒
-- [ ] 模拟测试：kb-health-report 生成正确，晋升候选通过关键词频次计算
+- [ ] knowledge/lessons-learned.md.bak backup criado
+- [ ] knowledge/rules.md criado, <=2KB, <=30 entradas, cada uma com DO/DON'T + cenario
+- [ ] knowledge/episodes.md criado, formato em linha (sem tabela), duplicatas mescladas, com coluna status
+- [ ] hooks/feedback/auto-capture.sh criado, 4-Gate pipeline, exit 0/1 distintos
+- [ ] auto-capture Gate 1: descartar perguntas; descartar sem acao (com acao nao tem limite de tamanho; SUMMARY truncado em 80 caracteres)
+- [ ] auto-capture pre-check: episodes.md ausente leva a exit 1
+- [ ] auto-capture Gate 2: apenas termos tecnicos em ingles >=4 caracteres; excluir palavras comuns
+- [ ] auto-capture Gate 3: dedup com grep -iwE; promotion via grep -c em tempo real
+- [ ] auto-capture Gate 4: capacidade >=30 recusa nova escrita
+- [ ] context-enrichment.sh decide o lembrete de self-reflect via exit code do auto-capture
+- [ ] context-enrichment.sh le rules.md dinamicamente, com fallback hardcoded
+- [ ] context-enrichment.sh ao iniciar a session calcula promotion candidates em tempo real (frequencia >=3)
+- [ ] context-enrichment.sh ao iniciar a session checa se .health-report.md tem issues
+- [ ] hooks/feedback/kb-health-report.sh criado, com tres condicoes para disparar (mudanca + ha problema + primeira vez)
+- [ ] kb-health-report calcula candidates em tempo real, sem depender de status armazenado
+- [ ] kb-health-report usa o pattern de data `[0-9]{4}-[0-9]{2}-[0-9]{2} |` em vez de `^20`
+- [ ] Stop hook chama kb-health-report.sh
+- [ ] knowledge/.health-report.md gerado automaticamente; context recebe so um pointer
+- [ ] prompt @reflect criado (.kiro/prompts/ e/ou .claude/commands/)
+- [ ] SKILL.md de self-reflect simplificado (so executa promotion + ajuda em insight complexo)
+- [ ] tabela de routing em knowledge/INDEX.md atualizada
+- [ ] AGENTS.md atualizado (descricao dos dois canais)
+- [ ] grep -r 'lessons-learned' no projeto sem residuos (excluindo .bak e archive/)
+- [ ] teste simulado: correction simples -> auto-capture exit 0 -> nova entrada em episodes.md
+- [ ] teste simulado: correction complexa -> auto-capture exit 1 -> lembrete de self-reflect
+- [ ] teste simulado: correction repetida -> dedup, salta; >=3 vezes -> imprime 🔥 com lembrete de promotion
+- [ ] teste simulado: kb-health-report gerado corretamente; promotion candidates calculados via frequencia de keywords

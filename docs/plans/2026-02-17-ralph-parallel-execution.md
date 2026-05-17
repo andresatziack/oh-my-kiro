@@ -1,7 +1,7 @@
 # Execução Paralela Determinística do Ralph Loop
 
 **Objetivo:** (1) Make ralph_loop.py deterministically analyze task dependencies and generate batch-aware prompts so kiro-cli reliably dispatches executor subagents in parallel. (2) Improve plan review quality by restructuring reviewer angles, dispatch queries, and calibration rules so all 4 parallel reviewers produce actionable findings.
-**Não-Objetivos:** Not implementing multi-kiro-cli-instance parallelism (方案 A). Not changing executor.json capabilities. Not modifying the plan file format. Not changing reviewer agent's tools/hooks.
+**Não-Objetivos:** Not implementing multi-kiro-cli-instance parallelism (Strategy A). Not changing executor.json capabilities. Not modifying the plan file format. Not changing reviewer agent's tools/hooks.
 **Arquitetura:** Two workstreams: (A) Parallel execution - add task dependency analysis to `scripts/lib/plan.py`, batch scheduler to `scripts/lib/scheduler.py`, batch-aware prompts to `ralph_loop.py`. (B) Review quality - restructure plan review angles in `skills/planning/SKILL.md` (from open-ended to analysis-method-bound), add structured dispatch query template, fix reviewer prompt contradictions, add executor model context.
 **Tech Stack:** Python 3.10+ (re, pathlib, dataclasses), Markdown (skill/prompt files)
 
@@ -245,31 +245,31 @@ Focus on: is the approach correct? Is the task order right? Are verify commands 
 
 ## Checklist
 
-- [x] parse_tasks 提取 Task 结构正确 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks -v`
-- [x] parse_tasks 提取文件集正确 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks_file_sets -v`
-- [x] parse_tasks 空 plan 返回空列表 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks_empty_plan -v`
-- [x] build_batches 全独立任务分一组 | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_all_independent -v`
-- [x] build_batches 全依赖任务各自一组 | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_all_dependent -v`
-- [x] build_batches 混合依赖正确分组 | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_mixed_deps -v`
-- [x] build_batches 不超过 max_parallel | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_max_parallel_cap -v`
-- [x] build_batches 空输入返回空 | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_empty_tasks -v`
-- [x] build_batches 单任务标记 sequential | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_single_task -v`
-- [x] 并行 prompt 包含 dispatch 指令 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_contains_dispatch -v`
-- [x] 串行 prompt 不含 dispatch 指令 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_no_dispatch -v`
-- [x] 启动 banner 显示 batch 信息 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_batch_mode_startup_banner -v`
-- [x] 依赖任务标记 sequential | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_dependent_tasks_sequential_banner -v`
-- [x] unchecked_tasks 过滤已完成任务 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks -v`
-- [x] unchecked_tasks 全完成返回空 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_all_done -v`
-- [x] unchecked_tasks 非连续勾选正确映射 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_non_contiguous -v`
-- [x] 无 Task 结构的 plan 不崩溃 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_fallback_no_task_structure -v`
-- [x] planning SKILL.md batch-aware 文档更新 | `grep -q 'ralph_loop.py now auto' skills/planning/SKILL.md`
-- [x] plan review fixed 角度改为 Goal Alignment + Verify Correctness | `grep -q 'Goal Alignment' skills/planning/SKILL.md && grep -A2 'Goal Alignment' skills/planning/SKILL.md | grep -q 'does it contribute'`
-- [x] dispatch query 模板已添加 | `grep -q 'Dispatch Query Template' skills/planning/SKILL.md && grep -A3 'Dispatch Query Template' skills/planning/SKILL.md | grep -q 'Non-Goals'`
-- [x] Round 2+ rejected findings 规则已添加 | `grep -q 'Rejected Findings' skills/planning/SKILL.md`
-- [x] reviewer agentSpawn hook 修复 | `jq -r '.hooks.agentSpawn[0].command' .kiro/agents/reviewer.json | grep -q 'Never skip analysis'`
-- [x] reviewer-prompt 加 executor model | `grep -q 'Plan Executor Model' agents/reviewer-prompt.md`
-- [x] generate_configs.py 同步 agentSpawn 改动 | `python3 scripts/generate_configs.py && jq -r '.hooks.agentSpawn[0].command' .kiro/agents/reviewer.json | grep -q 'Never skip analysis'`
-- [x] 全部测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] parse_tasks extrai estrutura de Task corretamente | `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks -v`
+- [x] parse_tasks extrai conjunto de arquivos corretamente | `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks_file_sets -v`
+- [x] parse_tasks com plan vazio retorna lista vazia | `python3 -m pytest tests/ralph-loop/test_plan.py::test_parse_tasks_empty_plan -v`
+- [x] build_batches agrupa tarefas totalmente independentes em um grupo | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_all_independent -v`
+- [x] build_batches separa tarefas dependentes em grupos isolados | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_all_dependent -v`
+- [x] build_batches agrupa misturas de dependencias corretamente | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_mixed_deps -v`
+- [x] build_batches respeita max_parallel | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_max_parallel_cap -v`
+- [x] build_batches retorna vazio para entrada vazia | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_empty_tasks -v`
+- [x] build_batches marca tarefa unica como sequential | `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_single_task -v`
+- [x] prompt paralelo contem instrucao de dispatch | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_prompt_contains_dispatch -v`
+- [x] prompt sequencial sem instrucao de dispatch | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_sequential_prompt_no_dispatch -v`
+- [x] banner de inicio mostra info do batch | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_batch_mode_startup_banner -v`
+- [x] tarefas dependentes marcadas como sequential | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_dependent_tasks_sequential_banner -v`
+- [x] unchecked_tasks filtra tarefas concluidas | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks -v`
+- [x] unchecked_tasks com tudo concluido retorna vazio | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_all_done -v`
+- [x] unchecked_tasks mapeia corretamente check nao contiguo | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_non_contiguous -v`
+- [x] plan sem estrutura de Task nao quebra | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_fallback_no_task_structure -v`
+- [x] documentacao batch-aware atualizada em planning SKILL.md | `grep -q 'ralph_loop.py now auto' skills/planning/SKILL.md`
+- [x] angulo do plan review fixo trocado para Goal Alignment + Verify Correctness | `grep -q 'Goal Alignment' skills/planning/SKILL.md && grep -A2 'Goal Alignment' skills/planning/SKILL.md | grep -q 'does it contribute'`
+- [x] template de dispatch query adicionado | `grep -q 'Dispatch Query Template' skills/planning/SKILL.md && grep -A3 'Dispatch Query Template' skills/planning/SKILL.md | grep -q 'Non-Goals'`
+- [x] regra de Round 2+ rejected findings adicionada | `grep -q 'Rejected Findings' skills/planning/SKILL.md`
+- [x] hook agentSpawn do reviewer corrigido | `jq -r '.hooks.agentSpawn[0].command' .kiro/agents/reviewer.json | grep -q 'Never skip analysis'`
+- [x] reviewer-prompt recebe executor model | `grep -q 'Plan Executor Model' agents/reviewer-prompt.md`
+- [x] generate_configs.py sincroniza alteracao de agentSpawn | `python3 scripts/generate_configs.py && jq -r '.hooks.agentSpawn[0].command' .kiro/agents/reviewer.json | grep -q 'Never skip analysis'`
+- [x] todos os testes passam | `python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 

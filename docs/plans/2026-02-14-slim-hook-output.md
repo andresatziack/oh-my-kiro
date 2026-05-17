@@ -1,62 +1,62 @@
-# 精简 Hook 输出 — 为 Auto-Compaction 留出 32K 空间
+# Reduzir saida dos Hooks - liberar 32K para Auto-Compaction
 
-**Objetivo:** 减少 hook 输出的 token 占用，确保 context 在 auto-compact 触发时仍有 ≥32K 空间供 compaction API 调用。
+**Objetivo:** Reduzir o consumo de tokens das saidas dos hooks para garantir que, quando o auto-compact disparar, o context ainda tenha >=32K disponiveis para a chamada da API de compaction.
 
-**Causa Raiz:** Kiro auto-compact 触发时需要 ~32K max_tokens。如果 input 已超 168K（200K-32K），compact 请求本身会被 API 拒绝（#1531）。Hook 输出是最大的可控 token 消耗源。
+**Causa Raiz:** O auto-compact do Kiro precisa de ~32K max_tokens quando dispara. Se o input ja passou de 168K (200K-32K), a propria requisicao de compact e rejeitada pela API (#1531). A saida dos hooks e a maior fonte controlavel de consumo de tokens.
 
-## 精简方案
+## Plano de reducao
 
-### 1. context-enrichment.sh（最大优化点）
+### 1. context-enrichment.sh (maior ponto de otimizacao)
 
-**当前：** 每次用户输入注入 4 行 lessons（~200 tokens × 20 轮 = ~4000 tokens）
-**改为：** 用 /tmp flag 文件控制，只在 session 首次注入
-**省：** ~3800 tokens / 20 轮
+**Hoje:** a cada input do usuario, injeta 4 linhas de lessons (~200 tokens x 20 rodadas = ~4000 tokens)
+**Mudanca:** controlar via flag em /tmp para injetar apenas uma vez por session
+**Economia:** ~3800 tokens em 20 rodadas
 
-**影响：** lessons 只在 session 开头出现一次。如果 agent 在后期违反规则（如用 sed 改 JSON），没有重复提醒。但 block-sed-json.sh 是硬拦截（exit 2），所以 lessons 提醒本身是冗余的安全网。影响极小。
+**Impacto:** lessons aparecem apenas uma vez no inicio da session. Se o agent violar regras mais tarde (por exemplo, sed em JSON), nao ha lembrete repetido. Mas block-sed-json.sh e bloqueio forte (exit 2), entao o lembrete das lessons e apenas uma rede de seguranca redundante. Impacto minimo.
 
-### 2. inject-plan-context.sh（第二大优化点）
+### 2. inject-plan-context.sh (segundo maior ponto de otimizacao)
 
-**当前：** 每次 write 注入整个 checklist section（~300 tokens × 60 次 write = ~18000 tokens）
-**改为：** 用 /tmp 计数器，每 5 次 write 注入完整 checklist，其他时候只输出 1 行"📋 N items remaining in plan"
-**省：** ~14400 tokens / 20 轮（60 次 write 中 12 次完整注入 + 48 次 1 行）
+**Hoje:** a cada write injeta a secao inteira da checklist (~300 tokens x 60 writes = ~18000 tokens)
+**Mudanca:** usar contador em /tmp; a cada 5 writes injeta a checklist completa, nas demais vezes apenas 1 linha "📋 N items remaining in plan"
+**Economia:** ~14400 tokens em 20 rodadas (em 60 writes: 12 injecoes completas + 48 linhas curtas)
 
-**影响：** agent 每 5 次 write 仍能看到完整 checklist，防止长 session 中目标被挤出 attention。比完全移除安全得多。
+**Impacto:** o agent ve a checklist completa a cada 5 writes, evitando que o objetivo seja empurrado para fora da attention em sessions longas. Bem mais seguro do que remover por completo.
 
-### 3. verify-completion.sh（不改）
+### 3. verify-completion.sh (sem mudanca)
 
-保留完整输出（数量 + 具体未完成项）。只在 stop 时触发一次，token 开销小，但 agent 需要看到具体哪些没完成。
+Manter saida completa (contagem + itens nao concluidos especificos). Dispara apenas no stop; o custo em tokens e baixo, mas o agent precisa saber exatamente o que ficou faltando.
 
-### 4. remind-update-progress.sh（已经很精简）
+### 4. remind-update-progress.sh (ja bem enxuto)
 
-**当前：** 1 行提醒，且 *.md/*.json 已跳过
-**改为：** 不变
-**影响：** 无
+**Hoje:** 1 linha de lembrete, ja pula *.md/*.json
+**Mudanca:** sem alteracao
+**Impacto:** nenhum
 
-### 5. auto-test.sh（小优化）
+### 5. auto-test.sh (otimizacao pequena)
 
-**当前：** 失败时输出 `tail -20`（最多 20 行）
-**改为：** 失败时输出 `tail -10`（最多 10 行）
-**省：** ~500 tokens（条件触发）
+**Hoje:** em caso de falha imprime `tail -20` (no maximo 20 linhas)
+**Mudanca:** em caso de falha imprime `tail -10` (no maximo 10 linhas)
+**Economia:** ~500 tokens (acionada por condicao)
 
-**影响：** 测试失败信息少了 10 行。通常前 10 行已包含关键错误。影响极小。
+**Impacto:** as informacoes de falha de teste perdem 10 linhas. Em geral as 10 primeiras ja trazem o erro principal. Impacto minimo.
 
-## 预估效果
+## Efeito estimado
 
-| Hook | 当前 (20轮) | 精简后 (20轮) | 节省 |
+| Hook | Hoje (20 rodadas) | Apos reducao (20 rodadas) | Economia |
 |------|------------|-------------|------|
 | context-enrichment lessons | ~4000 tokens | ~200 tokens | 3800 |
 | inject-plan-context | ~18000 tokens | ~3600 tokens | 14400 |
 | verify-completion | ~1000 tokens | ~1000 tokens | 0 |
 | auto-test | ~2000 tokens | ~1000 tokens | 1000 |
-| **合计** | **~25000** | **~5800** | **~19200** |
+| **Total** | **~25000** | **~5800** | **~19200** |
 
-节省 ~19K tokens。加上原有余量，给 compaction 留出更多空间。
+Economia de ~19K tokens. Somando a margem ja existente, sobra mais espaco para a compaction.
 
 ## Checklist
-- [x] context-enrichment.sh: lessons 用 /tmp flag 控制只注入一次
-- [x] inject-plan-context.sh: 用 /tmp 计数器，每 5 次 write 注入完整 checklist，其他时候只输出 1 行数量
-- [x] auto-test.sh: tail -20 改为 tail -10
-- [x] 所有修改后 bash -n 验证无语法错误
+- [x] context-enrichment.sh: lessons sao injetadas uma unica vez por session via flag em /tmp
+- [x] inject-plan-context.sh: contador em /tmp; injeta a checklist completa a cada 5 writes; nas demais vezes imprime apenas 1 linha com a contagem
+- [x] auto-test.sh: trocar tail -20 por tail -10
+- [x] apos as alteracoes, todos os scripts validados com bash -n sem erro de sintaxe
 
 ## Review
 

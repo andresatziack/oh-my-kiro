@@ -323,7 +323,7 @@ Per-file analysis: generate_configs.py (3 existing tests, additive only), ralph_
 - [x] Kiro hook compat tests still pass | `bash tests/hooks/test-kiro-compat.sh`
 - [x] CC integration test suite exists | `test -f tests/cc-integration/run.sh && test -x tests/cc-integration/run.sh`
 - [x] Documentation updated | `grep -q "Claude Code" docs/INDEX.md && grep -q "claude-code-gap-analysis" docs/INDEX.md`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`
 - [x] No Kiro regression — all existing tests pass | `python3 -m pytest tests/ -v && bash tests/hooks/test-kiro-compat.sh`
 
 ---

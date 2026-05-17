@@ -143,7 +143,7 @@ Expected: PASS, 0 warnings about unknown marks
 - Modify: `skills/self-reflect/SKILL.md`
 
 **Step 1: Update Authority Matrix in AGENTS.md**
-Change "仅人操作：修改 CLAUDE.md / .claude/rules/（hook enforced）" to include exception: agent can execute `.skip-instruction-guard` three-step flow after user explicitly confirms content in conversation.
+Change "Apenas operacao humana: editar CLAUDE.md / .claude/rules/ (hook enforced)" to include exception: agent can execute `.skip-instruction-guard` three-step flow after user explicitly confirms content in conversation.
 
 **Step 2: Strengthen self-reflect SKILL.md**
 In the "Writing to Protected Files" section, clarify that agent SHOULD execute this flow autonomously after user confirmation — not wait for human to do it manually.
@@ -172,19 +172,19 @@ In the "Writing to Protected Files" section, clarify that agent SHOULD execute t
 **Final verdict: APPROVE (Round 2 unanimous)**
 
 ## Checklist
-- [x] verify-completion 不再执行 verify commands 和 test suite | `! grep -q 'detect_test_command\|alarm(30)' hooks/feedback/verify-completion.sh`
-- [x] verify-completion 语法正确 | `bash -n hooks/feedback/verify-completion.sh`
-- [x] worktree create 幂等（重复创建不崩溃） | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_create_duplicate_name -v`
-- [x] worktree merge 无 docs/plans 变更时不报错 | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_no_docs_plans -v`
-- [x] worktree remove 已删除时不报错 | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_remove_already_removed -v`
-- [x] worktree cleanup_stale 处理注册但已删除的 worktree | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_cleanup_stale_with_registered_worktree -v`
-- [x] worktree 测试有 teardown 安全保障 | `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
-- [x] ralph_loop.py 函数可直接 import | `python3 -c "from scripts.ralph_loop import build_batch_prompt, build_worker_prompt; print('ok')"`
-- [x] 测试不再用 exec hack 导入函数 | `! grep -q '_import_build_batch_prompt\|import_ralph_fn' tests/ralph-loop/test_ralph_loop.py`
-- [x] pytest slow mark 已注册（无 warning） | `! python3 -m pytest tests/ralph-loop/ --co -q 2>&1 | grep -q 'PytestUnknownMarkWarning'`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
-- [x] AGENTS.md 包含 agent 代执行授权 | `grep -q '代执行' AGENTS.md`
-- [x] self-reflect SKILL.md 明确 agent 可自动执行 | `grep -qiE 'autonomously|自动执行' skills/self-reflect/SKILL.md`
+- [x] verify-completion nao executa mais verify commands nem test suite | `! grep -q 'detect_test_command\|alarm(30)' hooks/feedback/verify-completion.sh`
+- [x] sintaxe correta de verify-completion | `bash -n hooks/feedback/verify-completion.sh`
+- [x] worktree create idempotente (criacao duplicada nao quebra) | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_create_duplicate_name -v`
+- [x] worktree merge sem alteracoes em docs/plans nao reporta erro | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_no_docs_plans -v`
+- [x] worktree remove ja removido nao reporta erro | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_remove_already_removed -v`
+- [x] worktree cleanup_stale lida com worktree registrado mas ja removido | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_cleanup_stale_with_registered_worktree -v`
+- [x] testes de worktree tem teardown de seguranca | `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
+- [x] funcoes de ralph_loop.py podem ser importadas direto | `python3 -c "from scripts.ralph_loop import build_batch_prompt, build_worker_prompt; print('ok')"`
+- [x] testes nao usam mais o hack do exec para importar funcoes | `! grep -q '_import_build_batch_prompt\|import_ralph_fn' tests/ralph-loop/test_ralph_loop.py`
+- [x] mark slow do pytest registrada (sem warning) | `! python3 -m pytest tests/ralph-loop/ --co -q 2>&1 | grep -q 'PytestUnknownMarkWarning'`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] AGENTS.md contem autorizacao de execucao por agent | `grep -q '代执行' AGENTS.md`
+- [x] self-reflect SKILL.md deixa explicito que o agent pode executar automaticamente | `grep -qiE 'autonomously|自动执行' skills/self-reflect/SKILL.md`
 
 ## Errors
 

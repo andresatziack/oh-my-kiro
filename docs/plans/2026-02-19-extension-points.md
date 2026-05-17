@@ -136,7 +136,7 @@
 - [x] install-skill registers to overlay | `bash tests/test-install-skill.sh`
 - [x] sync-omcc calls validate before generate | `bash tests/test-install-skill.sh`
 - [x] EXTENSION-GUIDE.md under 60 lines | `wc -l docs/EXTENSION-GUIDE.md | awk '{exit ($1 > 60)}'`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 
