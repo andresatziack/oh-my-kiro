@@ -140,10 +140,10 @@ Conteudo:
 8. **Design de extensibilidade** - inclui:
    - **Arvore de decisao por categoria** - novo hook deve ir para security/, gate/ ou feedback/?
      ```
-     Necessidade do novo hook
-       ├── precisa bloquear operacao perigosa? → security/ (exit 2, bloqueio incondicional)
-       ├── precisa bloquear fluxo nao conforme? → gate/ (exit 2, com bypass)
-       └── prove feedback ou injeta contexto? → feedback/ (exit 0, advisory)
+     新 hook 需求
+       ├── 必须阻断危险操作？ → security/（exit 2, 无条件拦截）
+       ├── 必须阻断不合规流程？ → gate/（exit 2, 可 bypass）
+       └── 提供反馈/注入上下文？ → feedback/（exit 0, advisory）
      ```
    - **Checklist do fluxo de novo hook** - passos completos da necessidade ao deployment:
      1. Decidir categoria (com a arvore de decisao)
@@ -193,7 +193,7 @@ Logica:
 ```
 if FILE matches hooks/**/*.sh:
   echo "⚠️ Hook file modified. Remember to update enforcement.md and run generate_configs.py --validate" >&2
-  # sem exit 2 - a coercao real e a Tarefa 7 com --validate
+  # 不 exit 2 — 真正的强制在 Task 7 的 --validate 中
 ```
 
 ~~A proposta original (flag em /tmp para verificar se enforcement.md foi modificado) foi descartada. Motivo: o agent poderia editar uma linha qualquer de enforcement.md so para acionar a flag e depois mexer no hook, contornando a checagem. Substituida por advisory na escrita (leve) + validate forte no momento de gerar config (intransponivel).~~

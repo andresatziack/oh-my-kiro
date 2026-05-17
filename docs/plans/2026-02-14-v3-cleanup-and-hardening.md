@@ -124,9 +124,9 @@ Remover na secao Commands as linhas de `/reflect`, `/view-queue`, `/skip-reflect
 **Step 3: validacao**
 ```bash
 ls skills/self-reflect/
-# So deve restar SKILL.md
+# 应该只剩 SKILL.md
 grep -c 'queue\|/reflect\|/view-queue\|/skip-reflect' skills/self-reflect/SKILL.md
-# Deve imprimir 0
+# 应该输出 0
 ```
 
 ## Review
