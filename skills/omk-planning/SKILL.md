@@ -4,10 +4,10 @@ description: "Full plan lifecycle: deep understanding → write plan with TDD ch
 ---
 
 ## Trigger Examples
-- "@plan 重构 hook 系统"
+- "@plan refatorar o sistema de hooks"
 - "I want to add OAuth support, help me plan it"
-- "设计一个新的 knowledge 同步方案"
-- "@execute 继续执行计划"
+- "desenhe uma nova estrategia de sincronizacao de knowledge"
+- "@execute continuar a execucao do plano"
 - "break this feature into tasks"
 
 # Planning, escrever, revisar, executar
@@ -73,10 +73,10 @@ Antes de prosseguir para a Phase 1, verifique se a task está bem definida em 4 
 
 | Dimensão | ✅ Critério | Greenfield | Brownfield |
 |-----------|-------------|------------|------------|
-| **Goal** | 能用一句话无歧义地说清楚要做什么 | Required | Required |
-| **Constraints** | 边界、非目标、限制条件已明确 | Required | Required |
-| **Success Criteria** | 至少有 2 个可测试的验收标准 | Required | Required |
-| **Context** | 理解被修改的现有代码/系统 | Skip | Required |
+| **Goal** | da para descrever em uma frase, sem ambiguidade, o que precisa ser feito | Required | Required |
+| **Constraints** | fronteiras, non-goals e restricoes ja estao explicitos | Required | Required |
+| **Success Criteria** | pelo menos 2 criterios de aceite testaveis | Required | Required |
+| **Context** | entendimento do codigo/sistema existente que sera modificado | Skip | Required |
 
 Regras:
 - Todas as dimensões aplicáveis precisam estar ✅ para prosseguir para a Phase 1
@@ -85,8 +85,8 @@ Regras:
 - Usuário diz "skip" → declare suposições e continue
 
 **Challenge Modes** (ativados a partir da 2ª pergunta deste step):
-- **Contrarian** (2ª pergunta): "如果 [核心假设] 是错的呢？"
-- **Simplifier** (3ª pergunta): "最简版本是什么样的？"
+- **Contrarian** (2ª pergunta): "e se [premissa central] estiver errada?"
+- **Simplifier** (3ª pergunta): "como seria a versao mais simples?"
 
 ### Transição para a Phase 1
 
@@ -148,17 +148,17 @@ Todo plan precisa de uma seção `## Checklist`. Cada item do checklist DEVE inc
 ```
 
 Exemplos:
-- `- [ ] hook 语法正确 | \`bash -n hooks/security/my-hook.sh\``
-- `- [ ] config 包含新 hook | \`jq '.hooks' .kiro/agents/pilot.json | grep -q my-hook\``
-- `- [ ] 外部路径被拦截 | \`echo '{"tool_name":"fs_write","tool_input":{"file_path":"/tmp/evil.txt"}}' | bash hooks/security/my-hook.sh 2>&1; test $? -eq 2\``
+- `- [ ] sintaxe do hook correta | \`bash -n hooks/security/my-hook.sh\``
+- `- [ ] config inclui o novo hook | \`jq '.hooks' .kiro/agents/pilot.json | grep -q my-hook\``
+- `- [ ] paths externos sao bloqueados | \`echo '{"tool_name":"fs_write","tool_input":{"file_path":"/tmp/evil.txt"}}' | bash hooks/security/my-hook.sh 2>&1; test $? -eq 2\``
 
 Regras:
-- O comando verify precisa ser executável (sem "手动测试", sem "目视检查")
+- O comando verify precisa ser executável (sem "teste manual", sem "inspecao visual")
 - O comando verify precisa retornar exit 0 em caso de sucesso
 - Cada Task precisa de pelo menos 1 item de checklist
 - Cubra: caminho feliz + edge case + integração (quando aplicável)
 - O hook obriga: marcar `- [x]` exige execução bem-sucedida recente do comando verify
-- **Regra de regression test:** se os campos Files do plan incluírem `scripts/ralph_loop.py` ou `scripts/lib/`, o checklist DEVE incluir: `- [ ] 回归测试通过 | \`python3 -m pytest tests/ralph-loop/ -v\``
+- **Regra de regression test:** se os campos Files do plan incluírem `scripts/ralph_loop.py` ou `scripts/lib/`, o checklist DEVE incluir: `- [ ] regression tests passando | \`python3 -m pytest tests/ralph-loop/ -v\``
 - **Regra de vertical slice:** organize tasks como vertical slices (uma feature de ponta a ponta) em vez de camadas horizontais (todos os models, depois todas as APIs). Vertical slices têm menos dependências entre tasks, permitindo commits atômicos mais limpos. Exceção: tasks que são inerentemente horizontais (por exemplo, "add logging to all hooks") não precisam ser forçadas em vertical slices.
 
 ### Itens de checklist coarse

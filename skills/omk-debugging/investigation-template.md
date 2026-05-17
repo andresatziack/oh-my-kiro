@@ -3,83 +3,83 @@
 > Criada em: {date} | Status: 🔴 Investigando / 🟡 Parcial / 🟢 Resolvida
 
 ## Problem Statement
-<!-- 一句话描述问题，不超过 3 行 -->
+<!-- descreva o problema em uma frase, no maximo 3 linhas -->
 
 ## Status Overview
-<!-- ⚡ 覆盖更新区域 — 每次有实质进展就刷新 -->
+<!-- ⚡ area de atualizacao por sobrescrita, atualize sempre que houver progresso real -->
 
-**状态**: 🔴 排查中
-**根因确认度**: ⬜ 未确认
+**Status**: 🔴 Em investigacao
+**Confianca na causa raiz**: ⬜ Nao confirmada
 
-| # | 子问题 | 状态 | 根因 | 修复 |
+| # | Sub-problema | Status | Causa raiz | Fix |
 |---|--------|------|------|------|
-| 1 | {子问题描述} | ⬜ 未排查 | — | — |
+| 1 | {descricao do sub-problema} | ⬜ Nao investigado | - | - |
 
 **Investigation Tree:**
 ```
-{问题}
-├── {排查方向 1} → ⬜
-└── {排查方向 2} → ⬜
+{problema}
+├── {direcao de investigacao 1} → ⬜
+└── {direcao de investigacao 2} → ⬜
 ```
 
-**下一步**: {具体行动}
-**阻塞项**: 无
+**Proximo passo**: {acao concreta}
+**Bloqueios**: nenhum
 
 ## Evidence Table
 
-### 🔒 L0 — Machine Facts (不可推翻)
-<!-- 命令输出、代码分析、API 响应、实验结果 -->
-<!-- APPEND-ONLY: 只增不删不改 -->
+### 🔒 L0 - Machine Facts (nao podem ser invalidados)
+<!-- saida de comando, analise de codigo, resposta de API, resultado de experimento -->
+<!-- APPEND-ONLY: so adiciona, nao apaga, nao edita -->
 
-| # | 时间 | 证据 | 来源 | 关联 |
+| # | Hora | Evidencia | Fonte | Relacionado |
 |---|------|------|------|------|
-| F1 | {time} | {fact} | {command/code/api} | {相关子问题} |
+| F1 | {time} | {fact} | {command/code/api} | {sub-problemas relacionados} |
 
-### 👤 L1 — Human Observations (需充分理由才能质疑)
-<!-- 用户报告的操作和现象 -->
+### 👤 L1 - Human Observations (precisa de justificativa solida para questionar)
+<!-- operacoes e fenomenos reportados pelo usuario -->
 <!-- APPEND-ONLY -->
 
-| # | 时间 | 观察 | 报告人 | 置信度 |
+| # | Hora | Observacao | Reportado por | Confianca |
 |---|------|------|--------|--------|
-| H1 | {time} | {observation} | {who} | 高/中/低 |
+| H1 | {time} | {observation} | {who} | alto/medio/baixo |
 
-### 🤖 L2 — Agent Inferences (可修正)
-<!-- AI 的推导、假设、分析结论 -->
-<!-- 可标注 ~~struck~~ 表示已推翻，但不删除原文 -->
+### 🤖 L2 - Agent Inferences (podem ser revisadas)
+<!-- deducoes, hipoteses e conclusoes de analise feitas pela IA -->
+<!-- pode marcar ~~struck~~ para indicar refutado, mas nao apague o texto original -->
 
-| # | 时间 | 推导 | 依据 | 状态 |
+| # | Hora | Inferencia | Base | Status |
 |---|------|------|------|------|
-| I1 | {time} | {inference} | 基于 F1, H1 | ✅ 有效 / ❌ 已推翻 |
+| I1 | {time} | {inference} | baseado em F1, H1 | ✅ valida / ❌ refutada |
 
 ## Decision Log
-<!-- APPEND-ONLY: 记录方案演进，防止重走已否定路径 -->
+<!-- APPEND-ONLY: registre a evolucao das decisoes para nao refazer caminhos ja descartados -->
 
-| # | 时间 | 决策 | 理由 | 状态 |
+| # | Hora | Decisao | Justificativa | Status |
 |---|------|------|------|------|
-| D1 | {time} | {decision} | {rationale} | ✅ 采纳 / ❌ 被 D{n} 取代 |
+| D1 | {time} | {decision} | {rationale} | ✅ adotada / ❌ substituida por D{n} |
 
 ## Experiment Log
-<!-- APPEND-ONLY: 结构化实验记录 -->
+<!-- APPEND-ONLY: registro estruturado de experimentos -->
 
-#### EXP-001: {实验名称}
-- **时间**: {time}
-- **环境**: {browser/OS/endpoint}
-- **操作**: {具体命令或步骤}
-- **预期**: {expected}
-- **实际**: {actual}
-- **证据级别**: 🔒 L0
-- **结论**: {conclusion}
-- **关联**: → F{n}, D{n}
+#### EXP-001: {nome do experimento}
+- **Hora**: {time}
+- **Ambiente**: {browser/OS/endpoint}
+- **Operacao**: {comando ou passos especificos}
+- **Esperado**: {expected}
+- **Real**: {actual}
+- **Nivel de evidencia**: 🔒 L0
+- **Conclusao**: {conclusion}
+- **Relacionado**: → F{n}, D{n}
 
 ## Ruled Out
-<!-- APPEND-ONLY: 已排除的方向，防止新 session 重新排查 -->
+<!-- APPEND-ONLY: direcoes ja descartadas, evita que uma nova session as reinvestigue -->
 
-| # | 方向 | 排除理由 | 依据 |
+| # | Direcao | Motivo da exclusao | Base |
 |---|------|---------|------|
 | R1 | {direction} | {why ruled out} | EXP-{n} / F{n} |
 
 ## Timeline
-<!-- APPEND-ONLY: 排查历程时间线 -->
+<!-- APPEND-ONLY: linha do tempo da investigacao -->
 
-### {date} {time} — {milestone}
-{详细描述}
+### {date} {time} - {milestone}
+{descricao detalhada}

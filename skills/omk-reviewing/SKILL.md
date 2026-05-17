@@ -4,11 +4,11 @@ description: "Code and plan review with multi-angle dispatch. Trigger when user 
 ---
 
 ## Trigger Examples
-- "@review 看看这个 PR"
-- "帮我 review 一下这段代码"
+- "@review da uma olhada nesse PR"
+- "me ajude a fazer review desse trecho de codigo"
 - "check my implementation before I merge"
 - "review the plan I just wrote"
-- "这个改动有没有问题？"
+- "tem algum problema nessa alteracao?"
 
 # Reviewing - Solicitar, executar, receber
 

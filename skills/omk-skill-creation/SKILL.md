@@ -6,11 +6,11 @@ description: "Create high-quality, production-ready skills from scratch. Trigger
 # Skill Creation, da ideia à produção
 
 ## Trigger Examples
-- "把这个重复流程做成 skill"
+- "transforme esse fluxo repetitivo em uma skill"
 - "create a new skill for code review"
-- "帮我写一个 SEO 研究的 skill"
+- "me ajude a escrever uma skill de pesquisa de SEO"
 - "review and improve this skill"
-- "这个工作流应该 skillify"
+- "esse workflow merece virar skill"
 
 ## Filosofia
 
