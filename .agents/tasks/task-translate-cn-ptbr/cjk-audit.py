@@ -22,7 +22,7 @@ for f in files:
     with open(f, 'r') as fh:
         for i, line in enumerate(fh, 1):
             stripped = line.strip()
-            if re.match(r'^(```|~~~)', stripped):
+            if re.match(r'^\s*(```|~~~)', stripped):
                 in_fence = not in_fence
                 continue
             if not cjk_re.search(line):

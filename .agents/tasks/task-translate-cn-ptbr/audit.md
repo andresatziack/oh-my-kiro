@@ -2,6 +2,7 @@
 
 Branch: `feat/translate-cn-to-ptbr`
 Audit date: 2026-03-04 (FEAT-007 closeout)
+Audit refresh: 2026-05-17 (post-review v1: cjk-audit.py regex fix + rule D restorations)
 
 ## Goal
 
@@ -12,18 +13,30 @@ or is verbatim per rule D (fenced code blocks, inline backtick code spans).
 
 ## Final state
 
-The repo-wide CJK inventory after FEAT-007 lists **33 markdown files** that
-still contain at least one CJK character. The audit script
-(`.agents/tasks/task-translate-cn-ptbr/cjk-audit.py`) splits them into two
-categories:
+The repo-wide CJK inventory after FEAT-007 plus the post-review v1 fixes
+lists **37 markdown files** that still contain at least one CJK character.
+The audit script (`.agents/tasks/task-translate-cn-ptbr/cjk-audit.py`)
+splits them into two categories:
 
 - **0 prose-CJK files** outside the documented carve-out group.
 - **8 prose-CJK files** in the carve-out group (legitimate per the
   translation contract; see "Carve-out group" below).
-- **25 in-fence / inline-code-only CJK files** (legitimate per rule D).
+- **29 in-fence / inline-code-only CJK files** (legitimate per rule D).
 
 Every doc that contained narrative-prose Chinese has been translated to
 PT-BR.
+
+The post-review v1 fix pass restored 6 files that had Chinese shell
+comments / bullet content translated *inside* fenced code blocks
+(`docs/plans/2026-02-14-framework-v3-deterministic-overhaul.md`,
+`docs/plans/2026-02-14-v3-cleanup-and-hardening.md`,
+`docs/plans/2026-02-15-subagent-architecture-optimization.md`,
+`docs/plans/2026-02-15-workspace-boundary-guard.md`,
+`docs/plans/2026-02-18-hook-governance.md`,
+`skills/omk-debugging/investigation-template.md`) back to verbatim
+Chinese, so the in-fence-only group grew from 25 to 29 files (the four
+plan files that previously had only translated comments inside fences
+now register CJK again).
 
 ## Files translated in this CN -> PT-BR pass
 
@@ -90,7 +103,7 @@ and any change would invalidate the test specification:
    (the `禁止/必须/never/always` regex tokens that
    `hooks/_lib/distill.sh:53` greps for in episodes)
 
-## In-fence / inline-code-only files (25)
+## In-fence / inline-code-only files (29)
 
 These files have CJK only inside fenced code blocks (` ``` ... ``` `) or
 inline backtick code spans (`` `...` ``), which are verbatim per rule D.
@@ -103,17 +116,21 @@ commands/do.md
 docs/designs/2026-02-13-framework-v2-upgrade.md
 docs/plans/2026-02-14-framework-v3-deterministic-overhaul.md
 docs/plans/2026-02-14-knowledge-base-overhaul.md
+docs/plans/2026-02-14-v3-cleanup-and-hardening.md
 docs/plans/2026-02-15-command-cleanup.md
 docs/plans/2026-02-15-knowledge-integration-test.md
 docs/plans/2026-02-15-knowledge-system-v2.md
 docs/plans/2026-02-15-ralph-loop-enforcement.md
 docs/plans/2026-02-15-reviewing-skill-enhancement.md
+docs/plans/2026-02-15-subagent-architecture-optimization.md
 docs/plans/2026-02-15-subagent-selective-delegation.md
 docs/plans/2026-02-15-tdd-checklist-enforcement.md
+docs/plans/2026-02-15-workspace-boundary-guard.md
 docs/plans/2026-02-16-instruction-governance.md
 docs/plans/2026-02-16-parallel-checklist-execution.md
 docs/plans/2026-02-16-ralph-loop-timeout-heartbeat.md
 docs/plans/2026-02-16-socratic-thinking-principles.md
+docs/plans/2026-02-18-hook-governance.md
 docs/plans/2026-02-19-context-optimization.md
 docs/plans/2026-02-20-debugging-capability-upgrade.md
 docs/plans/2026-02-20-hardening-sprint.md
@@ -122,7 +139,18 @@ docs/plans/2026-02-22-cpa-omcc-integration.md
 docs/plans/2026-02-23-gtm-omcc-integration.md
 docs/plans/2026-02-25-mcp-prompt-commands.md
 docs/plans/2026-03-04-openviking-integration.md
+skills/omk-debugging/investigation-template.md
 ```
+
+Note: the four plan files
+(`docs/plans/2026-02-14-v3-cleanup-and-hardening.md`,
+`docs/plans/2026-02-15-subagent-architecture-optimization.md`,
+`docs/plans/2026-02-15-workspace-boundary-guard.md`,
+`docs/plans/2026-02-18-hook-governance.md`) plus
+`skills/omk-debugging/investigation-template.md` joined this list during
+the post-review v1 fix pass: their fenced shell comments / ASCII tree
+labels had been translated and were reverted to the original Chinese to
+satisfy rule D. They contain no narrative-prose CJK.
 
 ## Test-anchored literals confirmation
 
