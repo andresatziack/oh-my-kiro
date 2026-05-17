@@ -2,7 +2,7 @@
   "id": "FEAT-007",
   "type": "docs",
   "description": "Translate the remaining narrative-prose CJK across the repo and run the final audit. After FEAT-006 the audit shows 16 files with narrative-prose CJK lines still to translate (most are 2026-03 plans + findings/progress + a handful of FEAT-006 stragglers + 5 skill front-matter cases). Plus 25 files have CJK only inside fenced code blocks or inline backtick code spans (legitimate verbatim per rule D) and are allowed to retain it. This feature finishes the prose translations, audits the repo, and commits the audit summary.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Read .agents/tasks/task-translate-md-ptbr/translation-rules.md AND .agents/tasks/task-translate-cn-ptbr/translation-rules-cn.md before editing.",
     "Re-run the audit: `python3 .agents/tasks/task-translate-cn-ptbr/cjk-audit.py > /tmp/cjk-audit.txt 2>&1 || true; cat /tmp/cjk-audit.txt`. NOTE: the script reads from /tmp/cjk-current.txt, so first regenerate that with `find . -name '*.md' -type f -not -path './.git/*' -not -path './.agents/*' -not -path './.pytest_cache/*' -not -path './tests/knowledge/fixtures/*' -exec grep -l -P '[\\x{4e00}-\\x{9fff}]' {} \\; | sort > /tmp/cjk-current.txt`.",
@@ -44,5 +44,5 @@
     "Confirm .agents/tasks/task-translate-cn-ptbr/audit.md exists and lists the final state."
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Translated 8 docs files (autonomous-agent-loop, kiro-code-intelligence-integration, ov-auto-sync-recall + .progress, reasoning-loop-coarse-checklist, 2026-03-31-evaluator, findings.md, progress.md). Final audit shows 0 prose-CJK files outside the 8 documented carve-outs (5 skill front-matter pattern literals + 3 test-data plans with quoted user-input/regex-pattern literals). All 9 test-anchored English literals present. Baseline test counts unchanged (pytest 60p/8f, agents-template 27p/1f, knowledge 1/3). No new em dashes outside backtick code spans. Audit summary at .agents/tasks/task-translate-cn-ptbr/audit.md."
 }
