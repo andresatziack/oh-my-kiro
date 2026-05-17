@@ -1,14 +1,14 @@
 # 持久化记忆融入方案（参考 planning-with-files）
 
-**Goal:** 将 planning-with-files 的"文件当持久记忆"最佳实践融入框架，让 ralph-loop 每轮迭代通过磁盘文件传递上下文，并用 hook 辅助强化写文件纪律。
+**Objetivo:** 将 planning-with-files 的"文件当持久记忆"最佳实践融入框架，让 ralph-loop 每轮迭代通过磁盘文件传递上下文，并用 hook 辅助强化写文件纪律。
 
-**Architecture:** ralph-loop prompt 加入 progress.md/findings.md 读写规则 + PreToolUse hook 注入 plan 上下文 + PostToolUse hook 提醒写文件。
+**Arquitetura:** ralph-loop prompt 加入 progress.md/findings.md 读写规则 + PreToolUse hook 注入 plan 上下文 + PostToolUse hook 提醒写文件。
 
-## Tasks
+## Tarefas
 
-### Task 1: 修改 `scripts/ralph-loop.sh` prompt
+### Tarefa 1: 修改 `scripts/ralph-loop.sh` prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
 在 prompt 中加入：
@@ -34,9 +34,9 @@
 - **Pattern:** [reusable code pattern if any]
 ```
 
-### Task 2: 创建 PreToolUse hook — Read Before Decide
+### Tarefa 2: 创建 PreToolUse hook - Read Before Decide
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/feedback/inject-plan-context.sh`
 
 每次 **write** 工具调用前（matcher: `write`，不是所有工具），如果 `docs/plans/.active` 存在且指向有效文件，读 plan 的 `## Checklist` section（不是前 30 行，精准提取 checklist）注入到 stderr。
@@ -47,9 +47,9 @@
 
 **防循环：** 检查写入目标文件，如果是 progress.md/findings.md 本身 → 跳过注入，避免干扰。
 
-### Task 3: 创建 PostToolUse hook — 写文件提醒
+### Tarefa 3: 创建 PostToolUse hook - 写文件提醒
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/feedback/remind-update-progress.sh`
 
 **matcher:** `write`（与 auto-test/auto-lint 相同 matcher，Kiro 按注册顺序执行，不冲突）
@@ -58,9 +58,9 @@
 
 **防循环：** 检查写入目标文件，如果是 plan/progress.md/findings.md → 不提醒（避免无限循环）。
 
-### Task 4: 注册 hooks 到配置
+### Tarefa 4: 注册 hooks 到配置
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/default.json`（在 preToolUse 和 postToolUse 数组中追加）
 - Modify: `scripts/generate-platform-configs.sh`（同步）
 

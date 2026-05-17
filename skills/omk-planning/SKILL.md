@@ -10,121 +10,121 @@ description: "Full plan lifecycle: deep understanding → write plan with TDD ch
 - "@execute 继续执行计划"
 - "break this feature into tasks"
 
-# Planning — Write, Review, Execute
+# Planning, escrever, revisar, executar
 
-## Overview
+## Visão geral
 
-One skill for the full plan lifecycle: write → review → execute.
+Uma única skill para o ciclo de vida completo do plan: write → review → execute.
 
 ## Phase 0: Deep Understanding
 
-Before writing any plan, build deep understanding of the goal. Skip this phase only if the user provides a fully specified design doc.
+Antes de escrever qualquer plan, construa um entendimento profundo do goal. Pule esta phase apenas se o usuário fornecer um design doc totalmente especificado.
 
-### Step 1: Form Initial Understanding
+### Step 1: Forme o entendimento inicial
 
-Start with `generate_codebase_overview` to get the project's high-level structure, then read relevant code, docs, and recent commits to understand the context. Do NOT ask questions yet — first build your own mental model of:
-- What the user wants to achieve
-- What exists today (current state)
-- What would need to change (gap analysis)
+Comece com `generate_codebase_overview` para obter a estrutura de alto nível do projeto, em seguida leia código relevante, docs e commits recentes para entender o contexto. NÃO faça perguntas ainda, primeiro construa seu próprio modelo mental de:
+- O que o usuário quer alcançar
+- O que existe hoje (estado atual)
+- O que precisaria mudar (gap analysis)
 
-### Step 2: Ask Clarifying Questions
+### Step 2: Faça perguntas de esclarecimento
 
-Based on your understanding, ask questions **one at a time**. Each question must:
-- Eliminate a whole branch of ambiguity (not trivial details)
-- Build on previous answers (incremental deepening)
-- Offer multiple-choice options with your recommendation when possible
+Com base no seu entendimento, faça perguntas **uma de cada vez**. Cada pergunta deve:
+- Eliminar um ramo inteiro de ambiguidade (não detalhes triviais)
+- Construir sobre respostas anteriores (aprofundamento incremental)
+- Oferecer opções de múltipla escolha com sua recomendação, quando possível
 
-**Dynamic termination:** Stop asking when remaining uncertainty won't materially affect the plan. Don't ask for the sake of asking.
+**Terminação dinâmica:** pare de perguntar quando a incerteza restante não afetar materialmente o plan. Não pergunte por perguntar.
 
-**Soft cap:** Maximum 5 questions. If you still have uncertainty after 5, state your assumptions and proceed.
+**Soft cap:** máximo 5 perguntas. Se você ainda tiver incerteza após 5, declare suas suposições e prossiga.
 
-### Step 3: Research (optional)
+### Step 3: Pesquisa (opcional)
 
-After questions are answered, judge whether research is needed:
-- **Codebase research:** When the task touches existing code you haven't fully explored (e.g., modifying a hook system — read existing hooks first)
-- **Web research:** When the task involves external tools, APIs, or best practices you're unsure about (e.g., integrating a new library, adopting an unfamiliar pattern)
-- **Both:** When the task combines internal changes with external dependencies (e.g., adding OAuth to an existing auth module)
-- **Skip:** When you have sufficient understanding (e.g., renaming a variable, fixing a typo, simple refactors with clear scope)
+Após as perguntas serem respondidas, julgue se a pesquisa é necessária:
+- **Pesquisa na codebase:** quando a task toca código existente que você ainda não explorou totalmente (por exemplo, modificar um sistema de hooks, leia os hooks existentes primeiro)
+- **Pesquisa web:** quando a task envolve tools externas, APIs ou boas práticas sobre as quais você não tem certeza (por exemplo, integrar uma library nova, adotar um padrão desconhecido)
+- **Ambas:** quando a task combina mudanças internas com dependências externas (por exemplo, adicionar OAuth a um módulo de auth existente)
+- **Pule:** quando você tem entendimento suficiente (por exemplo, renomear uma variável, corrigir um typo, refactors simples com escopo claro)
 
-**Research dimension principle:** When research IS needed, cover both theoretical foundations (papers, docs, design rationale) AND engineering practice (real implementations, battle-tested patterns, known pitfalls). One without the other leads to either ivory-tower designs or cargo-culted solutions.
+**Princípio de dimensão de pesquisa:** quando a pesquisa É necessária, cubra tanto fundamentos teóricos (papers, docs, racional do design) QUANTO prática de engenharia (implementações reais, padrões testados em batalha, armadilhas conhecidas). Um sem o outro leva a designs de torre de marfim ou soluções cargo-cult.
 
-This is your judgment call — not every plan needs research.
+Esse julgamento é seu, nem todo plan precisa de pesquisa.
 
-### Step 4: Supplementary Questions (if any)
+### Step 4: Perguntas suplementares (se houver)
 
-After research, absorb what you learned. Only ask the user about findings you **cannot resolve from research alone** — things requiring user decisions or preferences.
+Após a pesquisa, absorva o que aprendeu. Pergunte ao usuário apenas sobre descobertas que **você não consegue resolver só com a pesquisa**, coisas que exigem decisões ou preferências do usuário.
 
-If no supplementary questions needed, proceed directly to Phase 1.
+Se não houver perguntas suplementares, prossiga direto para a Phase 1.
 
-### Step 5: Design presentation (optional)
+### Step 5: Apresentação do design (opcional)
 
-When the task involves creative/architectural work (new features, new components, significant behavior changes), present the design before writing the plan:
+Quando a task envolver trabalho criativo/arquitetural (novas features, novos componentes, mudanças significativas de comportamento), apresente o design antes de escrever o plan:
 
-- Break the design into sections of 200-300 words
-- Ask after each section whether it looks right so far
-- Cover: architecture, components, data flow, error handling, testing
-- Write the validated design to `docs/designs/YYYY-MM-DD-<topic>-design.md`
+- Divida o design em seções de 200 a 300 palavras
+- Pergunte após cada seção se está parecendo correto até ali
+- Cubra: arquitetura, componentes, fluxo de dados, tratamento de erro, testes
+- Escreva o design validado em `docs/designs/YYYY-MM-DD-<topic>-design.md`
 
-Skip this step for simple refactors, bug fixes, or tasks with a fully specified design doc.
+Pule este step para refactors simples, bug fixes ou tasks com design doc totalmente especificado.
 
 ### Step 6: Readiness Check
 
-Before proceeding to Phase 1, verify the task is well-defined across 4 dimensions:
+Antes de prosseguir para a Phase 1, verifique se a task está bem definida em 4 dimensões:
 
-| Dimension | ✅ Criterion | Greenfield | Brownfield |
+| Dimensão | ✅ Critério | Greenfield | Brownfield |
 |-----------|-------------|------------|------------|
 | **Goal** | 能用一句话无歧义地说清楚要做什么 | Required | Required |
 | **Constraints** | 边界、非目标、限制条件已明确 | Required | Required |
 | **Success Criteria** | 至少有 2 个可测试的验收标准 | Required | Required |
 | **Context** | 理解被修改的现有代码/系统 | Skip | Required |
 
-Rules:
-- All applicable dimensions must be ✅ to proceed to Phase 1
-- If any dimension is ❌, ask ONE question targeting the weakest dimension
-- This step adds at most 3 questions (on top of Step 2's questions)
-- User says "skip" → state assumptions and continue
+Regras:
+- Todas as dimensões aplicáveis precisam estar ✅ para prosseguir para a Phase 1
+- Se alguma dimensão estiver ❌, faça UMA pergunta direcionada à dimensão mais fraca
+- Esse step adiciona no máximo 3 perguntas (em cima das do Step 2)
+- Usuário diz "skip" → declare suposições e continue
 
-**Challenge Modes** (activate on 2nd+ question in this step):
-- **Contrarian** (2nd question): "如果 [核心假设] 是错的呢？"
-- **Simplifier** (3rd question): "最简版本是什么样的？"
+**Challenge Modes** (ativados a partir da 2ª pergunta deste step):
+- **Contrarian** (2ª pergunta): "如果 [核心假设] 是错的呢？"
+- **Simplifier** (3ª pergunta): "最简版本是什么样的？"
 
-### Transition to Phase 1
+### Transição para a Phase 1
 
 #### Goal-Backward Derivation
 
-After the Readiness Check, reverse-engineer from Success Criteria before writing the plan:
+Após o Readiness Check, faça engenharia reversa a partir dos Success Criteria antes de escrever o plan:
 
-For each Success Criterion:
-1. **What must be TRUE** for this criterion to pass?
-2. Which of these truths **already exist** in the codebase?
-3. Which must be **newly created**? → These become Tasks
-4. What are the **dependencies** between new truths? → These determine Task order
+Para cada Success Criterion:
+1. **O que precisa ser VERDADEIRO** para esse critério passar?
+2. Quais dessas verdades **já existem** na codebase?
+3. Quais precisam ser **criadas**? → Essas viram Tasks
+4. Quais são as **dependências** entre as novas verdades? → Essas determinam a ordem das Tasks
 
-This ensures the plan covers everything needed for the goal, not just what seems obvious forward-thinking.
+Isso garante que o plan cubra tudo o que é necessário para o goal, não apenas o que parece óbvio do ponto de vista forward.
 
-#### Socratic Self-Check
+#### Auto-verificação Socrática
 
-Then validate each major design decision:
-1. **Essence** — What is the core problem this decision solves?
-2. **Framework** — Does the current codebase already solve this? What known patterns apply?
-3. **Application** — Is this feasible on all target platforms? Does benefit > maintenance cost?
+Em seguida, valide cada decisão de design importante:
+1. **Essência**, qual é o problema central que essa decisão resolve?
+2. **Framework**, a codebase atual já resolve isso? Quais padrões conhecidos se aplicam?
+3. **Aplicação**, isso é viável em todas as plataformas alvo? O benefício > custo de manutenção?
 
-Drop any decision that fails step 2 (already solved) or step 3 (infeasible/not worth it).
+Descarte qualquer decisão que falhe no step 2 (já resolvido) ou no step 3 (inviável/não vale).
 
-Then proceed to Phase 1 with the accumulated understanding.
+Em seguida, prossiga para a Phase 1 com o entendimento acumulado.
 
-### Error Handling
+### Tratamento de erros
 
-- **No relevant code/docs found:** Inform the user, ask them to point you to the right area, then continue.
-- **User wants to skip Phase 0:** Allowed. User can say "skip questions" or "just write the plan" at any time. State your assumptions and proceed to Phase 1.
-- **Contradictory answers:** Surface the contradiction to the user, ask them to clarify which direction to take.
-- **5-question cap reached with critical ambiguity:** State remaining assumptions explicitly, proceed to Phase 1. The plan will note these assumptions for reviewer scrutiny.
+- **Sem código/docs relevantes encontrados:** informe ao usuário, peça que aponte a área certa e continue.
+- **Usuário quer pular a Phase 0:** permitido. O usuário pode dizer "skip questions" ou "just write the plan" a qualquer momento. Declare suas suposições e prossiga para a Phase 1.
+- **Respostas contraditórias:** traga a contradição à tona, peça para o usuário esclarecer qual direção seguir.
+- **Cap de 5 perguntas atingido com ambiguidade crítica:** declare suposições restantes explicitamente e prossiga para a Phase 1. O plan vai registrar essas suposições para escrutínio do reviewer.
 
-## Phase 1: Writing the Plan
+## Phase 1: Escrevendo o plan
 
-**Save to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
+**Salve em:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
 
-### Plan Header (required)
+### Header do plan (obrigatório)
 
 ```markdown
 # [Feature Name] Implementation Plan
@@ -139,48 +139,48 @@ Then proceed to Phase 1 with the accumulated understanding.
 <!-- Reviewer writes here -->
 ```
 
-### Checklist Format (enforced by hook)
+### Formato do Checklist (obrigado pelo hook)
 
-Every plan must have a `## Checklist` section. Every checklist item MUST include an executable verify command:
+Todo plan precisa de uma seção `## Checklist`. Cada item do checklist DEVE incluir um comando verify executável:
 
 ```markdown
 - [ ] description | `verify command`
 ```
 
-Examples:
+Exemplos:
 - `- [ ] hook 语法正确 | \`bash -n hooks/security/my-hook.sh\``
 - `- [ ] config 包含新 hook | \`jq '.hooks' .kiro/agents/pilot.json | grep -q my-hook\``
 - `- [ ] 外部路径被拦截 | \`echo '{"tool_name":"fs_write","tool_input":{"file_path":"/tmp/evil.txt"}}' | bash hooks/security/my-hook.sh 2>&1; test $? -eq 2\``
 
-Rules:
-- verify command must be executable (no "手动测试", no "目视检查")
-- verify command must return exit 0 on success
-- Each Task must have at least 1 checklist item
-- Cover: happy path + edge case + integration (where applicable)
-- Hook enforces: checking off `- [x]` requires recent successful execution of the verify command
-- **Regression test rule:** If plan Files fields include `scripts/ralph_loop.py` or `scripts/lib/`, the checklist MUST include: `- [ ] 回归测试通过 | \`python3 -m pytest tests/ralph-loop/ -v\``
-- **Vertical slice rule:** Organize tasks as vertical slices (one feature end-to-end) rather than horizontal layers (all models, then all APIs). Vertical slices have fewer inter-task dependencies, enabling cleaner atomic commits. Exception: tasks that are inherently horizontal (e.g., "add logging to all hooks") need not be forced into vertical slices.
+Regras:
+- O comando verify precisa ser executável (sem "手动测试", sem "目视检查")
+- O comando verify precisa retornar exit 0 em caso de sucesso
+- Cada Task precisa de pelo menos 1 item de checklist
+- Cubra: caminho feliz + edge case + integração (quando aplicável)
+- O hook obriga: marcar `- [x]` exige execução bem-sucedida recente do comando verify
+- **Regra de regression test:** se os campos Files do plan incluírem `scripts/ralph_loop.py` ou `scripts/lib/`, o checklist DEVE incluir: `- [ ] 回归测试通过 | \`python3 -m pytest tests/ralph-loop/ -v\``
+- **Regra de vertical slice:** organize tasks como vertical slices (uma feature de ponta a ponta) em vez de camadas horizontais (todos os models, depois todas as APIs). Vertical slices têm menos dependências entre tasks, permitindo commits atômicos mais limpos. Exceção: tasks que são inerentemente horizontais (por exemplo, "add logging to all hooks") não precisam ser forçadas em vertical slices.
 
-### Coarse Checklist Items
+### Itens de checklist coarse
 
-Checklist items can be high-level ("coarse") as long as the verify command is meaningful. The executing agent uses the Reasoning Loop (OBSERVE → THINK → PLAN → EXECUTE → REFLECT → CORRECT → VERIFY) to autonomously decompose coarse items into concrete sub-steps.
+Itens de checklist podem ser de alto nível ("coarse"), desde que o comando verify seja significativo. O agent executor usa o Reasoning Loop (OBSERVE → THINK → PLAN → EXECUTE → REFLECT → CORRECT → VERIFY) para decompor de forma autônoma itens coarse em sub-steps concretos.
 
-**Fine-grained vs coarse examples:**
+**Exemplos fine-grained vs. coarse:**
 
-| Style | Item | When to use |
+| Estilo | Item | Quando usar |
 |-------|------|-------------|
-| Fine | `- [ ] Add timeout param to fetch() \| \`grep -q 'timeout' src/fetch.py\`` | Simple, single-change tasks |
-| Coarse | `- [ ] Implement user auth module \| \`python3 -m pytest tests/auth/ -v\`` | Multi-step tasks where the agent decides implementation details |
+| Fine | `- [ ] Add timeout param to fetch() \| \`grep -q 'timeout' src/fetch.py\`` | Tasks simples, alteração única |
+| Coarse | `- [ ] Implement user auth module \| \`python3 -m pytest tests/auth/ -v\`` | Tasks de múltiplos steps em que o agent decide os detalhes |
 
-**Rules for coarse items:**
-- Verify command must still be executable and exit 0 — this is non-negotiable
-- Prefer module-level or integration-level test commands as verify (e.g., `python3 -m pytest tests/module/ -v`)
-- The Task body should describe the goal and constraints, not every line of code
-- The executing agent will autonomously decompose using the Reasoning Loop
+**Regras para itens coarse:**
+- O comando verify ainda precisa ser executável e retornar exit 0, isso é não negociável
+- Prefira comandos de teste em nível de módulo ou integração como verify (por exemplo, `python3 -m pytest tests/module/ -v`)
+- O corpo da Task deve descrever o objetivo e as constraints, não cada linha de código
+- O agent executor decompõe autonomamente usando o Reasoning Loop
 
-### Task Structure (TDD)
+### Estrutura da Task (TDD)
 
-Each task follows red-green-refactor:
+Cada task segue red-green-refactor:
 
 ```markdown
 ### Task N: [Component Name]
@@ -207,11 +207,11 @@ Expected: PASS
 **Step 5: Commit**
 ```
 
-Rules: exact file paths, complete code (not "add validation"), exact commands with expected output.
+Regras: paths exatos, código completo (não "add validation"), comandos exatos com saída esperada.
 
-### Errors Section (required)
+### Seção Errors (obrigatória)
 
-Every plan must have an `## Errors` section at the bottom. During execution, log every error encountered:
+Todo plan precisa de uma seção `## Errors` no fim. Durante a execução, registre cada erro encontrado:
 
 ```markdown
 ## Errors
@@ -220,16 +220,16 @@ Every plan must have an `## Errors` section at the bottom. During execution, log
 |-------|------|---------|------------|
 ```
 
-Rules:
-- Log immediately when error occurs, don't wait
-- Include which Task triggered the error
-- Track attempt number — if same error appears at attempt 3, trigger 3-Strike Protocol (see Phase 2)
-- This section is append-only during execution — never delete entries
-- Cap: keep most recent 20 entries; if exceeded, summarize older entries into a single "Earlier errors: N resolved" row
+Regras:
+- Logue imediatamente quando o erro ocorrer, não espere
+- Inclua qual Task disparou o erro
+- Acompanhe o número da tentativa, se o mesmo erro aparecer na tentativa 3, dispare o 3-Strike Protocol (veja Phase 2)
+- Esta seção é append-only durante a execução, nunca apague entradas
+- Cap: mantenha as 20 entradas mais recentes, se exceder, resuma as antigas em uma única linha "Earlier errors: N resolved"
 
-### Findings Section (optional)
+### Seção Findings (opcional)
 
-Plans may include a `## Findings` section for persisting research discoveries made during execution:
+Plans podem incluir uma seção `## Findings` para persistir descobertas de pesquisa feitas durante a execução:
 
 ```markdown
 ## Findings
@@ -237,14 +237,14 @@ Plans may include a `## Findings` section for persisting research discoveries ma
 - [discovery with context]
 ```
 
-Rules:
-- Append-only — never rewrite, only add new entries
-- Use when execution-phase research reveals something relevant to later tasks
-- Not required for simple plans where no research happens during execution
+Regras:
+- Append-only, nunca reescreva, apenas adicione novas entradas
+- Use quando a pesquisa em fase de execução revelar algo relevante para tasks posteriores
+- Não é obrigatório para plans simples em que nenhuma pesquisa acontece durante a execução
 
-### Session State Section (optional)
+### Seção Session State (opcional)
 
-Plans may include a `## Session State` section for cross-session continuity:
+Plans podem incluir uma seção `## Session State` para continuidade entre sessões:
 
 ```markdown
 ## Session State
@@ -258,30 +258,30 @@ Plans may include a `## Session State` section for cross-session continuity:
 - [what to pick up, what to watch out for]
 ```
 
-Rules:
-- Updated at the end of each Ralph Loop round (before agent exits)
-- Read at the start of each round (part of Session Resume Protocol)
-- Append-only for decisions; position and notes are overwritten each round
-- Not required for small plans (≤ 3 items) that complete in a single round
+Regras:
+- Atualizada ao final de cada rodada do Ralph Loop (antes de o agent sair)
+- Lida no início de cada rodada (parte do Session Resume Protocol)
+- Append-only para decisions, position e notes são sobrescritas a cada rodada
+- Não é obrigatória para plans pequenos (≤ 3 itens) que terminam em uma única rodada
 
 ## Phase 1.5: Plan Review
 
-After writing the plan, run multi-perspective plan review before execution.
+Após escrever o plan, rode plan review multi-perspectiva antes da execução.
 
-### Angle Pool
+### Pool de ângulos
 
-Two categories: **fixed** (every round) and **random** (sampled each round).
+Duas categorias: **fixos** (toda rodada) e **aleatórios** (amostrados a cada rodada).
 
-**Fixed angles (always included):**
+**Ângulos fixos (sempre incluídos):**
 
-| Angle | Mission | Output |
+| Ângulo | Missão | Saída |
 |-------|---------|--------|
 | Goal Alignment | You MUST copy each table below and fill EVERY cell. Do NOT summarize or skip rows. If a table has N tasks, your output must have N rows. Missing rows = review REJECTED. Copy and fill this table for EVERY task:\n\n\| Task # \| Goal phrase served (quote exact words) \| If removed, which Goal phrase loses coverage? \|\n\|--------\|---------------------------------------\|----------------------------------------------\|\n\| 1 \| [quote] \| [answer] \|\n\nThen copy and fill the coverage matrix:\n\n\| Goal phrase (copy from plan header) \| Covered by Task #s \|\n\|-------------------------------------\|-------------------\|\n\| [phrase 1] \| [list] \|\n\nFinally: trace the execution order — does Task N's output feed correctly into Task N+1's input? Findings must cite specific Task numbers and Goal phrases. | Missing Coverage / Unnecessary Tasks / Ordering Issues / Verdict |
 | Verify Correctness | For each checklist verify command, you MUST copy this table and fill in EVERY cell:\n\n\| # \| Verify command \| Confirms what \| Exit code (correct impl) \| Exit code (broken impl) \| Sound? \|\n\|---\|---------------\|---------------\|--------------------------|--------------------------|--------\|\n\| 1 \| [copy from plan] \| [fill] \| [trace: ... → exit ?] \| [trace: ... → exit ?] \| [Y/N + reason] \|\n\nRules: EVERY row must show the shell execution trace, not just "exit 0". If you skip a row or write "all sound" without per-row traces, your review is REJECTED. Only flag commands where correct and broken give the SAME exit code. | False Positives / Weak Verifications / Verdict |
 
-**Random pool (2 sampled per round):**
+**Pool aleatório (2 amostrados por rodada):**
 
-| Angle | Mission | Analysis Method | Output |
+| Ângulo | Missão | Método de análise | Saída |
 |-------|---------|-----------------|--------|
 | **All angles** | Before writing any finding, verify it is within the plan's stated Goal and NOT in Non-Goals. Findings outside scope are noise — discard silently. | — | — |
 | Completeness | You MUST copy each table below and fill EVERY cell. Missing rows = review REJECTED.\n\nFor each file in the plan's Files: fields that is MODIFIED (not created), copy and fill:\n\n\| File \| Function/Branch \| Exercised by Task # \| Coverage? \|\n\|------\|----------------\|--------------------\|-----------\|\n\| [path] \| [name] \| [task # or NONE] \| [Y/N] \|\n\nThen for each error path (try/except, if-error-return, signal handler) in modified files:\n\n\| File:line \| Error path \| Exercised by Task # \|\n\|----------\|------------|--------------------\|\n\| [path:line] \| [description] \| [task # or NONE] \|\n\nSCOPE: Only analyze functions/branches in files the plan MODIFIES. Do NOT flag functions in files the plan merely reads. | Source-to-task traceability matrix | Uncovered Functions / Unexercised Error Paths / Verdict |
@@ -294,23 +294,23 @@ Two categories: **fixed** (every round) and **random** (sampled each round).
 
 ### Pre-mortem Analysis
 
-Before selecting review angles, assume the plan has already been executed and **failed**. Identify the 3 most likely failure causes:
+Antes de selecionar os ângulos de review, suponha que o plan já foi executado e **falhou**. Identifique as 3 causas mais prováveis de falha:
 
-1. **Integration risks** — will the changes break existing behavior or conflict with other components?
-2. **Assumption risks** — what implicit assumptions might be wrong? (e.g. file format, API behavior, execution order)
-3. **Environment risks** — will this work across all target environments? (e.g. CI, different OS, missing dependencies)
+1. **Riscos de integração**, as alterações vão quebrar comportamento existente ou conflitar com outros componentes?
+2. **Riscos de suposição**, quais suposições implícitas podem estar erradas? (por exemplo, formato de arquivo, comportamento de API, ordem de execução)
+3. **Riscos de ambiente**, isso vai funcionar em todos os ambientes alvo? (por exemplo, CI, OS diferentes, dependências faltando)
 
-For each risk, formulate a concrete verifiable question. Inject these as "Specific Questions" in each reviewer's dispatch query (see Dispatch Query Template below).
+Para cada risco, formule uma pergunta concreta e verificável. Injete-as como "Specific Questions" na query de dispatch de cada reviewer (veja Dispatch Query Template abaixo).
 
-### Angle Selection
+### Seleção de ângulos
 
-Every round: 2 fixed + 2 random = 4 reviewers (one parallel batch, no overflow).
+Toda rodada: 2 fixos + 2 aleatórios = 4 reviewers (um único batch paralelo, sem overflow).
 
-Random selection: sample 2 from the random pool. Repeats across rounds are fine — the same angle reviewing a revised plan catches regressions and verifies fixes.
+Seleção aleatória: amostre 2 do pool aleatório. Repetições entre rodadas estão ok, o mesmo ângulo revisando um plan revisado pega regressões e verifica fixes.
 
 ### Dispatch Query Template
 
-Each reviewer query MUST include: Context (Goal, Non-Goals, key design decisions), Mission (angle-specific from table above), files to read, and anti-patterns.
+Cada query de reviewer DEVE incluir: Context (Goal, Non-Goals, decisões-chave de design), Mission (específica do ângulo, da tabela acima), arquivos a ler e anti-padrões.
 
 ```
 ## Context
@@ -357,112 +357,112 @@ Your last line MUST be exactly one of:
 Missing verdict = review REJECTED and will be re-dispatched.
 ```
 
-### Orchestration
+### Orquestração
 
-1. Compose the round: Goal Alignment + Verify Correctness + 2 random angles
-2. Dispatch 4 reviewer subagents in ONE `use_subagent` call (`dangerously_trust_all_tools: true` for each). Each reviewer query = review angle mission + plan file path. Reviewer reads the file itself (has read/shell tools). Do NOT paste plan content into query — it bloats payload and breaks 4-way parallelism. **Must pass plan file path, not content.** **Must specify `agent_name: "reviewer"`**. Same `agent_name` can spawn multiple instances in parallel. **Include in each query:** "Read the source files referenced in the plan before making claims about code behavior."
-4. Reviewers in the same round do NOT see each other's feedback
-5. Collect all verdicts. If ANY reviewer REJECTs → fix issues → next round (re-sample 2 random angles)
-   **Verdict enforcement:** If a reviewer's output does not end with `Verdict: APPROVE` or `Verdict: REQUEST CHANGES`, treat it as malformed → re-dispatch that single angle.
-6. **Round 2+ rule:** When re-dispatching after fixes, include in each query a "Rejected Findings" section with one-line summaries of findings rejected in previous rounds and why. Reviewers must not re-raise these.
-   **Round 2+ reviewer count:** Dispatch only 2 reviewers (the 2 fixed angles: Goal Alignment + Verify Correctness). Do NOT sample random angles in Round 2+. Purpose of Round 2+ is to verify fixes, not discover new issues.
-7. Repeat until all APPROVE in a single round, or 3 rounds reached
-8. After 3 rounds: stop and tell user "Plan too complex for automated review. Consider breaking into smaller plans."
+1. Componha a rodada: Goal Alignment + Verify Correctness + 2 ângulos aleatórios
+2. Despache 4 subagents reviewers em UMA chamada `use_subagent` (`dangerously_trust_all_tools: true` para cada). A query do reviewer = missão do ângulo de review + caminho do arquivo do plan. O reviewer lê o arquivo sozinho (tem tools de read/shell). NÃO cole o conteúdo do plan na query, isso aumenta o payload e quebra o paralelismo de 4 vias. **Passe o caminho do arquivo do plan, não o conteúdo.** **É preciso especificar `agent_name: "reviewer"`**. O mesmo `agent_name` pode lançar várias instâncias em paralelo. **Inclua em cada query:** "Read the source files referenced in the plan before making claims about code behavior."
+4. Reviewers da mesma rodada NÃO veem o feedback uns dos outros
+5. Colete todos os verdicts. Se ALGUM reviewer der REJECT → corrija os issues → próxima rodada (re-amostre 2 ângulos aleatórios)
+   **Enforcement do verdict:** se a saída de um reviewer não terminar com `Verdict: APPROVE` ou `Verdict: REQUEST CHANGES`, trate como malformada → redespache esse ângulo único.
+6. **Regra para Round 2+:** ao redespachar após fixes, inclua em cada query uma seção "Rejected Findings" com resumos de uma linha dos findings rejeitados em rodadas anteriores e o motivo. Reviewers não devem voltar a levantá-los.
+   **Contagem de reviewers em Round 2+:** despache apenas 2 reviewers (os 2 ângulos fixos: Goal Alignment + Verify Correctness). NÃO amostre ângulos aleatórios em Round 2+. O propósito do Round 2+ é verificar fixes, não descobrir issues novos.
+7. Repita até todos darem APPROVE em uma única rodada, ou até atingir 3 rodadas
+8. Após 3 rodadas: pare e diga ao usuário "Plan too complex for automated review. Consider breaking into smaller plans."
 
-### Reviewer Calibration
+### Calibração do reviewer
 
-Reviewers should REJECT only for issues that would cause the plan to fail or produce wrong results. Do NOT reject for:
-- Style preferences or alternative approaches that are equally valid
-- Theoretical risks that are unlikely in practice
-- Missing features that are nice-to-have but not required for the plan's stated goal
+Reviewers só devem dar REJECT por issues que fariam o plan falhar ou produzir resultados errados. NÃO rejeite por:
+- Preferências de estilo ou abordagens alternativas igualmente válidas
+- Riscos teóricos pouco prováveis na prática
+- Features faltantes que são "nice to have" mas não exigidas pelo goal declarado do plan
 
-The bar is "would this plan produce a 90/100 result?" not "is this plan perfect?"
+A barra é "esse plan vai produzir um resultado 90/100?", não "esse plan está perfeito?"
 
-### Conflict Resolution
+### Resolução de conflitos
 
-When reviewers give contradictory feedback:
-1. Main agent compares both arguments against the plan's **Goal** statement (the one-sentence goal in the plan header)
-2. The argument that directly serves the stated Goal wins
-3. Document the conflict, both arguments, and the resolution in the plan's Review section
-4. If both arguments equally serve the goal, ask the user to decide
+Quando reviewers dão feedback contraditório:
+1. O agent principal compara ambos os argumentos contra a declaração de **Goal** do plan (a frase única no header)
+2. O argumento que serve diretamente ao Goal vence
+3. Documente o conflito, ambos os argumentos e a resolução na seção Review do plan
+4. Se ambos os argumentos servem o goal igualmente, peça ao usuário para decidir
 
-### Resource Constraints
+### Constraints de recursos
 
-- **Max parallel subagents per batch**: 4 (tool hard limit). Round 1: 4 reviewers. Round 2+: 2 reviewers (fixed angles only).
-- **Reviewer context isolation**: Reviewers in the same round do NOT see each other's feedback. Each gets the full plan.
-- **Context size**: Review packet = full plan file content (verbatim). Reviewers need complete task details, code blocks, and file paths to avoid false rejections from incomplete information.
-- **Error handling**: If a reviewer crashes or returns malformed output, continue with remaining reviewers. If fewer than half of the round's reviewers complete, restart the round. Malformed = missing Mission/Findings/Verdict structure.
+- **Máximo de subagents paralelos por batch**: 4 (limite hard da tool). Round 1: 4 reviewers. Round 2+: 2 reviewers (apenas ângulos fixos).
+- **Isolamento de contexto do reviewer**: reviewers da mesma rodada NÃO veem o feedback uns dos outros. Cada um recebe o plan completo.
+- **Tamanho do contexto**: review packet = conteúdo completo do arquivo do plan (verbatim). Reviewers precisam dos detalhes completos das tasks, blocos de código e file paths para evitar rejeições falsas por informação incompleta.
+- **Tratamento de erro**: se um reviewer der crash ou retornar saída malformada, continue com os reviewers restantes. Se menos da metade dos reviewers da rodada terminar, reinicie a rodada. Malformado = sem estrutura Mission/Findings/Verdict.
 
-## Phase 2: Execution
+## Phase 2: Execução
 
-After plan is reviewed and approved, choose execution strategy based on checklist size:
+Após o plan ser revisado e aprovado, escolha a estratégia de execução com base no tamanho do checklist:
 
-### Execution Disciplines
+### Disciplinas de execução
 
-These rules apply regardless of which execution strategy is chosen.
+Estas regras se aplicam independentemente da estratégia de execução escolhida.
 
 #### Session Resume Protocol
 
-When starting or resuming execution (including new sessions):
-1. Read the plan's Goal + Architecture + Non-Goals
-2. Run `git diff --stat` to see what's already changed
-3. Check checklist: which items are `[x]` done, which `[ ]` remain
-4. Write a one-line status summary to the plan's `## Findings` section
+Ao iniciar ou retomar a execução (incluindo novas sessões):
+1. Leia o Goal + Architecture + Non-Goals do plan
+2. Rode `git diff --stat` para ver o que já mudou
+3. Verifique o checklist: quais itens estão `[x]` concluídos, quais `[ ]` permanecem
+4. Escreva um resumo de status de uma linha na seção `## Findings` do plan
 
-This ensures the agent has full context before making any changes.
+Isso garante que o agent tenha contexto completo antes de fazer qualquer alteração.
 
 #### Read Before Decide
 
-Before any of these actions, re-read the plan's **Goal** and **Non-Goals**:
-- Changing implementation approach mid-task
-- Deciding to skip or reorder a task
-- Encountering a blocker and choosing a workaround
-- Adding scope not in the original plan
+Antes de qualquer destas ações, releia o **Goal** e os **Non-Goals** do plan:
+- Mudar a abordagem de implementação no meio da task
+- Decidir pular ou reordenar uma task
+- Encontrar um bloqueio e escolher um workaround
+- Adicionar escopo que não estava no plan original
 
-This pushes the original intent back into the attention window, preventing drift after many tool calls.
+Isso traz o intent original de volta para a janela de atenção, prevenindo drift após muitas tool calls.
 
-#### Periodic Re-orientation
+#### Reorientação periódica
 
-Every 3 completed tasks, re-read the plan's **Goal** paragraph. No writing needed — purely attention refresh. This counters gradual context decay in long execution sessions.
+A cada 3 tasks concluídas, releia o parágrafo **Goal** do plan. Sem necessidade de escrever, é puro refresh de atenção. Isso contraria o decay gradual de contexto em sessões longas.
 
 #### 3-Strike Error Protocol
 
-When an error occurs during execution:
+Quando ocorrer um erro durante a execução:
 
-**Strike 1 — Diagnose & Fix:** Read error carefully, identify root cause, apply targeted fix. Log to `## Errors`.
+**Strike 1, Diagnose & Fix:** Leia o erro com cuidado, identifique a causa raiz, aplique fix direcionado. Logue em `## Errors`.
 
-**Strike 2 — Alternative Approach:** Same error? Try a fundamentally different method. Different tool, different algorithm, different angle. Log to `## Errors`.
+**Strike 2, Alternative Approach:** Mesmo erro? Tente um método fundamentalmente diferente. Tool diferente, algoritmo diferente, ângulo diferente. Logue em `## Errors`.
 
-**Strike 3 — Broader Rethink:** Question assumptions. Search for solutions. Consider whether the plan itself needs revision. Log to `## Errors`.
+**Strike 3, Broader Rethink:** Questione suposições. Pesquise soluções. Considere se o próprio plan precisa de revisão. Logue em `## Errors`.
 
-**After 3 strikes:** Stop and escalate to user. Explain what was tried, share the specific errors, ask for guidance. Do NOT attempt a 4th time with the same approach.
+**Após 3 strikes:** pare e escale para o usuário. Explique o que foi tentado, compartilhe os erros específicos e peça orientação. NÃO tente uma 4ª vez com a mesma abordagem.
 
-Rules:
-- `next_action != failed_action` — never repeat the exact same failing approach
-- Each strike must be logged in the plan's `## Errors` table with attempt number
-- Strike count is per-error-type, not global (different errors get their own 3 strikes)
+Regras:
+- `next_action != failed_action`, nunca repita exatamente a mesma abordagem que falhou
+- Cada strike deve ser logado na tabela `## Errors` do plan com o número da tentativa
+- A contagem de strikes é por tipo de erro, não global (erros diferentes têm seus próprios 3 strikes)
 
-### Execution Strategy
+### Estratégia de execução
 
-Sequential execution: one task at a time, commit after each.
+Execução sequencial: uma task por vez, commit após cada uma.
 
-1. Load plan, identify next unchecked item
-2. Execute task (implement + test + verify)
-3. Check off item, commit
-4. Continue to next. Repeat until done.
+1. Carregue o plan, identifique o próximo item não marcado
+2. Execute a task (implementar + testar + verificar)
+3. Marque o item, faça commit
+4. Continue para a próxima. Repita até concluir.
 
-Each ralph loop iteration spawns a fresh CLI with clean context. The agent should complete as many tasks as possible per iteration before context fills up.
+Cada iteração do ralph loop lança uma CLI nova com contexto limpo. O agent deve concluir o máximo de tasks possível por iteração antes de o contexto encher.
 
-## Phase 3: Completion
+## Phase 3: Conclusão
 
-After all tasks done:
-1. Run full test suite
-2. Present options: merge locally / create PR / keep branch / discard
-3. Clean up worktree if applicable
+Depois que todas as tasks estiverem concluídas:
+1. Rode a suíte de testes completa
+2. Apresente as opções: merge local / criar PR / manter branch / descartar
+3. Limpe o worktree, se aplicável
 
-## When to Stop and Ask
+## Quando parar e perguntar
 
-- Hit a blocker (missing dependency, unclear instruction)
-- Verification fails repeatedly
-- Plan has critical gaps
-- Don't force through blockers — stop and ask.
+- Encontrar um bloqueio (dependência faltando, instrução pouco clara)
+- Verificação falha repetidamente
+- O plan tem gaps críticos
+- Não force a passagem por bloqueios, pare e pergunte.

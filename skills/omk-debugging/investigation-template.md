@@ -1,6 +1,6 @@
-# Investigation: {title}
+# Investigação: {title}
 
-> Created: {date} | Status: 🔴 Investigating / 🟡 Partial / 🟢 Resolved
+> Criada em: {date} | Status: 🔴 Investigando / 🟡 Parcial / 🟢 Resolvida
 
 ## Problem Statement
 <!-- 一句话描述问题，不超过 3 行 -->

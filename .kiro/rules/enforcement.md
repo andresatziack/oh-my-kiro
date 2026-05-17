@@ -1,40 +1,40 @@
 # Enforcement Layer (v3)
 
-> If it can be enforced by code, don't enforce it with words.
+> Se puder ser garantido por código, não garanta com palavras.
 
-## Hook Registry
+## Registro de Hooks
 
-| Rule | Hook Path | Event | Type |
-|------|-----------|-------|------|
-| Dangerous command blocker | `hooks/security/block-dangerous.sh` | preToolUse[bash] | block |
-| Secret leak blocker | `hooks/security/block-secrets.sh` | preToolUse[bash] | block |
-| sed/awk on JSON blocker | `hooks/security/block-sed-json.sh` | preToolUse[bash] | block |
-| Workspace boundary | `hooks/security/block-outside-workspace.sh` | preToolUse[bash,write] | block |
-| Pre-write gate (workflow + injection scan + plan context) | `hooks/gate/pre-write.sh` | preToolUse[write] | block + inject |
-| Ralph loop enforcer | `hooks/gate/enforce-ralph-loop.sh` | preToolUse[bash,write] | block |
-| OV-first enforcer | `hooks/gate/enforce-ov-first.sh` | preToolUse[bash] | block |
-| Work directory enforcer | `hooks/gate/enforce-work-dir.sh` | preToolUse[write] | block |
-| Regression requirement | `hooks/gate/require-regression.sh` | preToolUse[bash] | block |
-| Lint-before-push gate | `hooks/gate/require-lint-before-push.sh` | preToolUse[bash] | block |
-| Post-write feedback (lint + test + progress remind) | `hooks/feedback/post-write.sh` | postToolUse[write] | feedback |
-| Bash execution log | `hooks/feedback/post-bash.sh` | postToolUse[bash] | feedback |
-| Correction detection | `hooks/feedback/correction-detect.sh` | userPromptSubmit | inject |
-| Session init (rules + cleanup) | `hooks/feedback/session-init.sh` | userPromptSubmit | inject |
-| Context enrichment (research + resume) | `hooks/feedback/context-enrichment.sh` | userPromptSubmit | inject |
-| Completion verification | `hooks/feedback/verify-completion.sh` | stop | feedback |
-| Auto capture (called by correction-detect.sh) | `hooks/feedback/auto-capture.sh` | shadow | inject |
-| KB health report (called by verify-completion.sh) | `hooks/feedback/kb-health-report.sh` | shadow | feedback |
+| Regra | Caminho do Hook | Evento | Tipo |
+|-------|-----------------|--------|------|
+| Bloqueio de comando perigoso | `hooks/security/block-dangerous.sh` | preToolUse[bash] | block |
+| Bloqueio de vazamento de segredo | `hooks/security/block-secrets.sh` | preToolUse[bash] | block |
+| Bloqueio de sed/awk em JSON | `hooks/security/block-sed-json.sh` | preToolUse[bash] | block |
+| Limite de workspace | `hooks/security/block-outside-workspace.sh` | preToolUse[bash,write] | block |
+| Gate de pre-write (workflow + scan de injection + contexto do plan) | `hooks/gate/pre-write.sh` | preToolUse[write] | block + inject |
+| Enforcer do ralph loop | `hooks/gate/enforce-ralph-loop.sh` | preToolUse[bash,write] | block |
+| Enforcer OV-first | `hooks/gate/enforce-ov-first.sh` | preToolUse[bash] | block |
+| Enforcer de diretório de trabalho | `hooks/gate/enforce-work-dir.sh` | preToolUse[write] | block |
+| Exigência de regressão | `hooks/gate/require-regression.sh` | preToolUse[bash] | block |
+| Gate de lint antes do push | `hooks/gate/require-lint-before-push.sh` | preToolUse[bash] | block |
+| Feedback de post-write (lint + test + lembrete de progresso) | `hooks/feedback/post-write.sh` | postToolUse[write] | feedback |
+| Log de execução de bash | `hooks/feedback/post-bash.sh` | postToolUse[bash] | feedback |
+| Detecção de correção | `hooks/feedback/correction-detect.sh` | userPromptSubmit | inject |
+| Inicialização de sessão (regras + limpeza) | `hooks/feedback/session-init.sh` | userPromptSubmit | inject |
+| Enriquecimento de contexto (research + resume) | `hooks/feedback/context-enrichment.sh` | userPromptSubmit | inject |
+| Verificação de conclusão | `hooks/feedback/verify-completion.sh` | stop | feedback |
+| Captura automática (chamada por correction-detect.sh) | `hooks/feedback/auto-capture.sh` | shadow | inject |
+| Relatório de saúde do KB (chamado por verify-completion.sh) | `hooks/feedback/kb-health-report.sh` | shadow | feedback |
 
-## Determinism Layers
+## Camadas de Determinismo
 
-| Layer | Mechanism | Certainty |
-|-------|-----------|----------|
-| L0 Security | `hooks/security/*` (exit 2 = block) | 100% — unconditional hard block |
-| L1 Commands | `@plan` `@execute` `@research` `@review` `@reflect` | 100% — user triggers |
-| L2 Gate | `hooks/gate/*` (exit 2 = block) | 100% — hard block |
-| L3 Feedback | `hooks/feedback/*` (exit 0 = info only) | ~50% — advisory |
+| Camada | Mecanismo | Certeza |
+|--------|-----------|---------|
+| L0 Security | `hooks/security/*` (exit 2 = block) | 100% - hard block incondicional |
+| L1 Commands | `@plan` `@execute` `@research` `@review` `@reflect` | 100% - disparado pelo usuário |
+| L2 Gate | `hooks/gate/*` (exit 2 = block) | 100% - hard block |
+| L3 Feedback | `hooks/feedback/*` (exit 0 = info only) | ~50% - apenas advisory |
 
-## Config Generation
+## Geração de Configuração
 
-Single source: `scripts/generate_configs.py`
-Generates: `.kiro/settings.json` + `.kiro/agents/*.json` + `.kiro/agents/*.md`
+Fonte única: `scripts/generate_configs.py`
+Gera: `.kiro/settings.json` + `.kiro/agents/*.json` + `.kiro/agents/*.md`

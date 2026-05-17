@@ -1,7 +1,7 @@
-# TDD Checklist Enforcement — Plan Quality + Execution Integrity
+# Enforcement de Checklist TDD - Qualidade do Plan + Integridade da Execução
 
-**Goal:** 通过代码化机制杜绝 plan checklist 虚假勾选、覆盖率不足、agent 能力降级三大问题，实现端到端的测试驱动质量保障。
-**Architecture:** 四层防护：(1) Plan 写入时 Static Rubric 检查结构完整性；(2) Reviewer prompt 增强强制覆盖率审查；(3) 执行阶段 hook 拦截无证据勾选；(4) Stop hook 重跑所有 verify 命令做最终确认。核心设计：每个 checklist 项必须包含可执行 verify 命令，勾选前必须有该命令的成功执行记录。
+**Objetivo:** 通过代码化机制杜绝 plan checklist 虚假勾选、覆盖率不足、agent 能力降级三大问题，实现端到端的测试驱动质量保障。
+**Arquitetura:** 四层防护：(1) Plan 写入时 Static Rubric 检查结构完整性；(2) Reviewer prompt 增强强制覆盖率审查；(3) 执行阶段 hook 拦截无证据勾选；(4) Stop hook 重跑所有 verify 命令做最终确认。核心设计：每个 checklist 项必须包含可执行 verify 命令，勾选前必须有该命令的成功执行记录。
 **Tech Stack:** Shell (bash), jq, Markdown
 
 ## Key Decisions
@@ -20,11 +20,11 @@
 12. **Log 自动清理**：verify-completion stop hook 执行完后清理当前 workspace 的 log 文件
 13. **verify-completion 中 verify 命令加 timeout**：防止无限循环，每个命令 30 秒超时
 
-## Tasks
+## Tarefas
 
-### Task 1: 创建 verify 执行记录器 — post-bash-verify-log.sh
+### Tarefa 1: 创建 verify 执行记录器 - post-bash-verify-log.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/post-write.sh`（在现有 post-write 中增加 bash 执行记录逻辑，但实际需要的是 PostToolUse[execute_bash]，需要新文件）
 - Create: `hooks/feedback/post-bash.sh`
 
@@ -59,11 +59,11 @@ echo "{\"cmd_hash\":\"$CMD_HASH\",\"cmd\":$(echo "$CMD" | jq -Rs .),\"exit_code\
 exit 0
 ```
 
-**Verify:** `echo '{"tool_name":"execute_bash","tool_input":{"command":"echo hello"},"tool_output":{"exit_code":"0"}}' | bash hooks/feedback/post-bash.sh && tail -1 /tmp/verify-log-*.jsonl | jq .cmd_hash` 输出非空 hash
+**Verificação:** `echo '{"tool_name":"execute_bash","tool_input":{"command":"echo hello"},"tool_output":{"exit_code":"0"}}' | bash hooks/feedback/post-bash.sh && tail -1 /tmp/verify-log-*.jsonl | jq .cmd_hash` 输出非空 hash
 
-### Task 2: 创建 checklist 勾选拦截 hook — gate-checklist-check.sh
+### Tarefa 2: 创建 checklist 勾选拦截 hook - gate-checklist-check.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`（在现有 pre-write 中增加 checklist 勾选检查逻辑）
 
 在 pre-write.sh 的 gate_check 函数之后、scan_content 之前，增加 checklist 勾选拦截：
@@ -126,14 +126,14 @@ Run the command and confirm it passes before checking off."
 }
 ```
 
-**Verify:** 
+**Verificação:** 
 - 测试 A：写入含 `- [x]` 但无 verify 命令的 plan → exit 2
 - 测试 B：写入含 `- [x] ... | \`echo test\`` 但未执行过 → exit 2
 - 测试 C：先执行 `echo test`（写入 log），再写入含对应 `- [x]` → exit 0 放行
 
-### Task 3: Plan 结构 Static Rubric 检查
+### Tarefa 3: Plan 结构 Static Rubric 检查
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 
 在 gate_checklist 之前增加 plan 结构检查（仅对 `docs/plans/*.md` 的 create 操作）：
@@ -188,14 +188,14 @@ Required format: - [ ] description | \`verify command\`"
 }
 ```
 
-**Verify:** 
+**Verificação:** 
 - 测试 A：写入缺少 `## Checklist` 的 plan → exit 2
 - 测试 B：写入 checklist 项无 verify 命令的 plan → exit 2
 - 测试 C：写入完整结构的 plan → exit 0
 
-### Task 4: 增强 verify-completion Stop hook
+### Tarefa 4: 增强 verify-completion Stop hook
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/verify-completion.sh`
 
 在现有 checklist 计数之后，增加 verify 命令重跑逻辑：
@@ -223,11 +223,11 @@ if [ -n "$ACTIVE_PLAN" ] && [ -f "$ACTIVE_PLAN" ]; then
 fi
 ```
 
-**Verify:** 构造一个含 `- [x] test | \`exit 1\`` 的 plan，stop hook 应报告 verify failed
+**Verificação:** 构造一个含 `- [x] test | \`exit 1\`` 的 plan，stop hook 应报告 verify failed
 
-### Task 5: 增强 Reviewer prompt — 覆盖率 + 对抗性测试
+### Tarefa 5: 增强 Reviewer prompt - 覆盖率 + 对抗性测试
 
-**Files:**
+**Arquivos:**
 - Modify: `agents/reviewer-prompt.md`
 - Modify: `skills/reviewing/SKILL.md`
 
@@ -248,11 +248,11 @@ After reviewing the plan's logic, you MUST also:
 Output these findings in a dedicated "### Checklist Coverage" subsection of your review.
 ```
 
-**Verify:** `grep -c 'Checklist Coverage' agents/reviewer-prompt.md` ≥ 1
+**Verificação:** `grep -c 'Checklist Coverage' agents/reviewer-prompt.md` ≥ 1
 
-### Task 6: 挂载新 hook 到 agent 配置
+### Tarefa 6: 挂载新 hook 到 agent 配置
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/default.json`
 - Modify: `.kiro/agents/reviewer.json`
 - Modify: `.kiro/agents/researcher.json`
@@ -261,11 +261,11 @@ Output these findings in a dedicated "### Checklist Coverage" subsection of your
 为所有 agent 添加 PostToolUse[execute_bash] → post-bash.sh。
 pre-write.sh 已挂载，无需额外配置（新逻辑在现有 hook 内）。
 
-**Verify:** `jq '.hooks.postToolUse[] | select(.command | contains("post-bash"))' .kiro/agents/default.json` 输出非空
+**Verificação:** `jq '.hooks.postToolUse[] | select(.command | contains("post-bash"))' .kiro/agents/default.json` 输出非空
 
-### Task 7: 更新 planning skill — 新 checklist 格式
+### Tarefa 7: 更新 planning skill - 新 checklist 格式
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 更新 plan 模板中的 Checklist 格式要求：
@@ -290,23 +290,23 @@ Rules:
 - Cover: happy path + edge case + integration (where applicable)
 ```
 
-**Verify:** `grep -c 'verify command' skills/planning/SKILL.md` ≥ 3
+**Verificação:** `grep -c 'verify command' skills/planning/SKILL.md` ≥ 3
 
-### Task 8: 记录到 knowledge
+### Tarefa 8: 记录到 knowledge
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/episodes.md`
 - Modify: `knowledge/rules.md`
 
 episodes.md 追加本次实现记录。
 rules.md 的 workflow section 追加：checklist 勾选必须有 verify 命令执行证据，hook 强制。
 
-**Verify:** `grep -c 'verify' knowledge/episodes.md` ≥ 1
+**Verificação:** `grep -c 'verify' knowledge/episodes.md` ≥ 1
 
 ## Review
 
 ### Checklist Coverage ✅
-- All 8 Tasks have **Verify:** lines with executable commands
+- All 8 Tasks have **Verificação:** lines with executable commands
 - ## Checklist section exists with 12 concrete `- [ ]` items
 - All checklist items follow `| \`command\`` format
 - Coverage: 12 checklist items ≥ 8 tasks (minimum requirement met)

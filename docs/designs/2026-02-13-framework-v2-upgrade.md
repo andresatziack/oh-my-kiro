@@ -1,8 +1,8 @@
-# oh-my-claude-code v2 — Framework Upgrade Design
+# oh-my-claude-code v2 - Framework Upgrade Design
 
-> **Goal:** 将现有框架升级为以 CLAUDE.md + Hooks 为核心的 "as code" 渐进式披露 Agent 框架，实现真正的自主调研、交叉验证、严格 review、多 agent 自动拆分、持续运行直到问题解决。
+> **Objetivo:** 将现有框架升级为以 CLAUDE.md + Hooks 为核心的 "as code" 渐进式披露 Agent 框架，实现真正的自主调研、交叉验证、严格 review、多 agent 自动拆分、持续运行直到问题解决。
 
-> **Date:** 2026-02-13
+> **Data:** 2026-02-13
 > **Status:** ✅ Implemented (2026-02-13, 51/51 verification passed) → 🔄 Hardening (E2E testing revealed 3 additional bugs, all fixed)
 
 ---
@@ -629,7 +629,7 @@ fi
 
 **效果:** Claude 不能在没有验证证据的情况下停止工作。这是实现"持续运行直到解决问题"的核心。
 
-#### 4.2.1b `verify-completion` — Stop Hook (Kiro 版)
+#### 4.2.1b `verify-completion` - Stop Hook (Kiro 版)
 
 Kiro 不支持 `prompt`/`agent` 类型 hook，使用 `command` 类型 + 外部 LLM 调用实现语义判断：
 
@@ -723,7 +723,7 @@ jq -n '{
 
 **Kiro 等效方案:** Kiro 不需要 PermissionRequest hook。通过 agent 配置中的 `trustedAgents` + `shell.deniedCommands` + `shell.autoAllowReadonly` 组合实现**等效能力**，无需降级。详见 Part 9 Kiro Agent 配置示例。
 
-#### 4.2.3 `inject-subagent-rules` — SubagentStart Hook
+#### 4.2.3 `inject-subagent-rules` - SubagentStart Hook
 
 **类型:** `command`
 
@@ -740,7 +740,7 @@ jq -n '{
 }'
 ```
 
-#### 4.2.4 `enforce-tests` — TaskCompleted Hook (CC only)
+#### 4.2.4 `enforce-tests` - TaskCompleted Hook (CC only)
 
 **类型:** `command`
 
@@ -783,7 +783,7 @@ is_source_file() {
 }
 ```
 
-#### 4.2.5 `context-enrichment` — UserPromptSubmit Hook (替代原 three-rules-check + enforce-skill-chain)
+#### 4.2.5 `context-enrichment` - UserPromptSubmit Hook (替代原 three-rules-check + enforce-skill-chain)
 
 **类型:** `command`
 **策略:** B+A 混合 — 注入上下文（主）+ Stop hook agent 验证（兜底）

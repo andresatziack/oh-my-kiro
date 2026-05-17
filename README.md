@@ -4,77 +4,77 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests: 56](https://img.shields.io/badge/tests-56_passing-green)]()
 
-**Your AI agent forgets everything. Mine doesn't.**
+**Seu agente de IA esquece tudo. O meu não.**
 
-oh-my-kiro is a framework that gives your AI coding agent persistent memory, deterministic workflows, and self-evolving intelligence. Like oh-my-zsh for Zsh — but for AI agents.
+oh-my-kiro é um framework que dá ao seu agente de IA de coding memória persistente, workflows determinísticos e inteligência que evolui sozinha. Como o oh-my-zsh para o Zsh, mas para agentes de IA.
 
-_Day 1: generic agent. Day 30: knows your codebase, your style, your decision patterns._
+_Dia 1: agente genérico. Dia 30: conhece sua base de código, seu estilo, seus padrões de decisão._
 
-Works with: **Kiro CLI**
+Funciona com: **Kiro CLI**
 
-[Quick Start](#quick-start) • [Why OMK](#why-oh-my-kiro) • [Commands](#commands) • [Architecture](#architecture)
+[Quick Start](#quick-start) • [Por que OMK](#why-oh-my-kiro) • [Comandos](#commands) • [Arquitetura](#architecture)
 
 ---
 
 ## Quick Start
 
-**New project:**
+**Projeto novo:**
 ```bash
 git clone https://github.com/KaimingWan/oh-my-kiro.git my-project
 cd my-project
 python3 scripts/generate_configs.py
 ```
 
-**Existing project:**
+**Projeto existente:**
 ```bash
 git submodule add https://github.com/KaimingWan/oh-my-kiro.git oh-my-kiro
 bash oh-my-kiro/tools/init-project.sh . "My Project"
 ```
 
-**Start building:**
+**Comece a construir:**
 ```
 @auto build a REST API for user management
 ```
 
-That's it. The agent understands requirements, writes a plan, reviews it, and executes — all autonomously.
+É só isso. O agente entende os requisitos, escreve um plan, faz review e executa, tudo de forma autônoma.
 
 ---
 
 ## Why oh-my-kiro?
 
-### The Core Problem: AI Agents Hallucinate and Drift
+### O problema central: agentes de IA alucinam e perdem o rumo
 
-You tell the agent "always run tests before committing." It does — for 3 turns. Then it forgets. Or it "runs" tests by printing "tests passed" without actually executing anything. Or it skips the step because "the change is trivial."
+Você diz ao agente "sempre rode os testes antes de commitar". Ele faz isso, durante 3 turnos. Depois esquece. Ou "roda" os testes imprimindo "tests passed" sem nunca executá-los de verdade. Ou pula a etapa porque "a mudança é trivial".
 
-**Natural language instructions are unreliable.** The agent interprets them probabilistically. It might follow them. It might not. You can't build a reliable workflow on "might."
+**Instruções em linguagem natural são pouco confiáveis.** O agente as interpreta de forma probabilística. Pode seguir. Pode não seguir. Não dá para construir um workflow confiável em cima de "talvez".
 
-### The Solution: As-Code, Hook-Based Enforcement
+### A solução: enforcement como código, baseado em hooks
 
-OMK's design philosophy: **if it can be enforced by code, don't enforce it with words.**
+A filosofia de design do OMK: **se algo pode ser garantido por código, não tente garantir com palavras.**
 
-- ❌ Prompt: "Never commit secrets" → agent might still do it
-- ✅ Hook: `block-secrets.sh` scans every `git push` → exit 2 = blocked. Zero exceptions.
+- ❌ Prompt: "Nunca commite secrets" → o agente pode commitar mesmo assim
+- ✅ Hook: `block-secrets.sh` escaneia todo `git push` → exit 2 = bloqueado. Sem exceções.
 
-- ❌ Prompt: "Always run tests after editing" → agent skips when context is tight
-- ✅ Hook: `post-write.sh` auto-triggers lint + test on every file save. Agent doesn't choose.
+- ❌ Prompt: "Sempre rode testes depois de editar" → o agente pula quando o contexto está apertado
+- ✅ Hook: `post-write.sh` dispara lint + test automaticamente a cada save de arquivo. O agente não escolhe.
 
-- ❌ Prompt: "Follow the plan step by step" → agent jumps ahead or skips steps
-- ✅ Hook: `enforce-ralph-loop.sh` blocks direct source edits when a plan exists. Must go through Ralph Loop.
+- ❌ Prompt: "Siga o plan passo a passo" → o agente pula etapas ou se adianta
+- ✅ Hook: `enforce-ralph-loop.sh` bloqueia edições diretas no código quando existe um plan ativo. Tem que passar pelo Ralph Loop.
 
-This is not about restricting the agent. It's about **raising the success rate of every operation** by removing the possibility of hallucinated shortcuts.
+Não é sobre restringir o agente. É sobre **aumentar a taxa de sucesso de cada operação** removendo a possibilidade de atalhos alucinados.
 
-### What You Get
+### O que você ganha
 
-- **Agent never forgets** — Corrections persist across sessions. Mistakes become rules. Knowledge compounds.
-- **19 hooks enforce, not suggest** — The agent literally cannot `rm -rf /`, commit secrets, skip tests, or edit files outside its workspace.
-- **Agent crashes don't matter** — Ralph Loop keeps spawning fresh agents until every checklist item passes.
-- **Plan → Review → Ship, one command** — `@auto` goes from vague idea to merged code.
-- **Skill supply chain security** — 8-category threat scan on every skill install. Based on [Snyk's ToxicSkills research](https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/).
-- **Zero config, full power** — Works out of the box.
+- **O agente nunca esquece** - As correções persistem entre sessões. Erros viram regras. O conhecimento acumula juros.
+- **19 hooks impõem, não sugerem** - O agente literalmente não consegue dar `rm -rf /`, commitar secrets, pular testes ou editar arquivos fora do seu workspace.
+- **Crash do agente não importa** - O Ralph Loop continua spawnando agentes novos até cada item da checklist passar.
+- **Plan → Review → Ship em um único comando** - `@auto` vai de uma ideia vaga até código merged.
+- **Segurança na supply chain de skills** - Scan de ameaças em 8 categorias em todo skill instalado. Baseado na pesquisa [ToxicSkills da Snyk](https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/).
+- **Zero config, poder total** - Funciona out of the box.
 
 ---
 
-## The Innovation: 3-Layer Determinism
+## A inovação: determinismo em 3 camadas
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -92,23 +92,23 @@ This is not about restricting the agent. It's about **raising the success rate o
 └─────────────────────────────────────────────────────┘
 ```
 
-**Why 3 layers, not just "add more hooks"?**
+**Por que 3 camadas, em vez de só "adicionar mais hooks"?**
 
-Not everything should be a hard block. Blocking `rm -rf` is obvious (L2). But "you should run tests" is better as auto-triggered feedback (L3) — the agent sees test results and self-corrects. And "follow this 5-step workflow" is best as a deterministic command (L1) — the agent doesn't interpret, it executes.
+Nem tudo deve ser um hard block. Bloquear `rm -rf` é óbvio (L2). Mas "você deveria rodar os testes" funciona melhor como feedback automático (L3): o agente vê o resultado dos testes e se autocorrige. E "siga este workflow de 5 passos" fica melhor como comando determinístico (L1): o agente não interpreta, ele executa.
 
-The layers map to **certainty levels**: L1 = 100% (user-triggered workflow), L2 = 100% (hard block), L3 = ~50% (advisory, agent may ignore but usually doesn't because the feedback is useful).
+As camadas mapeiam para **níveis de certeza**: L1 = 100% (workflow disparado pelo usuário), L2 = 100% (hard block), L3 = ~50% (advisory; o agente pode ignorar, mas em geral não ignora porque o feedback é útil).
 
-**L1 is deterministic.** When you say `@plan`, the agent follows: deep understanding → write plan with TDD checklist → dispatch parallel reviewers → fix until APPROVE → execute via Ralph Loop. It cannot skip steps.
+**L1 é determinístico.** Quando você diz `@plan`, o agente segue: deep understanding → escrever plan com checklist TDD → despachar reviewers paralelos → corrigir até APPROVE → executar via Ralph Loop. Não dá para pular etapas.
 
-**L2 is a hard wall.** `exit 2` from any gate hook = operation blocked. The agent sees the block, gets a suggested alternative, and retries safely. No amount of prompt engineering bypasses this.
+**L2 é uma parede dura.** `exit 2` em qualquer gate hook = operação bloqueada. O agente vê o block, recebe uma alternativa sugerida e tenta de novo de forma segura. Nenhum prompt engineering burla isso.
 
-**L3 is compound interest.** Every correction you make is detected, persisted to `episodes.md`, and auto-injected into future sessions by keyword match. After 3 similar corrections, it promotes to a permanent rule.
+**L3 são juros compostos.** Cada correção que você faz é detectada, persistida em `episodes.md` e injetada automaticamente em sessões futuras por keyword match. Após 3 correções parecidas, ela é promovida a regra permanente.
 
 ---
 
-## The Innovation: Ralph Loop
+## A inovação: Ralph Loop
 
-Your agent crashes mid-task? Context window fills up? No problem.
+Seu agente trava no meio da tarefa? A janela de contexto enche? Sem problema.
 
 ```
 Ralph Loop (Python outer loop)
@@ -128,94 +128,94 @@ Ralph Loop (Python outer loop)
   └─ All items [x]? → ✅ Done. Print summary.
 ```
 
-Each iteration gets **clean context**. No stale state accumulation. The bash loop is the reliability layer — agent intelligence is the execution layer.
+Cada iteração começa com **contexto limpo**. Sem acúmulo de estado velho. O loop em bash é a camada de confiabilidade; a inteligência do agente é a camada de execução.
 
 ---
 
 ## Commands
 
-Commands come in two flavors:
-- **MCP Prompt** (`@o/plan "build a REST API"`) — accepts natural language input inline. The agent receives your description as context.
-- **Command-only** (`@execute`, `@cpu`) — triggered by keyword, no inline arguments. Reads state from files (active plan, git diff, etc.)
+Comandos vêm em dois sabores:
+- **MCP Prompt** (`@o/plan "build a REST API"`) aceita entrada em linguagem natural inline. O agente recebe sua descrição como contexto.
+- **Command-only** (`@execute`, `@cpu`) disparado por keyword, sem argumentos inline. Lê estado dos arquivos (plan ativo, git diff, etc.).
 
-### 🚀 The Autonomy Spectrum
+### 🚀 O espectro de autonomia
 
 #### `@auto` "build a user auth system" _(MCP prompt)_
-**Full autopilot.** One command → understand requirements → write plan with TDD checklist → dispatch parallel reviewers → auto-fix until APPROVE → Ralph Loop execution → done.
+**Piloto automático completo.** Um comando → entender requisitos → escrever plan com checklist TDD → despachar reviewers paralelos → auto-fix até APPROVE → execução via Ralph Loop → done.
 
-_What makes it special:_ Readiness Check — a 4-dimension checklist (Goal / Constraints / Success Criteria / Context) that validates understanding before any code is written. If anything is unclear, it asks exactly ONE question with Socratic challenge modes.
+_O que o torna especial:_ Readiness Check, uma checklist de 4 dimensões (Goal / Constraints / Success Criteria / Context) que valida o entendimento antes de qualquer linha de código. Se algo está obscuro, ele faz exatamente UMA pergunta com modos de challenge socrático.
 
 #### `@plan` "migrate from PostgreSQL to DynamoDB" _(MCP prompt)_
-**Controlled execution.** Same pipeline as `@auto`, but pauses for your confirmation after Phase 0 (deep understanding) and after review. You stay in the loop.
+**Execução controlada.** Mesmo pipeline do `@auto`, mas pausa para sua confirmação após a Phase 0 (deep understanding) e após o review. Você fica no loop.
 
-_What makes it special:_ Every checklist item requires an inline verify command (`- [ ] API returns 200 | \`curl -sf localhost:8000/health\``). Ralph Loop re-runs these commands and reverts any `[x]` that fails. No false completions.
+_O que o torna especial:_ todo item da checklist exige um comando de verify inline (`- [ ] API returns 200 | \`curl -sf localhost:8000/health\``). O Ralph Loop re-executa esses comandos e reverte qualquer `[x]` que falhar. Sem completion falsa.
 
 #### `@execute` _(command-only)_
-**Resume and finish.** Loads an approved plan, launches Ralph Loop. Agent crashes don't matter — the bash loop keeps spawning fresh instances until every checklist item passes.
+**Retomar e finalizar.** Carrega um plan aprovado, dispara o Ralph Loop. Crashes do agente não importam: o loop em bash continua spawnando instâncias novas até cada item da checklist passar.
 
-_What makes it special:_ Work Dir isolation — if the plan declares `**Work Dir:** worktrees/omk-foo`, execution is sandboxed there. The gate hook blocks writes outside that directory.
+_O que o torna especial:_ isolamento de Work Dir. Se o plan declara `**Work Dir:** worktrees/omk-foo`, a execução fica sandboxed ali. O gate hook bloqueia writes fora desse diretório.
 
 #### `@do` "add a health check endpoint" _(MCP prompt)_
-**Quick task (< 1 hour).** No plan file, no review dispatch. Scratchpad → implement → verify → commit. For when `@plan` is overkill.
+**Tarefa rápida (< 1 hora).** Sem arquivo de plan, sem despacho de review. Scratchpad → implementar → verify → commit. Para quando `@plan` é exagero.
 
 ---
 
-### 🔍 Analysis Commands
+### 🔍 Comandos de análise
 
 #### `@review` _(MCP prompt)_
-Dispatches a reviewer subagent with the full git diff. Multi-angle review (correctness, security, performance). Every finding has P0-P3 severity and file:line citation. Auto-detects worktree context from `.active-submodule`.
+Despacha um subagente reviewer com o git diff completo. Review multi-ângulo (correctness, segurança, performance). Cada finding tem severidade P0-P3 e citação file:line. Detecta automaticamente o contexto de worktree pelo `.active-submodule`.
 
 #### `@evaluate` "scripts/ralph_loop.py look for simplifications" _(MCP prompt)_
-**Independent code quality assessment.** 4 parallel evaluator subagents — each with a distinct persona (Refactoring Expert, Product Manager, Breaker, CSO) — assess code across 6 dimensions: Simplicity, Alignment, Correctness, Security, Robustness, Maintainability. Mandatory fill-table format prevents walk-through reviews. Also runs automatically after `@execute` completes (GAN-inspired adversarial loop, up to 3 rounds).
+**Avaliação independente de qualidade de código.** 4 subagentes evaluators paralelos, cada um com uma persona distinta (Refactoring Expert, Product Manager, Breaker, CSO), avaliam o código em 6 dimensões: Simplicidade, Alinhamento, Correctness, Segurança, Robustez, Manutenibilidade. O formato obrigatório de fill-table impede reviews superficiais. Também roda automaticamente após o `@execute` terminar (loop adversarial inspirado em GAN, até 3 rodadas).
 
 #### `@debug` "tests fail with timeout on CI" _(MCP prompt)_
-**Systematic debugging pipeline.** Not guess-and-check — structured root cause analysis:
+**Pipeline sistemático de debugging.** Não é tentativa-e-erro: é análise estruturada de causa raiz:
 
-1. Session resume — checks `docs/investigations/` for prior work on this bug (cross-session continuity)
-2. Triage — reads `episodes.md` for known patterns, builds architectural context via LSP
-3. Hypothesis tree — generates ranked hypotheses, tests each with evidence
-4. Fix — only after root cause is confirmed
+1. Resumo de sessão: checa `docs/investigations/` por trabalho anterior nesse bug (continuidade entre sessões)
+2. Triagem: lê `episodes.md` em busca de padrões conhecidos, monta contexto arquitetural via LSP
+3. Árvore de hipóteses: gera hipóteses ranqueadas, testa cada uma com evidência
+4. Fix: somente após a causa raiz ser confirmada
 
-_What makes it special:_ Investigation documents persist across sessions. If you hit a bug on Monday and resume Wednesday, the agent picks up exactly where it left off.
+_O que o torna especial:_ os documentos de investigação persistem entre sessões. Se você esbarra num bug na segunda e retoma na quarta, o agente continua exatamente de onde parou.
 
 #### `@research` "how does Kafka handle rebalancing" _(MCP prompt)_
-**3-level research:** L0 built-in knowledge → L1 web search → L2 deep dive with source cross-verification. Findings auto-persisted to file.
+**Research em 3 níveis:** L0 conhecimento built-in → L1 web search → L2 deep dive com cross-verification de fontes. Findings persistidos automaticamente em arquivo.
 
 ---
 
-### 🔧 Git & PR Commands
+### 🔧 Comandos de Git e PR
 
 #### `@fixpr` _(command-only)_
-**Automated PR fixer.** Fetches ALL unresolved review threads via GraphQL, triages each comment (fix / pushback / clarify), implements fixes, replies + resolves every thread. Goal: zero unresolved threads.
+**PR fixer automatizado.** Busca TODAS as threads de review não resolvidas via GraphQL, faz triagem de cada comentário (fix / pushback / clarify), implementa as correções, responde e resolve cada thread. Meta: zero threads não resolvidas.
 
-_What makes it special:_ PR Blueprint — reads the full diff first to understand intent, then fixes individual comments without drifting from the PR's purpose. Protected Code list prevents reviewers from requesting changes to intentional design decisions.
+_O que o torna especial:_ PR Blueprint. Lê o diff completo primeiro para entender a intenção, depois corrige cada comentário sem se desviar do propósito do PR. A lista de Protected Code impede que reviewers solicitem mudanças em decisões de design intencionais.
 
 #### `@cpr` _(MCP prompt)_ · `@cpu` _(command-only)_
-`@cpr`: Commit → push → create PR → worktree cleanup. `@cpu`: Commit → push → merge directly.
+`@cpr`: commit → push → criar PR → cleanup do worktree. `@cpu`: commit → push → merge direto.
 
 #### `@ck` "feature/auth" _(MCP prompt)_ · `@wt` _(command-only)_
-`@ck`: Checkout branch into submodule worktree with fuzzy search. `@wt`: List all worktrees, clean up merged branches.
+`@ck`: checkout de uma branch num worktree do submodule com fuzzy search. `@wt`: lista todos os worktrees, faz cleanup das branches já merged.
 
 ---
 
-### 🧠 Knowledge Commands
+### 🧠 Comandos de conhecimento
 
 #### `@dream` _(command-only)_
-**Automated knowledge hygiene.** Scans the entire knowledge base for rot:
-- Deterministic (bash): dead links, stale episodes, orphan files, TODO markers, content staleness by type
-- Semantic (LLM): content redundancy, contradictions across files, consolidation recommendations
+**Higiene automatizada do conhecimento.** Escaneia toda a base de conhecimento atrás de podridão:
+- Determinístico (bash): links mortos, episodes obsoletos, arquivos órfãos, marcadores TODO, staleness por tipo
+- Semântico (LLM): redundância de conteúdo, contradições entre arquivos, recomendações de consolidação
 
 #### `@agent` _(MCP prompt)_ · `@know` _(MCP prompt)_
-`@agent`: Distill a principle into `rules.md`. `@know`: Capture a knowledge insight into `episodes.md`.
+`@agent`: destila um princípio em `rules.md`. `@know`: captura um insight de conhecimento em `episodes.md`.
 
 #### `@lint` _(command-only)_ · `@skill` _(command-only)_
-`@lint`: Framework health check. `@skill`: List skills, match user need to closest one.
+`@lint`: health check do framework. `@skill`: lista as skills, casa a necessidade do usuário com a mais próxima.
 
 ---
 
-## The Innovation: Self-Evolving Knowledge System
+## A inovação: sistema de conhecimento auto-evolutivo
 
-This is not "save notes to a file." It's a **closed-loop intelligence pipeline** that automatically detects mistakes, extracts patterns, and rewires the agent's behavior — permanently.
+Isso não é "salvar notas num arquivo". É um **pipeline de inteligência em loop fechado** que detecta erros automaticamente, extrai padrões e religa o comportamento do agente, de forma permanente.
 
 ### How It Works
 
@@ -240,90 +240,90 @@ You say "别用 sed 改 JSON，用 jq"
        └─ 🟡 RELEVANT 规则: 关键词匹配时注入
 ```
 
-### What Makes This Different
+### O que torna isso diferente
 
-**Not just memory — it's immune system.** The agent doesn't just "remember" your correction. It builds antibodies:
+**Não é só memória, é sistema imune.** O agente não apenas "lembra" da sua correção. Ele constrói anticorpos:
 
-1. **Real-time detection** — `correction-detect.sh` matches 30+ correction patterns in both Chinese and English ("你错了", "不是这样", "wrong approach", "try again"). No manual tagging needed.
+1. **Detecção em tempo real** - `correction-detect.sh` casa 30+ padrões de correção em chinês e inglês ("你错了", "不是这样", "wrong approach", "try again"). Sem tagging manual.
 
-2. **Quality gates** — Not every correction is worth persisting. `auto-capture.sh` filters out questions, vague complaints, and duplicates. Only actionable corrections with extractable keywords survive.
+2. **Gates de qualidade** - Nem toda correção vale persistência. `auto-capture.sh` filtra perguntas, reclamações vagas e duplicatas. Só sobrevivem correções acionáveis com keywords extraíveis.
 
-3. **Auto-promotion** — When the same keyword pattern appears in 3+ episodes, `distill.sh` automatically promotes it to a permanent rule with severity level (🔴 CRITICAL = always injected, 🟡 RELEVANT = keyword-matched).
+3. **Auto-promoção** - Quando o mesmo padrão de keyword aparece em 3+ episodes, o `distill.sh` o promove automaticamente para regra permanente, com nível de severidade (🔴 CRITICAL = sempre injetado, 🟡 RELEVANT = injetado por keyword match).
 
-4. **Smart injection** — `context-enrichment.sh` runs on every user prompt. It keyword-matches the message against `rules.md` sections and injects only relevant rules. Not the whole file — just what matters for this specific message. Budget: max 3 rules per message.
+4. **Injeção inteligente** - `context-enrichment.sh` roda em todo prompt do usuário. Faz keyword match da mensagem contra as seções de `rules.md` e injeta apenas as regras relevantes. Não o arquivo inteiro: só o que importa para essa mensagem específica. Budget: no máximo 3 regras por mensagem.
 
-5. **Cross-session continuity** — `session-init.sh` cleans up promoted episodes, reminds about promotion candidates, and bootstraps the knowledge state. Day 1 and Day 100 use the same pipeline.
+5. **Continuidade entre sessões** - `session-init.sh` faz cleanup dos episodes promovidos, lembra dos candidatos a promoção e bootstrapa o estado de conhecimento. Dia 1 e Dia 100 usam o mesmo pipeline.
 
-6. **Semantic search (optional)** — With OpenViking configured, `context-enrichment.sh` also queries a semantic index of all knowledge files, injecting relevant snippets even when keyword matching misses.
+6. **Busca semântica (opcional)** - Com OpenViking configurado, o `context-enrichment.sh` também consulta um índice semântico de todos os arquivos de conhecimento, injetando snippets relevantes mesmo quando o keyword match falha.
 
-### Real Example from Production
+### Exemplo real de produção
 
-After 3 corrections about macOS compatibility, the system auto-promoted this rule:
+Após 3 correções sobre compatibilidade com macOS, o sistema promoveu automaticamente esta regra:
 
 > 🔴 macOS 没有 `timeout` 命令 (GNU coreutils). Plan 里写 `timeout 60s` 在 macOS 上会 command not found. 替代: `gtimeout` (brew install coreutils). 所有跨平台 bash 脚本不能假设 timeout 存在.
 
-Now every time the agent writes a bash script, this rule is injected. The mistake never happens again.
+Agora, toda vez que o agente escreve um script bash, essa regra é injetada. O erro não acontece de novo.
 
-### Knowledge Hygiene: `@dream`
+### Higiene de conhecimento: `@dream`
 
-Knowledge rots. Old corrections become irrelevant. Files contradict each other. `@dream` is the automated janitor:
+Conhecimento apodrece. Correções antigas viram irrelevantes. Arquivos se contradizem. `@dream` é o faxineiro automatizado:
 
-- **Deterministic (bash):** dead links, stale episodes (>14d → auto-resolved), orphan files, TODO markers, content staleness by type
-- **Semantic (LLM):** content redundancy across files, data contradictions (e.g., "GitHub Stars 8.5K" in one file vs "10K+" in another), consolidation recommendations with priority
+- **Determinístico (bash):** links mortos, episodes obsoletos (>14d → auto-resolvidos), arquivos órfãos, marcadores TODO, staleness por tipo
+- **Semântico (LLM):** redundância de conteúdo entre arquivos, contradições de dados (por exemplo, "GitHub Stars 8.5K" em um arquivo vs "10K+" em outro), recomendações de consolidação com prioridade
 
 ---
 
-## Security
+## Segurança
 
-### Hook-Level Enforcement
+### Enforcement no nível dos hooks
 
-| What's Blocked | How |
+| O que é bloqueado | Como |
 |---------------|-----|
-| `rm -rf`, `sudo`, `curl\|bash` | `security/block-dangerous.sh` — hard block |
-| API keys, private keys in commits | `security/block-secrets.sh` — pre-push scan |
-| `sed`/`awk` on JSON files | `security/block-sed-json.sh` — use jq instead |
-| File writes outside workspace | `security/block-outside-workspace.sh` |
-| Source edits without active plan | `gate/enforce-ralph-loop.sh` |
-| Writes outside declared Work Dir | `gate/enforce-work-dir.sh` |
+| `rm -rf`, `sudo`, `curl\|bash` | `security/block-dangerous.sh`, hard block |
+| API keys, chaves privadas em commits | `security/block-secrets.sh`, scan no pre-push |
+| `sed`/`awk` em arquivos JSON | `security/block-sed-json.sh`, use jq |
+| Writes de arquivo fora do workspace | `security/block-outside-workspace.sh` |
+| Edições no source sem plan ativo | `gate/enforce-ralph-loop.sh` |
+| Writes fora do Work Dir declarado | `gate/enforce-work-dir.sh` |
 
-### Skill Supply Chain
+### Supply chain de skills
 
-Every skill install goes through `audit-skill.sh` — an 8-category threat scan:
+Toda instalação de skill passa pelo `audit-skill.sh`, um scan de ameaças em 8 categorias:
 
-| Threat | Severity |
+| Ameaça | Severidade |
 |--------|----------|
-| Prompt injection, base64 obfuscation, jailbreaks | 🔴 CRITICAL |
+| Prompt injection, ofuscação base64, jailbreaks | 🔴 CRITICAL |
 | eval/exec, shell=True, backdoors | 🔴 CRITICAL |
-| curl\|bash, password-protected archives | 🔴 CRITICAL |
-| Reading ~/.aws/credentials, echoing API keys | 🟠 HIGH |
-| Hardcoded secrets (AWS keys, GitHub tokens) | 🟠 HIGH |
-| External HTTP fetches, dynamic imports | 🟡 MEDIUM |
-| sudo, systemctl modifications | 🟡 MEDIUM |
+| curl\|bash, archives protegidos por senha | 🔴 CRITICAL |
+| Leitura de ~/.aws/credentials, echo de API keys | 🟠 HIGH |
+| Secrets hardcoded (AWS keys, GitHub tokens) | 🟠 HIGH |
+| Fetches HTTP externos, imports dinâmicos | 🟡 MEDIUM |
+| sudo, modificações no systemctl | 🟡 MEDIUM |
 
-CRITICAL = blocked. HIGH = warned. All installs gated — no bare `npx skills add` allowed.
+CRITICAL = bloqueado. HIGH = aviso. Toda instalação tem gate. Não é permitido `npx skills add` direto.
 
 ---
 
-## Full Kiro Platform Integration
+## Integração total com a plataforma Kiro
 
-OMK is built to exploit every Kiro platform capability. Not just hooks — the full stack.
+OMK foi feito para explorar todas as capacidades da plataforma Kiro. Não só hooks: a stack inteira.
 
 ### Steering Rules (`.kiro/rules/`)
 
-Kiro's steering rules are always-on instructions injected into every agent interaction. OMK uses 4 steering files as the "constitution":
+As steering rules do Kiro são instruções always-on injetadas em toda interação do agente. OMK usa 4 arquivos de steering como "constituição":
 
-| File | What It Steers |
+| Arquivo | O que ele direciona |
 |------|---------------|
-| `enforcement.md` | Complete hook registry with event types, determinism layers (L0-L3), config generation rules |
-| `code-analysis.md` | **LSP-first mandate** — agent must use `search_symbols`, `find_references`, `get_diagnostics` before grep. AST pattern search before text search. `pattern_rewrite` before sed. |
-| `commands.md` | Command routing table: which `@command` triggers which workflow |
-| `reference.md` | Project conventions, naming patterns, file organization rules |
+| `enforcement.md` | Registro completo de hooks com tipos de event, camadas de determinismo (L0-L3), regras de geração de config |
+| `code-analysis.md` | **Mandato LSP-first.** O agente deve usar `search_symbols`, `find_references`, `get_diagnostics` antes de grep. Busca por padrão AST antes de busca textual. `pattern_rewrite` antes de sed. |
+| `commands.md` | Tabela de roteamento de comandos: qual `@command` dispara qual workflow |
+| `reference.md` | Convenções do projeto, padrões de nomenclatura, regras de organização de arquivos |
 
-_Why this matters:_ Steering rules are injected by the platform, not by the agent. The agent cannot choose to ignore them. This is a harder guarantee than AGENTS.md instructions.
+_Por que isso importa:_ as steering rules são injetadas pela plataforma, não pelo agente. O agente não pode escolher ignorá-las. Essa garantia é mais dura que instruções no AGENTS.md.
 
-### LSP-First Code Intelligence
+### Inteligência de código LSP-first
 
-Most AI agents read code with `grep` and `cat`. OMK agents use **Language Server Protocol** — the same intelligence that powers your IDE:
+A maioria dos agentes de IA lê código com `grep` e `cat`. Os agentes do OMK usam **Language Server Protocol**, a mesma inteligência que alimenta sua IDE:
 
 ```
 # Instead of: grep -rn "handleRequest" src/
@@ -335,9 +335,9 @@ get_diagnostics(file)               → get compiler errors
 pattern_search("try { $$$ } catch") → find all error handlers (AST-level)
 ```
 
-Configured via `.kiro/settings/lsp.json` with support for Rust, Python, TypeScript, Go, and more. The `code-analysis.md` steering rule enforces this — the agent is steered away from grep for code navigation.
+Configurado via `.kiro/settings/lsp.json` com suporte a Rust, Python, TypeScript, Go e mais. A steering rule `code-analysis.md` faz enforcement: o agente é direcionado para longe do grep em navegação de código.
 
-### Skills, Hooks, Tools — Single Source of Truth
+### Skills, Hooks, Tools, fonte única da verdade
 
 ```
 hooks/     ─── symlinked ──→  .kiro/hooks
@@ -345,16 +345,16 @@ skills/    ─── symlinked ──→  .kiro/skills
 commands/  ─── symlinked ──→  .kiro/prompts
 ```
 
-You edit in `hooks/`, `skills/`, `commands/`. The `.kiro/` directory is generated. `scripts/generate_configs.py` produces agent configs, settings, and wiring from these sources. Never edit `.kiro/` directly.
+Você edita em `hooks/`, `skills/`, `commands/`. O diretório `.kiro/` é gerado. `scripts/generate_configs.py` produz os configs de agentes, settings e wiring a partir dessas fontes. Nunca edite `.kiro/` direto.
 
-| Kiro Feature | OMK Usage |
+| Recurso do Kiro | Uso no OMK |
 |-------------|-----------|
-| **Hooks** (PreToolUse/PostToolUse/Stop) | 19 hooks: security gates, workflow enforcement, auto-lint, correction detection, knowledge injection |
-| **Skills** (on-demand capabilities) | 14 skills: planning, reviewing, coding, debugging, research, self-reflect, etc. |
-| **Prompts** (MCP commands) | 10 MCP prompts accepting natural language: `@o/plan "build X"`, `@o/debug "Y fails"` |
-| **Agents** (subagent configs) | 5 agent profiles: pilot, reviewer, researcher, executor, default |
-| **Steering** (always-on rules) | 4 rule files: enforcement, code-analysis, commands, reference |
-| **Settings** (LSP + MCP) | LSP for 5+ languages, MCP server for prompt registration |
+| **Hooks** (PreToolUse/PostToolUse/Stop) | 19 hooks: gates de segurança, enforcement de workflow, auto-lint, detecção de correção, injeção de conhecimento |
+| **Skills** (capacidades on-demand) | 14 skills: planning, reviewing, coding, debugging, research, self-reflect, etc. |
+| **Prompts** (comandos MCP) | 10 MCP prompts aceitando linguagem natural: `@o/plan "build X"`, `@o/debug "Y fails"` |
+| **Agents** (configs de subagentes) | 5 perfis: pilot, reviewer, researcher, executor, default |
+| **Steering** (regras always-on) | 4 arquivos de regra: enforcement, code-analysis, commands, reference |
+| **Settings** (LSP + MCP) | LSP para 5+ linguagens, MCP server para registro de prompts |
 
 ---
 
@@ -377,35 +377,35 @@ oh-my-kiro/
 └── tests/           # 56 test files
 ```
 
-**Key design:** `hooks/`, `skills/`, `commands/` are the single source of truth. Platform configs (`.kiro/`) are generated by `generate_configs.py`. Never edit generated files.
+**Design-chave:** `hooks/`, `skills/`, `commands/` são a fonte única da verdade. Os configs da plataforma (`.kiro/`) são gerados pelo `generate_configs.py`. Nunca edite arquivos gerados.
 
 ---
 
-## Cherry-Pick What You Need
+## Cherry-Pick do que você precisa
 
-| Want | Copy |
+| Quer | Copie |
 |------|------|
-| Just the execution engine | `scripts/ralph_loop.py` + `scripts/lib/` |
-| Just self-learning | `skills/omk-self-reflect/` + `knowledge/rules.md` + `knowledge/episodes.md` |
-| Just security hooks | `hooks/security/` + `hooks/_lib/patterns.sh` |
-| Just skill auditing | `tools/audit-skill.sh` + `tools/install-skill.sh` |
+| Só o motor de execução | `scripts/ralph_loop.py` + `scripts/lib/` |
+| Só self-learning | `skills/omk-self-reflect/` + `knowledge/rules.md` + `knowledge/episodes.md` |
+| Só os hooks de segurança | `hooks/security/` + `hooks/_lib/patterns.sh` |
+| Só auditoria de skills | `tools/audit-skill.sh` + `tools/install-skill.sh` |
 
 ---
 
-## Extending
+## Estendendo
 
-See [EXTENSION-GUIDE.md](docs/EXTENSION-GUIDE.md) for adding project-specific skills, hooks, and knowledge.
+Veja [EXTENSION-GUIDE.md](docs/EXTENSION-GUIDE.md) para adicionar skills, hooks e conhecimento específicos do projeto.
 
 ---
 
-## Design Principles
+## Princípios de design
 
-1. **Deterministic over hopeful** — Commands and hard blocks, not soft prompts
-2. **Compound over time** — Every session makes the next one better
-3. **Code over prose** — Hooks enforce, words suggest
-4. **Evidence before claims** — Verification first, always
-5. **Secure by default** — All skill installs audited, dangerous commands blocked
-6. **Bold reform over timid patches** — Quality over backward compatibility
+1. **Determinístico em vez de torcer** - Comandos e hard blocks, não prompts soft
+2. **Acumular ao longo do tempo** - Cada sessão deixa a próxima melhor
+3. **Código em vez de prosa** - Hooks impõem, palavras sugerem
+4. **Evidência antes de afirmação** - Verificação primeiro, sempre
+5. **Seguro por padrão** - Toda instalação de skill auditada, comandos perigosos bloqueados
+6. **Reforma ousada em vez de patches tímidos** - Qualidade acima de retrocompatibilidade
 
 ---
 

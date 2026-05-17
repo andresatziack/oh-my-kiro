@@ -1,14 +1,14 @@
-# Claude Code Parity — Gap Analysis, Fixes & Test Suite
+# Paridade com Claude Code - Análise de Lacunas, Correções e Suíte de Testes
 
-**Goal:** Make all core framework capabilities (hooks, skills, subagents, knowledge, commands, plan/review/execute workflow, ralph loop) work correctly on Claude Code, with a comprehensive dual-platform test suite to verify parity. No Kiro regressions.
+**Objetivo:** Make all core framework capabilities (hooks, skills, subagents, knowledge, commands, plan/review/execute workflow, ralph loop) work correctly on Claude Code, with a comprehensive dual-platform test suite to verify parity. No Kiro regressions.
 
-**Non-Goals:**
+**Não-Objetivos:**
 - Migrating away from Kiro CLI support (both platforms must work)
 - Adding Claude Code-only features (agent teams, plugins, persistent memory)
 - Rewriting hooks from scratch (additive compatibility only)
 - Performance optimization of hooks or ralph loop
 
-**Architecture:** Extend `generate_configs.py` to emit `.claude/agents/*.md` alongside existing `.kiro/agents/*.json`. Add CLI auto-detection to `ralph_loop.py`. Create a dual-platform test harness that runs hook unit tests with both Kiro and CC JSON formats, plus CC headless (`claude -p`) integration tests.
+**Arquitetura:** Extend `generate_configs.py` to emit `.claude/agents/*.md` alongside existing `.kiro/agents/*.json`. Add CLI auto-detection to `ralph_loop.py`. Create a dual-platform test harness that runs hook unit tests with both Kiro and CC JSON formats, plus CC headless (`claude -p`) integration tests.
 
 **Prerequisites for CC integration tests (Task 6):**
 - Claude Code must be authenticated: `claude auth status` → `loggedIn: true`
@@ -22,26 +22,26 @@
 
 ---
 
-## Tasks
+## Tarefas
 
-### Task 1: Gap Analysis Document
+### Tarefa 1: Gap Analysis Document
 
-**Files:**
+**Arquivos:**
 - Create: `docs/claude-code-gap-analysis.md`
 
 **What to implement:**
 Write a comprehensive gap analysis document covering all differences between Kiro CLI and Claude Code that affect this framework. Include: config format, hook stdin, hook events, subagent format, skills frontmatter, commands mapping, ralph loop CLI, `$CLAUDE_PROJECT_DIR`, `stop_hook_active`. Each gap gets: description, impact, fix strategy.
 
-**Verify:**
+**Verificação:**
 ```bash
 test -f docs/claude-code-gap-analysis.md && grep -q "Config format" docs/claude-code-gap-analysis.md && echo PASS
 ```
 
 ---
 
-### Task 2: Generate Claude Code Agent Markdown Files
+### Tarefa 2: Generate Claude Code Agent Markdown Files
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 - Create: `.claude/agents/reviewer.md` (generated)
 - Create: `.claude/agents/researcher.md` (generated)
@@ -103,16 +103,16 @@ hooks:
 Run: `python3 -m pytest tests/test_generate_configs.py -v`
 Expected: PASS
 
-**Verify:**
+**Verificação:**
 ```bash
 python3 scripts/generate_configs.py && test -f .claude/agents/reviewer.md && test -f .claude/agents/researcher.md && test -f .claude/agents/executor.md && head -5 .claude/agents/reviewer.md | grep -q "^name:" && echo PASS
 ```
 
 ---
 
-### Task 3: Ralph Loop CLI Auto-Detection
+### Tarefa 3: Ralph Loop CLI Auto-Detection
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -145,32 +145,32 @@ Adjust `Popen` call in main loop:
 Run: `python3 -m pytest tests/ralph-loop/test_ralph_loop.py -v`
 Expected: PASS
 
-**Verify:**
+**Verificação:**
 ```bash
 python3 -m pytest tests/ralph-loop/test_ralph_loop.py -v -k "detect" && echo PASS
 ```
 
 ---
 
-### Task 4: Fix verify-completion.sh for CC stop_hook_active
+### Tarefa 4: Fix verify-completion.sh for CC stop_hook_active
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/verify-completion.sh`
 - Test: `tests/hooks/test-kiro-compat.sh`
 
 **What to implement:**
 Add `stop_hook_active` check at the top of `verify-completion.sh`. When CC sends `{"stop_hook_active": true}`, the hook must exit 0 immediately without doing any work (prevents infinite loop where stop hook triggers another stop).
 
-**Verify:**
+**Verificação:**
 ```bash
 echo '{"stop_hook_active":true}' | bash hooks/feedback/verify-completion.sh; test $? -eq 0 && echo PASS
 ```
 
 ---
 
-### Task 5: Dual-Platform Hook Test Fixtures
+### Tarefa 5: Dual-Platform Hook Test Fixtures
 
-**Files:**
+**Arquivos:**
 - Create: `tests/hooks/test-cc-compat.sh`
 
 **What to implement:**
@@ -186,16 +186,16 @@ Create `tests/hooks/test-cc-compat.sh` — mirrors `test-kiro-compat.sh` but use
 
 Note: Previous `docs/kiro-hook-compatibility.md` incorrectly stated CC doesn't send `hook_event_name`/`cwd`. The official CC hooks reference confirms these are common input fields for ALL events. Update the compatibility doc in Task 7.
 
-**Verify:**
+**Verificação:**
 ```bash
 bash tests/hooks/test-cc-compat.sh && echo PASS
 ```
 
 ---
 
-### Task 6: Claude Code Integration Test Suite
+### Tarefa 6: Claude Code Integration Test Suite
 
-**Files:**
+**Arquivos:**
 - Create: `tests/cc-integration/run.sh`
 - Create: `tests/cc-integration/test-hooks-fire.sh`
 - Create: `tests/cc-integration/test-skills-load.sh`
@@ -216,16 +216,16 @@ End-to-end integration tests using `claude -p` (headless mode):
 
 **CI skip strategy:** The checklist verify for this task only checks file existence and executability, not actual `claude -p` execution. Live CC tests require manual invocation or a CI environment with Claude Code configured.
 
-**Verify:**
+**Verificação:**
 ```bash
 test -f tests/cc-integration/run.sh && test -x tests/cc-integration/run.sh && grep -q "claude" tests/cc-integration/run.sh && echo PASS
 ```
 
 ---
 
-### Task 7: Update Documentation
+### Tarefa 7: Update Documentation
 
-**Files:**
+**Arquivos:**
 - Modify: `docs/kiro-hook-compatibility.md` → expand to cover dual-platform
 - Modify: `docs/INDEX.md`
 - Modify: `.kiro/rules/enforcement.md`
@@ -237,7 +237,7 @@ test -f tests/cc-integration/run.sh && test -x tests/cc-integration/run.sh && gr
 - Add `.claude/agents/*.md` to enforcement.md config generation registry
 - Add "Claude Code Support" section to README
 
-**Verify:**
+**Verificação:**
 ```bash
 grep -q "Claude Code" docs/INDEX.md && grep -q "claude-code-gap-analysis" docs/INDEX.md && echo PASS
 ```
@@ -246,19 +246,19 @@ grep -q "Claude Code" docs/INDEX.md && grep -q "claude-code-gap-analysis" docs/I
 
 ## Review
 
-### Round 1 — FAILED (Verify Correctness malformed)
+### Round 1 - FAILED (Verify Correctness malformed)
 
 **Goal Alignment** — APPROVE | **Verify Correctness** — MALFORMED (no per-row traces) | **Completeness** — APPROVE (TDD calibrated) | **Compatibility & Rollback** — APPROVE
 
 Plan fixes applied: CC frontmatter hooks format, Popen clarification, CC JSON format correction, CI skip strategy.
 
-### Round 2 — FAILED (Verify Correctness still no table)
+### Round 2 - FAILED (Verify Correctness still no table)
 
 **Goal Alignment** — APPROVE | **Verify Correctness** — APPROVE but summary-only (no table, still not meeting standard) | **Testability** — APPROVE (3 Nits) | **Technical Feasibility** — APPROVE (0 blockers)
 
 Root cause analysis: reviewer not producing per-row traces. Fix for R3: pre-filled example row, split 12 items into 2×6 across the 2 Verify Correctness slots, hard output format constraint.
 
-### Round 3 — Full 4-reviewer round (Goal Alignment + Verify Correctness + Security + Performance)
+### Round 3 - Full 4-reviewer round (Goal Alignment + Verify Correctness + Security + Performance)
 
 **Goal Alignment** — APPROVE
 Raised 3 "P1" issues but all are false positives: (1) prompt inlining is explicitly in Task 2 Step 3, (2) Popen arg order is clarified in Task 3, (3) stop_hook_active is Task 4's purpose. Coverage matrix and execution order confirmed correct.
@@ -291,7 +291,7 @@ P1 found: Task 6 integration tests lacked timeout constraints for `claude -p` AP
 
 **Round 3 verdict: Performance REQUEST CHANGES (Task 6 timeout). Fix applied. Must re-dispatch full Round 4.**
 
-### Round 4 — Full 4-reviewer round (Goal Alignment + Verify Correctness + Clarity + Compatibility & Rollback)
+### Round 4 - Full 4-reviewer round (Goal Alignment + Verify Correctness + Clarity + Compatibility & Rollback)
 
 Fixes applied since R3: Task 6 `timeout 60s` wrapper added.
 

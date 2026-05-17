@@ -12,24 +12,24 @@ disable-model-invocation: true
 - "note: this API requires auth header"
 - "@know HubSpot API 有 rate limit 100/10s"
 
-# Know — Knowledge Capture
+# Know - Captura de conhecimento
 
-Read the current conversation and capture an insight into knowledge/episodes.md.
+Lê a conversa atual e captura um insight em knowledge/episodes.md.
 
 ## Input
 $ARGUMENTS
 
-## Process
-1. If no input provided, ask user: "What insight should I capture?"
-2. Extract: trigger scenario + DO/DON'T action + keywords
-3. Check dedup: grep -iw keywords in knowledge/rules.md and knowledge/episodes.md
-   - Already in rules → tell user, skip
-   - Already in episodes → tell user count, suggest promotion if ≥3
-4. Format: `DATE | active | KEYWORDS | SUMMARY` (≤80 chars, no | in summary)
-5. Append to knowledge/episodes.md
-6. Output: 📝 Captured → episodes.md: 'SUMMARY'
+## Processo
+1. Se nenhum input for fornecido, pergunte ao usuário: "What insight should I capture?"
+2. Extraia: cenário-trigger + ação DO/DON'T + keywords
+3. Verifique deduplicação: grep -iw keywords em knowledge/rules.md e knowledge/episodes.md
+   - Já em rules → avise o usuário, pule
+   - Já em episodes → avise o usuário com a contagem, sugira promoção se ≥ 3
+4. Formato: `DATE | active | KEYWORDS | SUMMARY` (≤ 80 chars, sem | no summary)
+5. Anexe em knowledge/episodes.md
+6. Saída: 📝 Captured → episodes.md: 'SUMMARY'
 
-## Rules
-- Summary must contain actionable DO/DON'T, not narrative
-- Keywords: 1-3 english technical terms, ≥4 chars each, comma-separated
-- If episodes.md has ≥30 entries, warn user to clean up first
+## Regras
+- O summary deve conter um DO/DON'T acionável, não narrativa
+- Keywords: 1 a 3 termos técnicos em inglês, ≥ 4 chars cada, separados por vírgula
+- Se episodes.md tiver ≥ 30 entradas, avise o usuário para limpar antes

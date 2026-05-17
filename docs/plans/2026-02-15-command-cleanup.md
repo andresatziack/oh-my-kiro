@@ -1,24 +1,24 @@
-# Command Cleanup — Sync, Trim, Auto-trigger
+# Limpeza de Commands - Sync, Trim, Auto-trigger
 
-**Goal:** 删除无用命令、同步 README 命令表、通过 context-enrichment 自动触发 debugging/research skill。
-**Architecture:** 删 commands/debug.md，改 README/AGENTS.md 命令表，rules.md 加 debugging section，context-enrichment.sh 加 research 关键词检测。
+**Objetivo:** 删除无用命令、同步 README 命令表、通过 context-enrichment 自动触发 debugging/research skill。
+**Arquitetura:** 删 commands/debug.md，改 README/AGENTS.md 命令表，rules.md 加 debugging section，context-enrichment.sh 加 research 关键词检测。
 **Tech Stack:** Markdown, Bash (hook)
 
-## Tasks
+## Tarefas
 
-### Task 1: 删除 @debug 命令
+### Tarefa 1: 删除 @debug 命令
 
-**Files:**
+**Arquivos:**
 - Delete: `commands/debug.md`
 
-**Verify:**
+**Verificação:**
 ```bash
 ! test -f commands/debug.md
 ```
 
-### Task 2: Debugging 核心原则写入 rules.md
+### Tarefa 2: Debugging 核心原则写入 rules.md
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/rules.md`
 
 在文件末尾追加新 keyword section：
@@ -30,14 +30,14 @@
 3. 连续修 3 次不成功 → 停下来，重新从复现开始。
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 grep -q '## \[debugging' knowledge/rules.md
 ```
 
-### Task 3: Context-enrichment 加 research 关键词检测
+### Tarefa 3: Context-enrichment 加 research 关键词检测
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
 在 correction detection 的 `fi` 之后（约第 42 行 `touch ... .flag` 之后）、`# 2. Unfinished task resume` 注释之前，插入：
@@ -51,14 +51,14 @@ elif echo "$USER_MSG" | grep -qiE '(research|investigate|look into|compare.*opti
 fi
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 grep -q 'Research detected' hooks/feedback/context-enrichment.sh
 ```
 
-### Task 4: 更新 AGENTS.md
+### Tarefa 4: 更新 AGENTS.md
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 
 Skill routing 表中，将：
@@ -70,14 +70,14 @@ Skill routing 表中，将：
 | 调试 | debugging | rules.md 自动注入 |
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 ! grep -q '@debug' AGENTS.md && grep -q 'rules.md 自动注入' AGENTS.md
 ```
 
-### Task 5: 更新 README 命令表
+### Tarefa 5: 更新 README 命令表
 
-**Files:**
+**Arquivos:**
 - Modify: `README.md`
 
 3 处修改：
@@ -103,7 +103,7 @@ Skill routing 表中，将：
 | `@skill` | list all skills with descriptions, match user need to closest skill |
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 ! grep -q '@debug' README.md && grep -q '@reflect' README.md && grep -q '@cpu' README.md
 ```

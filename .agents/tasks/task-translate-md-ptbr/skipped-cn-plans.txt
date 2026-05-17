@@ -1,0 +1,7 @@
+.kiro/rules/code-analysis.md
+knowledge/archive/episodes-2026-02.md
+knowledge/archive/episodes-2026-03.md
+templates/agents-sections/authority.md
+templates/agents-sections/principles.md
+templates/agents-sections/self-learning.md
+templates/agents-sections/workflow.md

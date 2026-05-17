@@ -1,7 +1,7 @@
-# Knowledge System v2: Long-term Memory + Smart Injection + Auto-cleanup
+# Knowledge System v2: Memória de Longo Prazo + Injeção Inteligente + Auto-cleanup
 
-**Goal:** 改造知识库体系：rules 成为真正的长期记忆（永久保留、keyword section 自然聚类、按需注入），episodes 有遗忘机制（promoted 自动清除）。
-**Architecture:** rules.md 改为 keyword section 结构（section header = keyword 集合），context-enrichment 按消息关键词匹配 section 注入，episodes promoted 自动清除。聚类由 agent 在 self-reflect skill 中语义判断。
+**Objetivo:** 改造知识库体系：rules 成为真正的长期记忆（永久保留、keyword section 自然聚类、按需注入），episodes 有遗忘机制（promoted 自动清除）。
+**Arquitetura:** rules.md 改为 keyword section 结构（section header = keyword 集合），context-enrichment 按消息关键词匹配 section 注入，episodes promoted 自动清除。聚类由 agent 在 self-reflect skill 中语义判断。
 **Tech Stack:** Shell (bash), Markdown
 
 ## Key Decisions
@@ -48,20 +48,20 @@
 2. MCP 补能力已验证可行。必须在 agent JSON 中设 `includeMcpJson: true` 才能继承 workspace mcp.json。code tool（LSP）无法通过 MCP 补回，需要 LSP 的任务永远不委派。
 ```
 
-## Tasks
+## Tarefas
 
-### Task 1: 改造 rules.md 为 keyword section 格式
+### Tarefa 1: 改造 rules.md 为 keyword section 格式
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/rules.md`
 
 将当前 17 条 rules 按上述格式重组。保留所有 rule 内容，只改结构。
 
-**Verify:** `grep -c '^[0-9]' knowledge/rules.md` = 17（rule 数不变）；`grep -c '^## \[' knowledge/rules.md` = 4（4 个 section）
+**Verificação:** `grep -c '^[0-9]' knowledge/rules.md` = 17（rule 数不变）；`grep -c '^## \[' knowledge/rules.md` = 4（4 个 section）
 
-### Task 2: 改造 context-enrichment.sh — 按 section 注入
+### Tarefa 2: 改造 context-enrichment.sh - 按 section 注入
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
 替换当前 rules 注入逻辑。用 awk 一次性解析 section，避免复杂 bash 循环：
@@ -122,11 +122,11 @@ inject_rules
 
 关键简化：用 awk 一次解析替代多次 grep + while 循环。用 `grep -qiw`（word boundary）减少误匹配。
 
-**Verify:** 手动测试 3 个场景（见 checklist）
+**Verificação:** 手动测试 3 个场景（见 checklist）
 
-### Task 3: episodes promoted 自动清除
+### Tarefa 3: episodes promoted 自动清除
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
 在 session 启动块（`if [ ! -f "$LESSONS_FLAG" ]`）中，inject_rules 调用前加：
@@ -142,11 +142,11 @@ if [ -f "knowledge/episodes.md" ]; then
 fi
 ```
 
-**Verify:** 手动测试 promoted 行被清除
+**Verificação:** 手动测试 promoted 行被清除
 
-### Task 4: 更新 self-reflect skill — 聚类规则
+### Tarefa 4: 更新 self-reflect skill - 聚类规则
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/self-reflect/SKILL.md`
 
 更新 Promotion Process 和 Sync Targets：
@@ -168,27 +168,27 @@ Promotion Process 改为：
 7. Output: ⬆️ Promoted to rules.md [section]: 'RULE'
 ```
 
-**Verify:** `grep -c 'Clustering' skills/self-reflect/SKILL.md` ≥ 1
+**Verificação:** `grep -c 'Clustering' skills/self-reflect/SKILL.md` ≥ 1
 
-### Task 5: 更新 INDEX.md + AGENTS.md
+### Tarefa 5: 更新 INDEX.md + AGENTS.md
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/INDEX.md`
 - Modify: `AGENTS.md`
 
 INDEX.md：更新 rules 描述为 "keyword section 结构，按需注入"。
 AGENTS.md：Knowledge Retrieval 和 Self-Learning section 更新。
 
-**Verify:** `grep -c 'keyword section' knowledge/INDEX.md` ≥ 1
+**Verificação:** `grep -c 'keyword section' knowledge/INDEX.md` ≥ 1
 
-### Task 6: 记录到 episodes
+### Tarefa 6: 记录到 episodes
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/episodes.md`
 
 追加本次改造记录。
 
-**Verify:** `grep -c 'knowledge-v2' knowledge/episodes.md` ≥ 1
+**Verificação:** `grep -c 'knowledge-v2' knowledge/episodes.md` ≥ 1
 
 ## Review
 
@@ -223,7 +223,7 @@ AGENTS.md：Knowledge Retrieval 和 Self-Learning section 更新。
 
 ### Verdict: REQUEST CHANGES
 
-**Required fixes:**
+**Correções necessárias:**
 1. Simplify the bash implementation - consider a two-pass approach (parse once, cache sections)
 2. Add input validation and error recovery for malformed sections
 3. Define keyword extraction and section assignment algorithms more precisely

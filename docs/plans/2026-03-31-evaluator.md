@@ -1,12 +1,12 @@
 # Evaluator: Independent Code Quality Assessment
 
-**Goal:** Add an independent evaluator agent (separate from reviewer) that assesses implemented code quality via parallel subagents with mandatory structured evidence, both as a Ralph Loop post-completion stage and as a standalone `@evaluate` command.
-**Non-Goals:** Changing the plan/review workflow; modifying how checklist items are verified during execution; adding UI testing (Playwright etc); replacing the existing reviewer agent.
-**Architecture:** 4 parallel evaluator subagents (one per dimension group), each with mandatory fill-table prompts and canary questions. Two entry points: Ralph Loop auto-runs after QA; `@evaluate` is a standalone MCP prompt + command. Ralph Loop evaluator runs up to 3 rounds of evaluate→fix→evaluate (GAN-inspired adversarial loop).
+**Objetivo:** Add an independent evaluator agent (separate from reviewer) that assesses implemented code quality via parallel subagents with mandatory structured evidence, both as a Ralph Loop post-completion stage and as a standalone `@evaluate` command.
+**Não-Objetivos:** Changing the plan/review workflow; modifying how checklist items are verified during execution; adding UI testing (Playwright etc); replacing the existing reviewer agent.
+**Arquitetura:** 4 parallel evaluator subagents (one per dimension group), each with mandatory fill-table prompts and canary questions. Two entry points: Ralph Loop auto-runs after QA; `@evaluate` is a standalone MCP prompt + command. Ralph Loop evaluator runs up to 3 rounds of evaluate→fix→evaluate (GAN-inspired adversarial loop).
 **Tech Stack:** Python (ralph_loop.py), Markdown (command file), Python (mcp-prompts.py)
-**Work Dir:** worktrees/omk-evaluator
+**Diretório de Trabalho:** worktrees/omk-evaluator
 
-## Design Decisions
+## Decisões de Design
 
 ### Why separate from Reviewer
 - Reviewer evaluates **plans** (未写的代码) — logic, completeness, verify commands
@@ -33,9 +33,9 @@
 ## Review
 <!-- Reviewer writes here -->
 
-### Task 1: Evaluator prompt template with mandatory tables
+### Tarefa 1: Evaluator prompt template with mandatory tables
 
-**Files:**
+**Arquivos:**
 - Create: `commands/evaluate.md`
 
 Create the evaluator dispatch command. The core of this task is the **mandatory structured evidence** mechanism — each subagent MUST fill specific tables, empty tables = REJECTED.
@@ -79,16 +79,16 @@ Persona: Chief Security Officer running OWASP Top 10 + STRIDE threat model. Only
 
 **Aggregation rule:** Any subagent FAIL or any CRITICAL finding → overall FAIL.
 
-### Task 2: MCP prompt registration
+### Tarefa 2: MCP prompt registration
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/mcp-prompts.py`
 
 Add `EVALUATE_PROMPT` constant and `def evaluate(content)` function following existing pattern. The prompt reads `commands/evaluate.md` and dispatches 4 parallel evaluator subagents with the user's scope as context.
 
-### Task 3: Ralph Loop evaluator stage
+### Tarefa 3: Ralph Loop evaluator stage
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 
 After the existing QA stage passes and before the completion review, add an evaluator stage:
@@ -104,9 +104,9 @@ Add `RALPH_SKIP_EVAL=1` env var to skip. Use `timeout=300` matching existing QA 
 
 Extract evaluator subprocess call into a testable function `run_evaluator()` for mockability.
 
-### Task 4: Regression tests
+### Tarefa 4: Regression tests
 
-**Files:**
+**Arquivos:**
 - Create: `tests/ralph-loop/test_evaluator.py`
 
 Test the evaluator integration in ralph_loop.py:

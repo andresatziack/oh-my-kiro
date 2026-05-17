@@ -1,12 +1,12 @@
-# Reviewing Skill Enhancement Plan
+# Plano de Aprimoramento da Skill de Reviewing
 
-**Goal:** Enhance reviewing skill to be a focused code review skill with full checklist depth from archived v2 skills, clear triggering rules, and structured output.
-**Architecture:** SKILL.md as flow navigator (7-step code review + receiving review), references/ directory for deep checklists. Plan review removed (owned by planning skill).
+**Objetivo:** Enhance reviewing skill to be a focused code review skill with full checklist depth from archived v2 skills, clear triggering rules, and structured output.
+**Arquitetura:** SKILL.md as flow navigator (7-step code review + receiving review), references/ directory for deep checklists. Plan review removed (owned by planning skill).
 **Tech Stack:** Markdown skill files
 
 ## Review
 
-### Round 1 (single reviewer, old protocol — ~~deprecated~~)
+### Round 1 (single reviewer, old protocol - ~~deprecated~~)
 Used old Strengths/Weaknesses/Missing format instead of Phase 1.5 adversarial review. Result: APPROVE after 2 rounds. Superseded by Round 2.
 
 ### Round 2 (Phase 1.5 adversarial review, 4 angles)
@@ -55,18 +55,18 @@ Used old Strengths/Weaknesses/Missing format instead of Phase 1.5 adversarial re
 
 ---
 
-### Task 0: Validate source files
+### Tarefa 0: Validate source files
 
-**Verify:** All 4 archived reference files exist at the exact path used by Task 1:
+**Verificação:** All 4 archived reference files exist at the exact path used by Task 1:
 ```bash
 for f in solid-checklist security-checklist code-quality-checklist removal-plan; do
   test -s "archive/v2/claude-skills/code-review-expert/references/${f}.md" || { echo "MISSING: $f"; exit 1; }
 done
 ```
 
-### Task 1: Create reference files
+### Tarefa 1: Create reference files
 
-**Files:**
+**Arquivos:**
 - Create: `skills/reviewing/references/solid-checklist.md`
 - Create: `skills/reviewing/references/security-checklist.md`
 - Create: `skills/reviewing/references/code-quality-checklist.md`
@@ -75,9 +75,9 @@ done
 
 Copy from `archive/v2/claude-skills/code-review-expert/references/` for the first 4 files. Create `output-format.md` by combining content from `archive/v2/claude-skills/code-review-expert/reference-skill.md` sections 6 (output format) and 7 (next steps), plus adding a clean review declaration section.
 
-### Task 2: Rewrite SKILL.md
+### Tarefa 2: Rewrite SKILL.md
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/reviewing/SKILL.md`
 
 Rewrite with:
@@ -100,9 +100,9 @@ Rewrite with:
 
 Remove: Plan Review Mode, Angle-Based Plan Review.
 
-### Task 3: Cleanup, AGENTS.md, and commands/plan.md update
+### Tarefa 3: Cleanup, AGENTS.md, and commands/plan.md update
 
-**Files:**
+**Arquivos:**
 - Delete: `skills/reviewing/reference.md`
 - Modify: `AGENTS.md`
 - Modify: `commands/plan.md`

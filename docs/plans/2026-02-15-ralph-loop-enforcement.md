@@ -1,7 +1,7 @@
-# Ralph-Loop Enforcement Redesign
+# Redesign do Enforcement do Ralph-Loop
 
-**Goal:** Ensure agent cannot bypass ralph-loop.sh when executing an active plan with unchecked checklist items, covering all tool vectors (execute_bash + fs_write), session restart scenarios, and edge cases.
-**Architecture:** Single consolidated PreToolUse hook (enforce-ralph-loop.sh) handling both execute_bash and fs_write, with PID-based lock validation. Ralph-loop.sh writes PID to lock file; hook validates PID is alive. Stale locks auto-cleaned.
+**Objetivo:** Ensure agent cannot bypass ralph-loop.sh when executing an active plan with unchecked checklist items, covering all tool vectors (execute_bash + fs_write), session restart scenarios, and edge cases.
+**Arquitetura:** Single consolidated PreToolUse hook (enforce-ralph-loop.sh) handling both execute_bash and fs_write, with PID-based lock validation. Ralph-loop.sh writes PID to lock file; hook validates PID is alive. Stale locks auto-cleaned.
 **Tech Stack:** Bash hooks, jq, Kiro hook system (PreToolUse exit 2 = hard block)
 
 ## Current State (what exists)
@@ -24,11 +24,11 @@
 
 **Consolidate into one hook** that handles both execute_bash and fs_write, registered twice in default.json. Remove the ralph-loop check from pre-write.sh (separation of concerns — pre-write handles workflow gate, enforce-ralph-loop handles execution discipline).
 
-## Tasks
+## Tarefas
 
-### Task 1: Rewrite enforce-ralph-loop.sh
+### Tarefa 1: Rewrite enforce-ralph-loop.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh`
 
 **Changes:**
@@ -61,27 +61,27 @@ Block writes to:
 
 Path validation: reject any path containing `..` after normalization.
 
-### Task 2: Register hook for fs_write
+### Tarefa 2: Register hook for fs_write
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/default.json`
 
 **Changes:**
 - Add `{"matcher": "fs_write", "command": "hooks/gate/enforce-ralph-loop.sh"}` to preToolUse
 - This makes enforce-ralph-loop.sh fire for both execute_bash and fs_write
 
-### Task 3: Remove ralph-loop check from pre-write.sh
+### Tarefa 3: Remove ralph-loop check from pre-write.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 
 **Changes:**
 - Remove the ralph-loop enforcement block from gate_check() (lines that check PLAN_PTR, RALPH_LOCK, UNCHECKED, RALPH_OK)
 - pre-write.sh goes back to its original responsibility: workflow gate (plan exists + reviewed before creating source files)
 
-### Task 4: Protect .active file and lock file from manipulation
+### Tarefa 4: Protect .active file and lock file from manipulation
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh`
 
 **Changes:**
@@ -89,9 +89,9 @@ Path validation: reject any path containing `..` after normalization.
 - For fs_write: block writes to `.ralph-loop.lock` (prevent lock forgery)
 - Path validation: reject any file_path containing `..` (prevent traversal)
 
-### Task 5: Integration tests
+### Tarefa 5: Integration tests
 
-**Files:**
+**Arquivos:**
 - Create: `tests/ralph-loop/test-enforcement.sh`
 
 **Test cases:**

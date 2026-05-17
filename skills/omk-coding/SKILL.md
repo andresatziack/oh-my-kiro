@@ -3,7 +3,7 @@ name: omk-coding
 description: "Enforces coding best practices: deep-read before modify, LSP-first navigation, TDD red-green-refactor, minimal changes, self-review, verification. Trigger when writing code, modifying source files, fixing bugs, refactoring, optimizing code, entering a worktree or submodule, or when user says 'write code', 'implement', 'fix this', 'fix PR', 'add feature', 'add field', 'refactor', 'optimize', 'modify', 'change this', 'update code', 'apply feedback', 'apply review', '改代码', '修复', '加个', '改一下', '优化'. Also trigger when creating/editing .java .py .ts .js .go .rs .sh .tsx .jsx .vue .css .scss files, or after debugging identifies root cause and implementation begins."
 ---
 
-# Coding — Write Code Right
+# Coding - Escrever código do jeito certo
 
 ## Trigger Examples
 - "帮我实现这个功能"
@@ -15,15 +15,15 @@ description: "Enforces coding best practices: deep-read before modify, LSP-first
 - "优化这段代码的性能"
 - "加个字段到这个 model 里"
 
-## Overview
+## Visão geral
 
-Writing code without discipline creates debt. This skill enforces quality at the point of creation.
+Escrever código sem disciplina cria dívida. Esta skill aplica qualidade no ponto de criação.
 
-**Core principle:** Every code change must be minimal, tested, verified, and self-reviewed before claiming done.
+**Princípio central:** Toda alteração de código deve ser mínima, testada, verificada e auto-revisada antes de ser declarada pronta.
 
-## Phase 0: Environment Setup
+## Phase 0: Preparação do ambiente
 
-Before writing any code in a worktree or submodule:
+Antes de escrever qualquer código em uma worktree ou submodule:
 
 ```
 1. Initialize LSP for semantic analysis:
@@ -44,12 +44,12 @@ Before writing any code in a worktree or submodule:
    Record: N tests, M passing, K failing
 ```
 
-**If LSP init fails:** Retry with `/code init -f`. If still fails, log to plan Errors and continue with grep fallback — but note degraded analysis quality.
+**Se a inicialização do LSP falhar:** Tente novamente com `/code init -f`. Se ainda falhar, registre em Errors do plan e continue com fallback de grep, mas observe a qualidade degradada da análise.
 
-## Phase 0.5: Deep Read — Build Understanding (MANDATORY)
+## Phase 0.5: Deep Read - Construir entendimento (OBRIGATÓRIO)
 
-> **This phase is NOT optional.** Even for "simple" changes, you MUST complete it before writing any code.
-> Research shows: the most expensive failure mode is code that is "correct in isolation but breaks the surrounding system" (Boris Tane). Agents only explore dependencies 42% of the time when left to decide on their own (CodeCompass). This phase forces the other 58%.
+> **Esta phase NÃO é opcional.** Mesmo para alterações "simples", você DEVE concluí-la antes de escrever qualquer código.
+> A pesquisa mostra: o modo de falha mais caro é código que está "correto isoladamente, mas quebra o sistema ao redor" (Boris Tane). Agents só exploram dependências em 42% das vezes quando deixados decidir por conta própria (CodeCompass). Esta phase força os outros 58%.
 
 ```
 1. goto_definition — navigate to the code you'll change, read it deeply (not skim)
@@ -79,19 +79,19 @@ Before writing any code in a worktree or submodule:
    touch /tmp/omk-coding-deep-read-done
 ```
 
-**If you cannot answer any field in the Codebase Understanding summary**, you haven't read enough code. Go back and read more before proceeding.
+**Se você não conseguir responder a algum campo do resumo de Codebase Understanding**, você não leu código suficiente. Volte e leia mais antes de prosseguir.
 
-## Phase 1: Understand Before Changing
+## Phase 1: Entender antes de alterar
 
-Before modifying any file, confirm you completed Phase 0.5 and that your Codebase Understanding covers the target code.
+Antes de modificar qualquer arquivo, confirme que você concluiu a Phase 0.5 e que seu Codebase Understanding cobre o código alvo.
 
-**Rules (Iron Rules — no exceptions):**
-- No modify without goto_definition
-- No refactor without find_references
-- No new public API without searching for existing similar abstractions
-- Match existing code style — don't introduce new conventions
+**Regras (Iron Rules, sem exceções):**
+- Sem modificação sem goto_definition
+- Sem refactor sem find_references
+- Sem nova API pública sem buscar abstrações similares já existentes
+- Siga o estilo de código existente, não introduza convenções novas
 
-## Phase 2: Write Code (TDD)
+## Phase 2: Escrever código (TDD)
 
 ### Red → Green → Refactor
 
@@ -113,30 +113,30 @@ Step 4: Refactor if needed
   - Run tests again → still PASS
 ```
 
-### Minimal Change Rules
+### Regras de alteração mínima
 
-| Rule | Check |
+| Regra | Verificação |
 |------|-------|
-| Single responsibility | Does this change do exactly one thing? |
-| Minimal diff | Can any line be removed without breaking the goal? |
-| No drive-by fixes | Unrelated improvements go in separate commits |
-| No new dependencies | Unless essential and approved |
-| Backward compatible | Existing callers unaffected unless explicitly intended |
-| **Match existing style** | Follow the conventions of the surrounding code, not your ideal. If the codebase is 85/100, write 85–90/100 code — don't chase 100 |
-| **Don't "fix" old code** | Existing code works. Don't refactor, restyle, or "improve" code outside your change scope. If you see a real problem, file it separately |
+| Single responsibility | Esta alteração faz exatamente uma coisa? |
+| Minimal diff | Alguma linha pode ser removida sem quebrar o objetivo? |
+| Sem drive-by fixes | Melhorias não relacionadas vão em commits separados |
+| Sem novas dependências | A menos que essenciais e aprovadas |
+| Backward compatible | Callers existentes não afetados, exceto quando intencional |
+| **Match existing style** | Siga as convenções do código ao redor, não o seu ideal. Se a codebase está em 85/100, escreva código 85 a 90/100, não persiga 100 |
+| **Don't "fix" old code** | Código existente funciona. Não refatore, não restilize, não "melhore" código fora do escopo da sua alteração. Se ver um problema real, registre separadamente |
 
-### Code Quality Gates
+### Gates de qualidade de código
 
-- Methods ≤ 20 lines (split when longer)
-- No boolean flag parameters — split into two methods
-- No swallowed exceptions — catch must log or rethrow
-- Return empty collections, not null
-- Use self-documenting names — comments explain WHY, not WHAT
-- Depend on interfaces, not concrete implementations
+- Métodos ≤ 20 linhas (divida quando maiores)
+- Sem parâmetros booleanos de flag, divida em dois métodos
+- Sem exceções engolidas, o catch deve logar ou rethrow
+- Retorne coleções vazias, não null
+- Use nomes auto-explicativos, comentários explicam o PORQUÊ, não o QUÊ
+- Dependa de interfaces, não de implementações concretas
 
-## Phase 3: Self-Verify
+## Phase 3: Auto-verify
 
-After implementation, before claiming done:
+Após a implementação, antes de declarar pronto:
 
 ```
 1. Run full test suite (not just new tests):
@@ -156,9 +156,9 @@ After implementation, before claiming done:
    - This proves the test actually tests your change
 ```
 
-### Frontend Visual Verification (when UI files changed)
+### Verificação visual de frontend (quando arquivos de UI mudaram)
 
-If any modified file is a frontend file (.tsx/.jsx/.vue/.html/.css/.scss), you MUST verify visually:
+Se algum arquivo modificado for de frontend (.tsx/.jsx/.vue/.html/.css/.scss), você DEVE verificar visualmente:
 
 ```
 1. Ensure dev server is running (check with curl or ps)
@@ -169,11 +169,11 @@ If any modified file is a frontend file (.tsx/.jsx/.vue/.html/.css/.scss), you M
 5. For style/layout issues, use agent-browser snapshot -i to inspect element structure
 ```
 
-**CRITICAL:** Never claim a frontend issue is "fixed" based only on code changes. The browser is the source of truth.
+**CRÍTICO:** Nunca declare que um problema de frontend está "fixed" baseado apenas em alterações de código. O browser é a fonte da verdade.
 
-## Phase 4: Self-Review
+## Phase 4: Auto-review
 
-Before committing, review your own diff:
+Antes de commitar, revise seu próprio diff:
 
 ```
 1. git diff (staged or unstaged)
@@ -192,11 +192,11 @@ Before committing, review your own diff:
    - "Would a new team member understand this?"
 ```
 
-**If any check fails:** Fix before committing. Don't leave TODOs for "later."
+**Se alguma verificação falhar:** Corrija antes de commitar. Não deixe TODOs para "depois".
 
-## Phase 4.5: Self-Explanation
+## Phase 4.5: Auto-explicação
 
-After self-review, explain your changes in natural language before committing:
+Após o auto-review, explique suas alterações em linguagem natural antes de commitar:
 
 ```
 1. What did I change and why?
@@ -204,7 +204,7 @@ After self-review, explain your changes in natural language before committing:
 3. Are there potential side effects on other modules?
 ```
 
-**If you discover a logical contradiction while explaining** → go back to Phase 2 and revisit the implementation. The act of explaining often reveals errors that code review misses (Self-Debugging research: explanation outperforms chain-of-thought for error detection).
+**Se você descobrir uma contradição lógica enquanto explica** → volte para a Phase 2 e revisite a implementação. O ato de explicar costuma revelar erros que o code review não pega (pesquisa de Self-Debugging: explicação supera chain-of-thought na detecção de erros).
 
 ## Phase 5: Commit
 
@@ -217,46 +217,46 @@ git add -p  # stage intentionally, not git add .
 git commit -m "<type>: <what changed and why>"
 ```
 
-Commit message types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+Tipos de commit message: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
 
-## Language-Specific Addenda
+## Adendos por linguagem
 
 ### Java
-- Load `knowledge/reference/java-coding-standards.md` when touching .java files
-- After interface changes: `mvn compile -pl <module> -am`
-- After all changes: `mvn clean test`
-- Prefer constructor injection over @Autowired
+- Carregue `knowledge/reference/java-coding-standards.md` ao mexer em arquivos .java
+- Após mudanças em interfaces: `mvn compile -pl <module> -am`
+- Após todas as alterações: `mvn clean test`
+- Prefira injeção via construtor a @Autowired
 
 ### TypeScript/JavaScript
-- Strict mode, no `any` unless justified
-- Prefer `const` over `let`, never `var`
-- Handle async errors — no unhandled promise rejections
+- Modo strict, sem `any` salvo justificado
+- Prefira `const` a `let`, nunca `var`
+- Trate erros async, sem promise rejections não tratadas
 
 ### Python
-- Type hints on all public functions
-- `pytest` with `-v` flag for visibility
-- No bare `except:` — always specify exception type
+- Type hints em todas as funções públicas
+- `pytest` com flag `-v` para visibilidade
+- Sem `except:` cru, sempre especifique o tipo de exceção
 
-## When to Apply
+## Quando aplicar
 
-**Always when:**
-- Creating new files in a worktree/submodule
-- Modifying existing code
-- Fixing bugs (TDD: write failing test reproducing bug first)
-- Refactoring
+**Sempre quando:**
+- Criando novos arquivos em uma worktree/submodule
+- Modificando código existente
+- Corrigindo bugs (TDD: escreva primeiro um teste falhando que reproduza o bug)
+- Refatorando
 
-**Skip Phase 2 (TDD) only when:**
-- Pure documentation changes
-- Config-only changes (but still verify)
-- User explicitly says "skip tests"
+**Pule a Phase 2 (TDD) somente quando:**
+- Alterações puramente de documentação
+- Alterações somente de config (ainda assim, verifique)
+- O usuário disser explicitamente "skip tests"
 
-## Anti-patterns
+## Anti-padrões
 
-| Don't | Do Instead |
+| Não faça | Faça em vez disso |
 |-------|-----------|
-| Write code then "add tests later" | Test first, always |
-| `git add .` | `git add -p` — stage intentionally |
-| Fix + unrelated cleanup in one commit | Separate commits |
-| Trust "it should work" | Run and see output |
-| Copy-paste without understanding | Read source, then adapt |
-| Add abstraction "for future use" | Solve today's problem |
+| Escrever código e "adicionar testes depois" | Teste primeiro, sempre |
+| `git add .` | `git add -p`, faça stage de forma intencional |
+| Fix + cleanup não relacionado no mesmo commit | Commits separados |
+| Confiar em "deveria funcionar" | Rode e veja a saída |
+| Copy-paste sem entender | Leia o source e adapte |
+| Adicionar abstração "para uso futuro" | Resolva o problema de hoje |

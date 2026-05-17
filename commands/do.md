@@ -1,8 +1,8 @@
-Lightweight command for small tasks (< 1 hour). No plan file, no review dispatch. Prevents context drift across multi-turn interactions.
+Comando leve para tasks pequenas (< 1 hora). Sem arquivo de plan, sem dispatch de review. Evita drift de contexto em interações de múltiplos turnos.
 
-## Stage 1: Scratchpad (MANDATORY, even if task seems trivial)
+## Estágio 1: Scratchpad (OBRIGATÓRIO, mesmo se a task parecer trivial)
 
-Before ANY code change, write a scratchpad to `/tmp/task-scratch.md`:
+Antes de QUALQUER alteração de código, escreva um scratchpad em `/tmp/task-scratch.md`:
 
 ```markdown
 ## Task: <one-line description>
@@ -11,35 +11,35 @@ Before ANY code change, write a scratchpad to `/tmp/task-scratch.md`:
 - Verify: <how to verify success>
 ```
 
-Discovery steps (silent, no user output):
-1. `search_symbols` / `find_references` / `get_diagnostics` to identify all affected files
-2. Read each affected file's relevant sections (NOT entire files — use line offsets)
-3. Update scratchpad with actual file list and key findings
+Steps de descoberta (silenciosos, sem saída para o usuário):
+1. `search_symbols` / `find_references` / `get_diagnostics` para identificar todos os arquivos afetados
+2. Leia as seções relevantes de cada arquivo afetado (NÃO os arquivos inteiros, use offsets de linha)
+3. Atualize o scratchpad com a lista real de arquivos e descobertas-chave
 
-## Stage 2: Execute
+## Estágio 2: Executar
 
-Make changes following `skills/omk-coding/SKILL.md` Phase 1-4.
+Faça as alterações seguindo `skills/omk-coding/SKILL.md` Phase 1-4.
 
-**Context anchor rule**: After EVERY code modification, append a one-line status to the scratchpad:
+**Regra do âncora de contexto:** Após CADA modificação de código, anexe uma linha de status ao scratchpad:
 ```
 - [done] modified hooks/feedback/context-enrichment.sh L37-41: expanded CN keywords
 - [done] created symlink commands/auto.md → oh-my-kiro
 - [blocked] test fails: grep pattern doesn't match "超时"
 ```
 
-## Stage 3: Verify
+## Estágio 3: Verify
 
-1. Run the verify method from scratchpad
-2. Re-read scratchpad to confirm all items addressed
-3. Report result to user
+1. Execute o método de verify do scratchpad
+2. Releia o scratchpad para confirmar que todos os itens foram tratados
+3. Reporte o resultado ao usuário
 
-## Multi-turn recovery
+## Recuperação em múltiplos turnos
 
-If the conversation has gone ≥ 3 turns on this task:
-1. STOP and re-read `/tmp/task-scratch.md`
-2. Compare current state vs scratchpad — identify drift
-3. If drifted, state what drifted and correct course
+Se a conversa já tiver passado de 3 turnos nesta task:
+1. PARE e releia `/tmp/task-scratch.md`
+2. Compare o estado atual vs. o scratchpad, identifique o drift
+3. Se houver drift, declare o que mudou e corrija o curso
 
 ---
 User's task:
-(The user's next message is the task. If this is the first message after @do was invoked and no task appears above, wait for the user's next message — it will contain the task. Do NOT ask "what do you want to do?" — the user already knows they need to provide input after @do.)
+(A próxima mensagem do usuário é a task. Se esta for a primeira mensagem após @do ter sido invocado e nenhuma task aparecer acima, aguarde a próxima mensagem do usuário, ela conterá a task. NÃO pergunte "o que você quer fazer?", o usuário já sabe que precisa fornecer a entrada após @do.)

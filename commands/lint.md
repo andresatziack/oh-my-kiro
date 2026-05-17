@@ -1,12 +1,12 @@
-Run these health checks and report results:
+Execute estas verificações de saúde e reporte os resultados:
 
-## 1. CLAUDE.md Line Count
+## 1. Contagem de linhas do CLAUDE.md
 ```bash
 LINES=$(wc -l < CLAUDE.md | tr -d ' ')
 [ "$LINES" -lt 500 ] && echo "✅ CLAUDE.md: $LINES lines (< 500)" || echo "❌ CLAUDE.md: $LINES lines (≥ 500 — trim it)"
 ```
 
-## 2. .claude/rules/ File Sizes
+## 2. Tamanhos dos arquivos em .claude/rules/
 ```bash
 for f in .claude/rules/*.md; do
   LINES=$(wc -l < "$f" | tr -d ' ')
@@ -15,7 +15,7 @@ for f in .claude/rules/*.md; do
 done
 ```
 
-## 3. Layer Headers
+## 3. Headers de Layer
 ```bash
 for f in .claude/rules/*.md; do
   NAME=$(basename "$f")
@@ -23,12 +23,12 @@ for f in .claude/rules/*.md; do
 done
 ```
 
-## 4. CLAUDE.md / AGENTS.md Sync
+## 4. Sincronização CLAUDE.md / AGENTS.md
 ```bash
 diff CLAUDE.md AGENTS.md && echo "✅ CLAUDE.md and AGENTS.md in sync" || echo "❌ CLAUDE.md and AGENTS.md out of sync — run: cp CLAUDE.md AGENTS.md"
 ```
 
-## 5. Duplication Check
+## 5. Verificação de duplicação
 ```bash
 DUPS=0
 for f in .claude/rules/*.md; do
@@ -44,4 +44,4 @@ done
 [ "$DUPS" -eq 0 ] && echo "✅ No verbatim duplication" || echo "❌ $DUPS duplicated lines between .claude/rules/ and knowledge/rules.md"
 ```
 
-Report all results. If any ❌, list recommended fixes.
+Reporte todos os resultados. Se houver algum ❌, liste os fixes recomendados.

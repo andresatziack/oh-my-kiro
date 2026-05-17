@@ -1,8 +1,8 @@
-# Parallel Checklist Execution
+# Execução Paralela de Checklist
 
-**Goal:** Enable concurrent execution of independent checklist tasks during @execute phase via fan-out/fan-in subagent pattern, with zero race conditions.
-**Non-Goals:** Not implementing git worktree isolation for parallel tasks; not supporting parallel execution of tasks with overlapping files; not changing ralph-loop.sh bash script logic (only the prompt it sends).
-**Architecture:** Create executor agent JSON with appropriate hooks → add Strategy D (Parallel Fan-out) to planning SKILL.md → update ralph-loop.sh prompt to enable parallel dispatch → fix config generator to include enforce-ralph-loop.sh → fix enforce-ralph-loop.sh to allow executor subagents.
+**Objetivo:** Enable concurrent execution of independent checklist tasks during @execute phase via fan-out/fan-in subagent pattern, with zero race conditions.
+**Não-Objetivos:** Not implementing git worktree isolation for parallel tasks; not supporting parallel execution of tasks with overlapping files; not changing ralph-loop.sh bash script logic (only the prompt it sends).
+**Arquitetura:** Create executor agent JSON with appropriate hooks → add Strategy D (Parallel Fan-out) to planning SKILL.md → update ralph-loop.sh prompt to enable parallel dispatch → fix config generator to include enforce-ralph-loop.sh → fix enforce-ralph-loop.sh to allow executor subagents.
 **Tech Stack:** Bash, JSON, Markdown
 
 ## Review
@@ -21,11 +21,11 @@
 
 **Final status:** All reviewers APPROVE (Testability fix applied). Plan ready for user confirmation.
 
-## Tasks
+## Tarefas
 
-### Task 1: Create Executor Agent JSON + Config Generator
+### Tarefa 1: Create Executor Agent JSON + Config Generator
 
-**Files:**
+**Arquivos:**
 - Create: `.kiro/agents/executor.json`
 - Modify: `scripts/generate-platform-configs.sh`
 
@@ -104,11 +104,11 @@ jq -n '{
 echo "  ✅ .kiro/agents/executor.json"
 ```
 
-**Verify:** `jq -e '.name == "executor" and (.hooks.postToolUse | length > 0) and .includeMcpJson == true' .kiro/agents/executor.json`
+**Verificação:** `jq -e '.name == "executor" and (.hooks.postToolUse | length > 0) and .includeMcpJson == true' .kiro/agents/executor.json`
 
-### Task 2: Register Executor + Fix enforce-ralph-loop in Config Generator
+### Tarefa 2: Register Executor + Fix enforce-ralph-loop in Config Generator
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate-platform-configs.sh`
 
 **Step 1: In the default agent section of `generate-platform-configs.sh`, modify `toolsSettings.subagent`:**
@@ -137,11 +137,11 @@ After the `fs_write` + `pre-write.sh` entry, add:
 bash scripts/generate-platform-configs.sh
 ```
 
-**Verify:** `jq -e '.toolsSettings.subagent.availableAgents | index("executor")' .kiro/agents/default.json && grep -q 'enforce-ralph-loop' scripts/generate-platform-configs.sh`
+**Verificação:** `jq -e '.toolsSettings.subagent.availableAgents | index("executor")' .kiro/agents/default.json && grep -q 'enforce-ralph-loop' scripts/generate-platform-configs.sh`
 
-### Task 3: Add Subagent Compatibility Comment to enforce-ralph-loop.sh
+### Tarefa 3: Add Subagent Compatibility Comment to enforce-ralph-loop.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh`
 
 **What to do:**
@@ -162,11 +162,11 @@ Add a comment before `exit 0` explaining this is intentional:
     exit 0
 ```
 
-**Verify:** `grep -q 'subagent' hooks/gate/enforce-ralph-loop.sh`
+**Verificação:** `grep -q 'subagent' hooks/gate/enforce-ralph-loop.sh`
 
-### Task 4: Add Strategy D to Planning SKILL.md
+### Tarefa 4: Add Strategy D to Planning SKILL.md
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Step 1: Update Strategy Selection table.** Change:
@@ -225,11 +225,11 @@ To:
 - Source files: guaranteed non-overlapping by independence check
 ```
 
-**Verify:** `grep -q 'Strategy D: Parallel Fan-out' skills/planning/SKILL.md && sed -n '/Strategy Selection/,/^### Strategy A/p' skills/planning/SKILL.md | grep -q 'Fan-out'`
+**Verificação:** `grep -q 'Strategy D: Parallel Fan-out' skills/planning/SKILL.md && sed -n '/Strategy Selection/,/^### Strategy A/p' skills/planning/SKILL.md | grep -q 'Fan-out'`
 
-### Task 5: Update Ralph-loop.sh Prompt
+### Tarefa 5: Update Ralph-loop.sh Prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
 **Step 1: Change `head -3` to `head -5` in NEXT_ITEMS assignment:**
@@ -253,11 +253,11 @@ Add this line to the PROMPT:
    If any subagent fails, fall back to sequential for that item. See Strategy D in planning SKILL.md.
 ```
 
-**Verify:** `grep -q 'executor' scripts/ralph-loop.sh && grep -q 'head -5' scripts/ralph-loop.sh`
+**Verificação:** `grep -q 'executor' scripts/ralph-loop.sh && grep -q 'head -5' scripts/ralph-loop.sh`
 
-### Task 6: Update Subagent Rules Documentation
+### Tarefa 6: Update Subagent Rules Documentation
 
-**Files:**
+**Arquivos:**
 - Modify: `.claude/rules/subagent.md`
 
 **What to do:** Append after rule 3:
@@ -266,7 +266,7 @@ Add this line to the PROMPT:
 4. executor subagent 用于 plan task 并行执行。必须指定 agent_name: "executor"。executor 只做实现+验证，不改 plan 文件，不 git commit。主 agent 统一收尾（更新 plan、commit、progress）。verify log 由 executor 的 post-bash.sh hook 写入，主 agent 勾选 checklist 时 gate_checklist 能找到记录。
 ```
 
-**Verify:** `grep -q 'executor.*plan.*commit' .claude/rules/subagent.md`
+**Verificação:** `grep -q 'executor.*plan.*commit' .claude/rules/subagent.md`
 
 ## Checklist
 
@@ -289,7 +289,7 @@ Add this line to the PROMPT:
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 
 - PIPE_BUF on macOS = 512 bytes (verified via `getconf PIPE_BUF /tmp`). Verify log entries ~124 bytes. Concurrent JSONL append tested safe with 4 writers × 50 entries = 200 lines, 0 corruption.
 - enforce-ralph-loop.sh current logic already allows any process when ralph-loop PID is alive (kill -0 checks PID existence, not caller identity). No code change needed, only clarifying comment.

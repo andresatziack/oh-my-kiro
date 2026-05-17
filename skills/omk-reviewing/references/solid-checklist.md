@@ -1,65 +1,65 @@
-# SOLID Smell Prompts
+# Prompts de Smell SOLID
 
 ## SRP (Single Responsibility)
 
-- File owns unrelated concerns (e.g., HTTP + DB + domain rules in one file)
-- Large class/module with low cohesion or multiple reasons to change
-- Functions that orchestrate many unrelated steps
-- God objects that know too much about the system
-- **Ask**: "What is the single reason this module would change?"
+- Arquivo dono de preocupações não relacionadas (por exemplo, HTTP + DB + regras de domínio em um único arquivo)
+- Classe/módulo grande com baixa coesão ou múltiplos motivos para mudar
+- Funções que orquestram muitos steps não relacionados
+- God objects que sabem demais sobre o sistema
+- **Pergunte**: "Qual é o único motivo pelo qual esse módulo mudaria?"
 
 ## OCP (Open/Closed)
 
-- Adding a new behavior requires editing many switch/if blocks
-- Feature growth requires modifying core logic rather than extending
-- No plugin/strategy/hook points for variation
-- **Ask**: "Can I add a new variant without touching existing code?"
+- Adicionar um novo comportamento exige editar muitos blocos switch/if
+- Crescimento de feature exige modificar a lógica central em vez de estender
+- Sem pontos de plugin/strategy/hook para variação
+- **Pergunte**: "Posso adicionar uma nova variante sem tocar no código existente?"
 
 ## LSP (Liskov Substitution)
 
-- Subclass checks for concrete type or throws for base method
-- Overridden methods weaken preconditions or strengthen postconditions
-- Subclass ignores or no-ops parent behavior
-- **Ask**: "Can I substitute any subclass without the caller knowing?"
+- Subclasse checa o tipo concreto ou lança exceção em método da base
+- Métodos sobrescritos enfraquecem precondições ou fortalecem postcondições
+- Subclasse ignora ou no-op no comportamento do parent
+- **Pergunte**: "Posso substituir qualquer subclasse sem que o caller perceba?"
 
 ## ISP (Interface Segregation)
 
-- Interfaces with many methods, most unused by implementers
-- Callers depend on broad interfaces for narrow needs
-- Empty/stub implementations of interface methods
-- **Ask**: "Do all implementers use all methods?"
+- Interfaces com muitos métodos, a maioria não usada pelas implementadoras
+- Callers dependem de interfaces amplas para necessidades estreitas
+- Implementações vazias/stub de métodos da interface
+- **Pergunte**: "Todas as implementadoras usam todos os métodos?"
 
 ## DIP (Dependency Inversion)
 
-- High-level logic depends on concrete IO, storage, or network types
-- Hard-coded implementations instead of abstractions or injection
-- Import chains that couple business logic to infrastructure
-- **Ask**: "Can I swap the implementation without changing business logic?"
+- Lógica de alto nível depende de tipos concretos de IO, storage ou network
+- Implementações hardcoded em vez de abstrações ou injeção
+- Cadeias de import que acoplam lógica de negócio à infraestrutura
+- **Pergunte**: "Posso trocar a implementação sem alterar a lógica de negócio?"
 
 ---
 
-## Common Code Smells (Beyond SOLID)
+## Code Smells comuns (além de SOLID)
 
-| Smell | Signs |
+| Smell | Sinais |
 |-------|-------|
-| **Long method** | Function > 30 lines, multiple levels of nesting |
-| **Feature envy** | Method uses more data from another class than its own |
-| **Data clumps** | Same group of parameters passed together repeatedly |
-| **Primitive obsession** | Using strings/numbers instead of domain types |
-| **Shotgun surgery** | One change requires edits across many files |
-| **Divergent change** | One file changes for many unrelated reasons |
-| **Dead code** | Unreachable or never-called code |
-| **Speculative generality** | Abstractions for hypothetical future needs |
-| **Magic numbers/strings** | Hardcoded values without named constants |
+| **Long method** | Função > 30 linhas, múltiplos níveis de aninhamento |
+| **Feature envy** | Método usa mais dados de outra classe do que da própria |
+| **Data clumps** | Mesmo grupo de parâmetros passados juntos repetidamente |
+| **Primitive obsession** | Usar strings/números em vez de tipos de domínio |
+| **Shotgun surgery** | Uma alteração exige edits espalhados por muitos arquivos |
+| **Divergent change** | Um arquivo muda por muitos motivos não relacionados |
+| **Dead code** | Código inalcançável ou nunca chamado |
+| **Speculative generality** | Abstrações para necessidades hipotéticas futuras |
+| **Magic numbers/strings** | Valores hardcoded sem constantes nomeadas |
 
 ---
 
-## Refactor Heuristics
+## Heurísticas de refactor
 
-1. **Split by responsibility, not by size** - A small file can still violate SRP
-2. **Introduce abstraction only when needed** - Wait for the second use case
-3. **Keep refactors incremental** - Isolate behavior before moving
-4. **Preserve behavior first** - Add tests before restructuring
-5. **Name things by intent** - If naming is hard, the abstraction might be wrong
-6. **Prefer composition over inheritance** - Inheritance creates tight coupling
-7. **Make illegal states unrepresentable** - Use types to enforce invariants
+1. **Divida por responsabilidade, não por tamanho**, um arquivo pequeno ainda pode violar SRP
+2. **Introduza abstração só quando necessário**, espere o segundo caso de uso
+3. **Mantenha refactors incrementais**, isole o comportamento antes de mover
+4. **Preserve o comportamento primeiro**, adicione testes antes de reestruturar
+5. **Nomeie pelas intenções**, se é difícil nomear, a abstração pode estar errada
+6. **Prefira composição sobre herança**, herança gera acoplamento forte
+7. **Torne estados ilegais não representáveis**, use tipos para impor invariantes

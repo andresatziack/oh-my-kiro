@@ -1,10 +1,10 @@
-# @cpu Worktree Support Implementation Plan
+# Plano de Implementação de Suporte a Worktree no @cpu
 
-**Goal:** Enhance `@cpu` command to detect worktree context and automatically handle the full lifecycle: commit → push → merge-to-main (or PR if protected) → cleanup worktree.
+**Objetivo:** Enhance `@cpu` command to detect worktree context and automatically handle the full lifecycle: commit → push → merge-to-main (or PR if protected) → cleanup worktree.
 
-**Non-Goals:** Not changing ralph_loop.py or parallel execution. Not adding new scripts — this is a command doc change only. Not handling multi-worktree batch scenarios (that's ralph_loop's job).
+**Não-Objetivos:** Not changing ralph_loop.py or parallel execution. Not adding new scripts - this is a command doc change only. Not handling multi-worktree batch scenarios (that's ralph_loop's job).
 
-**Architecture:** Modify `commands/cpu.md` to add worktree detection logic. When in a worktree, detect branch protection via `gh api`, then either (a) merge locally + push + cleanup, or (b) create PR + cleanup. All logic is agent-executed bash — no Python scripts needed.
+**Arquitetura:** Modify `commands/cpu.md` to add worktree detection logic. When in a worktree, detect branch protection via `gh api`, then either (a) merge locally + push + cleanup, or (b) create PR + cleanup. All logic is agent-executed bash - no Python scripts needed.
 
 **Tech Stack:** bash, git, gh CLI
 
@@ -16,11 +16,11 @@ Round 1 (4 reviewers parallel):
 - Completeness: APPROVE — all logical branches and error paths covered
 - Clarity: APPROVE — content fully specified verbatim, no ambiguity for executor
 
-## Tasks
+## Tarefas
 
-### Task 1: Rewrite commands/cpu.md with worktree support
+### Tarefa 1: Rewrite commands/cpu.md with worktree support
 
-**Files:**
+**Arquivos:**
 - Modify: `commands/cpu.md`
 
 **Step 1: Write failing test**
@@ -154,7 +154,7 @@ git commit -m "feat(cpu): add worktree support with auto-merge/PR flow"
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 <!-- Append-only during execution -->
 - 4A uses `git branch -d` (safe delete, branch already merged). 4B does NOT delete local branch (PR not merged yet). Branch cleaned up after PR merge + `git fetch --prune`.
 

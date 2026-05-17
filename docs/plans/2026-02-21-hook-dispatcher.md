@@ -1,15 +1,15 @@
-# Hook Dispatcher: Global Output Budget
+# Hook Dispatcher: Output Budget Global
 
-**Goal:** Add dispatcher layer for PreToolUse hooks to control total stderr output, fix block-recovery.sh mv bug, and prevent multi-hook stderr accumulation from crashing Kiro.
-**Non-Goals:** Change hook classification system. Modify individual hook logic. Change PostToolUse/UserPromptSubmit/Stop hooks (single hook per event, no accumulation issue).
-**Architecture:** Create 2 dispatcher scripts (pre-bash, pre-write) that replace N independent hook registrations with 1 entry per event+matcher. Dispatcher calls sub-hooks as child processes, captures stderr, applies global output budget (max 200 chars via printf portable truncation), fail-fast on first block. Sub-hooks unchanged. Note: pre-write.sh is already a merged hook (internal functions, not child processes) — dispatch-pre-write.sh wraps it plus block-outside-workspace.sh and enforce-ralph-loop.sh as the outer dispatcher.
+**Objetivo:** Add dispatcher layer for PreToolUse hooks to control total stderr output, fix block-recovery.sh mv bug, and prevent multi-hook stderr accumulation from crashing Kiro.
+**Não-Objetivos:** Change hook classification system. Modify individual hook logic. Change PostToolUse/UserPromptSubmit/Stop hooks (single hook per event, no accumulation issue).
+**Arquitetura:** Create 2 dispatcher scripts (pre-bash, pre-write) that replace N independent hook registrations with 1 entry per event+matcher. Dispatcher calls sub-hooks as child processes, captures stderr, applies global output budget (max 200 chars via printf portable truncation), fail-fast on first block. Sub-hooks unchanged. Note: pre-write.sh is already a merged hook (internal functions, not child processes) - dispatch-pre-write.sh wraps it plus block-outside-workspace.sh and enforce-ralph-loop.sh as the outer dispatcher.
 **Tech Stack:** Bash (3.2+ compatible), Python 3 (pytest)
 
-## Tasks
+## Tarefas
 
-### Task 1: Create dispatch-pre-bash.sh
+### Tarefa 1: Create dispatch-pre-bash.sh
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/dispatch-pre-bash.sh`
 - Create: `tests/hooks/test-dispatch-pre-bash.sh`
 
@@ -29,11 +29,11 @@ Logic:
 - On exit 0: continue to next hook
 - If all pass: exit 0
 
-**Verify:** `bash tests/hooks/test-dispatch-pre-bash.sh`
+**Verificação:** `bash tests/hooks/test-dispatch-pre-bash.sh`
 
-### Task 2: Create dispatch-pre-write.sh
+### Tarefa 2: Create dispatch-pre-write.sh
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/dispatch-pre-write.sh`
 - Create: `tests/hooks/test-dispatch-pre-write.sh`
 
@@ -45,11 +45,11 @@ Dispatcher for PreToolUse[fs_write]. Calls sub-hooks in order:
 
 Same dispatch logic as Task 1 (printf truncation, fail-fast).
 
-**Verify:** `bash tests/hooks/test-dispatch-pre-write.sh`
+**Verificação:** `bash tests/hooks/test-dispatch-pre-write.sh`
 
-### Task 3: Update generate_configs.py
+### Tarefa 3: Update generate_configs.py
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 
 **What to implement:**
@@ -60,22 +60,22 @@ Same dispatch logic as Task 1 (printf truncation, fail-fast).
 - Executor/researcher/reviewer agents: register dispatch-pre-bash.sh with SKIP_GATE=1 env (security only)
 - Pilot agent: register with INCLUDE_REGRESSION=1 env
 
-**Verify:** `python3 scripts/generate_configs.py --validate`
+**Verificação:** `python3 scripts/generate_configs.py --validate`
 
-### Task 4: Fix block-recovery.sh mv bug
+### Tarefa 4: Fix block-recovery.sh mv bug
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/_lib/block-recovery.sh`
 
 **What to implement:**
 - Add `2>/dev/null` to the mv command in cleanup section
 - Line: `jq ... > "$TMP" 2>/dev/null && mv "$TMP" "$COUNT_FILE" 2>/dev/null || rm -f "$TMP"`
 
-**Verify:** `bash -c 'echo "{}" > /tmp/block-count-test.jsonl && source hooks/_lib/common.sh && source hooks/_lib/block-recovery.sh && echo ok'`
+**Verificação:** `bash -c 'echo "{}" > /tmp/block-count-test.jsonl && source hooks/_lib/common.sh && source hooks/_lib/block-recovery.sh && echo ok'`
 
-### Task 5: Regenerate configs + regression test
+### Tarefa 5: Regenerate configs + regression test
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/pilot.json` (generated)
 - Modify: `.claude/settings.json` (generated)
 
@@ -84,11 +84,11 @@ Same dispatch logic as Task 1 (printf truncation, fail-fast).
 - Run test-kiro-compat.sh to verify hook registration
 - Verify dispatcher end-to-end
 
-**Verify:** `bash tests/hooks/test-kiro-compat.sh && python3 scripts/generate_configs.py --validate`
+**Verificação:** `bash tests/hooks/test-kiro-compat.sh && python3 scripts/generate_configs.py --validate`
 
-### Task 6: Update hook-architecture.md
+### Tarefa 6: Update hook-architecture.md
 
-**Files:**
+**Arquivos:**
 - Modify: `docs/designs/2026-02-18-hook-architecture.md`
 
 **What to implement:**
@@ -97,7 +97,7 @@ Same dispatch logic as Task 1 (printf truncation, fail-fast).
 - Update Agent Registration Matrix
 - Clarify relationship: pre-write.sh = internal merged hook, dispatch-pre-write.sh = outer dispatcher with output budget
 
-**Verify:** `grep -q 'dispatch' docs/designs/2026-02-18-hook-architecture.md`
+**Verificação:** `grep -q 'dispatch' docs/designs/2026-02-18-hook-architecture.md`
 
 ## Checklist
 
@@ -125,5 +125,5 @@ Round 1 fixes applied:
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 

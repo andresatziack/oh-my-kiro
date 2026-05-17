@@ -3,60 +3,60 @@ name: doc-coauthoring
 description: Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks.
 ---
 
-# Doc Co-Authoring Workflow
+# Workflow de Co-Autoria de Documentação
 
-This skill provides a structured workflow for guiding users through collaborative document creation. Act as an active guide, walking users through three stages: Context Gathering, Refinement & Structure, and Reader Testing.
+Esta skill fornece um workflow estruturado para guiar usuários na criação colaborativa de documentos. Atue como um guia ativo, conduzindo o usuário pelas três etapas: Coleta de Contexto, Refinamento e Estrutura, e Reader Testing.
 
-## When to Offer This Workflow
+## Quando Oferecer Este Workflow
 
-**Trigger conditions:**
-- User mentions writing documentation: "write a doc", "draft a proposal", "create a spec", "write up"
-- User mentions specific doc types: "PRD", "design doc", "decision doc", "RFC"
-- User seems to be starting a substantial writing task
+**Condições de gatilho:**
+- Usuário menciona escrita de documentação: "write a doc", "draft a proposal", "create a spec", "write up"
+- Usuário menciona tipos específicos de doc: "PRD", "design doc", "decision doc", "RFC"
+- Usuário parece estar começando uma tarefa substancial de escrita
 
-**Initial offer:**
-Offer the user a structured workflow for co-authoring the document. Explain the three stages:
+**Oferta inicial:**
+Ofereça ao usuário um workflow estruturado para co-autoria do documento. Explique as três etapas:
 
-1. **Context Gathering**: User provides all relevant context while Claude asks clarifying questions
-2. **Refinement & Structure**: Iteratively build each section through brainstorming and editing
-3. **Reader Testing**: Test the doc with a fresh Claude (no context) to catch blind spots before others read it
+1. **Coleta de Contexto**: o usuário fornece todo o contexto relevante enquanto o Claude faz perguntas de esclarecimento
+2. **Refinamento e Estrutura**: construa cada seção iterativamente por meio de brainstorming e edição
+3. **Reader Testing**: teste o doc com um Claude limpo (sem contexto) para detectar pontos cegos antes que outras pessoas leiam
 
-Explain that this approach helps ensure the doc works well when others read it (including when they paste it into Claude). Ask if they want to try this workflow or prefer to work freeform.
+Explique que essa abordagem ajuda a garantir que o doc funcione bem quando outras pessoas o lerem (inclusive quando colarem o conteúdo no Claude). Pergunte se a pessoa quer experimentar este workflow ou prefere trabalhar de forma livre.
 
-If user declines, work freeform. If user accepts, proceed to Stage 1.
+Se o usuário recusar, trabalhe de forma livre. Se aceitar, vá para a Etapa 1.
 
-## Stage 1: Context Gathering
+## Etapa 1: Coleta de Contexto
 
-**Goal:** Close the gap between what the user knows and what Claude knows, enabling smart guidance later.
+**Objetivo:** fechar a lacuna entre o que o usuário sabe e o que o Claude sabe, permitindo orientação inteligente nas próximas etapas.
 
-### Initial Questions
+### Perguntas Iniciais
 
-Start by asking the user for meta-context about the document:
+Comece pedindo ao usuário um meta-contexto sobre o documento:
 
-1. What type of document is this? (e.g., technical spec, decision doc, proposal)
-2. Who's the primary audience?
-3. What's the desired impact when someone reads this?
-4. Is there a template or specific format to follow?
-5. Any other constraints or context to know?
+1. Que tipo de documento é este? (ex.: technical spec, decision doc, proposal)
+2. Quem é o público primário?
+3. Qual é o impacto desejado quando alguém ler isto?
+4. Há um template ou formato específico a seguir?
+5. Alguma outra restrição ou contexto a considerar?
 
-Inform them they can answer in shorthand or dump information however works best for them.
+Avise que a pessoa pode responder em forma resumida ou despejar a informação da maneira que funcionar melhor para ela.
 
-**If user provides a template or mentions a doc type:**
-- Ask if they have a template document to share
-- If they provide a link to a shared document, use the appropriate integration to fetch it
-- If they provide a file, read it
+**Se o usuário fornecer um template ou mencionar um tipo de doc:**
+- Pergunte se a pessoa tem um documento de template para compartilhar
+- Se ela enviar um link para um documento compartilhado, use a integração apropriada para buscar
+- Se ela enviar um arquivo, leia o arquivo
 
-**If user mentions editing an existing shared document:**
-- Use the appropriate integration to read the current state
-- Check for images without alt-text
-- If images exist without alt-text, explain that when others use Claude to understand the doc, Claude won't be able to see them. Ask if they want alt-text generated. If so, request they paste each image into chat for descriptive alt-text generation.
+**Se o usuário mencionar a edição de um documento compartilhado existente:**
+- Use a integração apropriada para ler o estado atual
+- Verifique se há imagens sem alt-text
+- Se houver imagens sem alt-text, explique que, quando outras pessoas usarem o Claude para entender o doc, o Claude não conseguirá vê-las. Pergunte se a pessoa quer gerar alt-text. Em caso afirmativo, peça que ela cole cada imagem no chat para gerar um alt-text descritivo.
 
-### Info Dumping
+### Despejo de Informações
 
-Once initial questions are answered, encourage the user to dump all the context they have. Request information such as:
-- Background on the project/problem
-- Related team discussions or shared documents
-- Why alternative solutions aren't being used
-- Organizational context (team dynamics, past incidents, politics)
+Depois que as perguntas iniciais forem respondidas, incentive o usuário a despejar todo o contexto que tem. Solicite informações como:
+- Background do projeto/problema
+- Discussões de equipe relacionadas ou documentos compartilhados
+- Por que soluções alternativas não estão sendo usadas
+- Contexto organizacional (dinâmica de time, incidentes passados, política)
 
-For detailed workflow steps and templates, see [reference.md](./reference.md).
+Para passos detalhados de workflow e templates, consulte [reference.md](./reference.md).

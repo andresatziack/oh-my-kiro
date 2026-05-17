@@ -1,14 +1,14 @@
 # Block Recovery — 危险命令阻断后自愈与兜底跳过
 
-**Goal:** 当 security hook 阻断危险命令时，agent 能利用 hook 提供的替代建议自动重试，重试失败后自动 SKIP，不卡死 plan 执行。
-**Architecture:** 两层防御：(1) 所有 security blocking hook 共享的计数+重试指引逻辑，抽取到 `_lib/block-recovery.sh`，各 hook 调用（带 fallback）；(2) ralph-loop prompt 加兜底规则。
+**Objetivo:** 当 security hook 阻断危险命令时，agent 能利用 hook 提供的替代建议自动重试，重试失败后自动 SKIP，不卡死 plan 执行。
+**Arquitetura:** 两层防御：(1) 所有 security blocking hook 共享的计数+重试指引逻辑，抽取到 `_lib/block-recovery.sh`，各 hook 调用（带 fallback）；(2) ralph-loop prompt 加兜底规则。
 **Tech Stack:** Bash (hook), Markdown (prompt)
 
-## Tasks
+## Tarefas
 
-### Task 1: 新增共享 block-recovery 库函数
+### Tarefa 1: 新增共享 block-recovery 库函数
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/_lib/block-recovery.sh`
 
 ```bash
@@ -60,14 +60,14 @@ hook_block_with_recovery() {
 }
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 bash -n hooks/_lib/block-recovery.sh
 ```
 
-### Task 2: 修改所有 security blocking hook 使用 block-recovery（带 fallback）
+### Tarefa 2: 修改所有 security blocking hook 使用 block-recovery（带 fallback）
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/security/block-dangerous.sh`
 - Modify: `hooks/security/block-outside-workspace.sh`
 - Modify: `hooks/security/block-secrets.sh`
@@ -91,14 +91,14 @@ fi
 - `block-secrets.sh`: `$CMD`
 - `block-sed-json.sh`: `$CMD`
 
-**Verify:**
+**Verificação:**
 ```bash
 bash -n hooks/security/block-dangerous.sh && bash -n hooks/security/block-outside-workspace.sh && bash -n hooks/security/block-secrets.sh && bash -n hooks/security/block-sed-json.sh
 ```
 
-### Task 3: ralph-loop prompt 加兜底规则
+### Tarefa 3: ralph-loop prompt 加兜底规则
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
 在 PROMPT 的 Rules 第 7 条后追加：
@@ -106,14 +106,14 @@ bash -n hooks/security/block-dangerous.sh && bash -n hooks/security/block-outsid
 8. If a command is blocked by a security hook, read the suggested alternative and retry with the safe command. If blocked 3+ times on the same item, mark it as '- [SKIP] blocked by security hook' and continue.
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 grep -q 'blocked.*security hook' scripts/ralph-loop.sh
 ```
 
-### Task 4: 集成测试
+### Tarefa 4: 集成测试
 
-**Files:**
+**Arquivos:**
 - Create: `tests/block-recovery/test-block-recovery.sh`
 
 ```bash
@@ -174,7 +174,7 @@ echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 bash tests/block-recovery/test-block-recovery.sh
 ```

@@ -1,16 +1,16 @@
 # Ralph Loop 强约束 verify-completion 方案
 
-**Goal:** 将 verify-completion 从 L3 advisory（~50% 遵从）升级为硬约束 — 利用 Ralph Loop 的 bash 外循环原理，agent 停了没关系，checklist 没勾完就重启新实例继续。
+**Objetivo:** 将 verify-completion 从 L3 advisory（~50% 遵从）升级为硬约束 - 利用 Ralph Loop 的 bash 外循环原理，agent 停了没关系，checklist 没勾完就重启新实例继续。
 
-**Architecture:** `@execute` 命令调用 `ralph-loop.sh` bash 脚本，脚本循环启动 Kiro CLI 实例执行 plan 中的 checklist 项，每次迭代是 fresh context，直到所有项勾完。
+**Arquitetura:** `@execute` 命令调用 `ralph-loop.sh` bash 脚本，脚本循环启动 Kiro CLI 实例执行 plan 中的 checklist 项，每次迭代是 fresh context，直到所有项勾完。
 
 **Tech Stack:** Bash + Kiro CLI (`--no-interactive --trust-all-tools`)
 
-## Tasks
+## Tarefas
 
-### Task 1: 重写 `commands/execute.md`
+### Tarefa 1: 重写 `commands/execute.md`
 
-**Files:**
+**Arquivos:**
 - Modify: `commands/execute.md`
 
 改为：
@@ -19,9 +19,9 @@
 3. 执行 `./scripts/ralph-loop.sh`
 4. 脚本退出后报告结果，触发 finishing skill
 
-### Task 2: 重写 `scripts/ralph-loop.sh`
+### Tarefa 2: 重写 `scripts/ralph-loop.sh`
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
 **内部 Kiro 实例的 prompt 模板：**
@@ -44,9 +44,9 @@ If stuck after 3 attempts on one item, change it to - [SKIP] with reason, move t
 - 每轮开始前检查 `git status --porcelain`，有未提交变更则先 `git stash`
 - 不处理 merge conflict（超出范围，需要人工介入）
 
-### Task 3: 确认 `verify-completion.sh` 兼容
+### Tarefa 3: 确认 `verify-completion.sh` 兼容
 
-**Files:**
+**Arquivos:**
 - Verify: `hooks/feedback/verify-completion.sh`
 
 已使用 `find_active_plan()` 读 `.active` 指针，与新流程兼容。作为 advisory 补充层。
@@ -69,7 +69,7 @@ Required fixes (已解决):
 
 ## Review (Round 2)
 
-**Verdict:** APPROVE
+**Veredito:** APPROVE
 
 All Round 1 fixes addressed:
 1. ✅ Prompt template — complete and actionable

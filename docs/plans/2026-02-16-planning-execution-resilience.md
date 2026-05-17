@@ -1,8 +1,8 @@
-# Planning Execution Resilience Enhancement
+# Aprimoramento de Resiliência na Execução do Planning
 
-**Goal:** Enhance the planning skill with 5 mechanisms from planning-with-files and industry best practices to prevent drift, error loops, and context loss during execution.
-**Non-Goals:** Not replacing the existing plan structure; not introducing multi-file systems (task_plan/findings/progress); not adding external script dependencies.
-**Architecture:** Add 3 new sections to the Phase 1 plan template (Non-Goals, Errors, Findings), and add 3 execution disciplines to Phase 2 (Read Before Decide, 3-Strike Error Protocol, Session Resume + Periodic Re-orientation). All changes in a single file: `skills/planning/SKILL.md`.
+**Objetivo:** Enhance the planning skill with 5 mechanisms from planning-with-files and industry best practices to prevent drift, error loops, and context loss during execution.
+**Não-Objetivos:** Not replacing the existing plan structure; not introducing multi-file systems (task_plan/findings/progress); not adding external script dependencies.
+**Arquitetura:** Add 3 new sections to the Phase 1 plan template (Non-Goals, Errors, Findings), and add 3 execution disciplines to Phase 2 (Read Before Decide, 3-Strike Error Protocol, Session Resume + Periodic Re-orientation). All changes in a single file: `skills/planning/SKILL.md`.
 **Tech Stack:** Markdown
 
 ## Review
@@ -13,11 +13,11 @@
 
 **Final status:** All issues addressed. Plan ready for user confirmation.
 
-## Tasks
+## Tarefas
 
-### Task 1: Enhance Plan Header Template (Phase 1)
+### Tarefa 1: Enhance Plan Header Template (Phase 1)
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to change in Phase 1 → Plan Header:**
@@ -39,9 +39,9 @@ New:
 **Tech Stack:** [Key technologies]
 ```
 
-### Task 2: Add Errors Section to Plan Template (Phase 1)
+### Tarefa 2: Add Errors Section to Plan Template (Phase 1)
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to add after the Task Structure (TDD) section, before Phase 1.5:**
@@ -68,9 +68,9 @@ Rules:
 - Cap: keep most recent 20 entries; if exceeded, summarize older entries into a single "Earlier errors: N resolved" row
 ```
 
-### Task 3: Add Findings Section to Plan Template (Phase 1)
+### Tarefa 3: Add Findings Section to Plan Template (Phase 1)
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to add after the Errors Section:**
@@ -92,9 +92,9 @@ Rules:
 - Not required for simple plans where no research happens during execution
 ```
 
-### Task 4: Add Execution Disciplines to Phase 2
+### Tarefa 4: Add Execution Disciplines to Phase 2
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to add at the beginning of Phase 2, before the strategy selection table:**
@@ -163,5 +163,5 @@ Rules:
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 

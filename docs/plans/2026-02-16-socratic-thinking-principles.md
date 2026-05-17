@@ -1,15 +1,15 @@
-# Socratic Thinking Principles + Reviewer Fix
+# Princípios de Pensamento Socrático + Correção do Reviewer
 
-**Goal:** (1) Add two thinking principles to AGENTS.md for deeper agent reasoning. (2) Fix reviewer subagent: ensure it reads full plan and stops over-rejecting low-value issues.
-**Non-Goals:** No new skill files, no new hooks, no template files.
-**Architecture:** Modify 5 files: AGENTS.md (2 new principles), .claude/rules/subagent.md (1 new rule), agents/reviewer-prompt.md (add calibration, remove forced over-criticism), skills/planning/SKILL.md (path-based dispatch), knowledge/episodes.md (lesson).
+**Objetivo:** (1) Add two thinking principles to AGENTS.md for deeper agent reasoning. (2) Fix reviewer subagent: ensure it reads full plan and stops over-rejecting low-value issues.
+**Não-Objetivos:** No new skill files, no new hooks, no template files.
+**Arquitetura:** Modify 5 files: AGENTS.md (2 new principles), .claude/rules/subagent.md (1 new rule), agents/reviewer-prompt.md (add calibration, remove forced over-criticism), skills/planning/SKILL.md (path-based dispatch), knowledge/episodes.md (lesson).
 **Tech Stack:** Markdown only.
 
-## Tasks
+## Tarefas
 
-### Task 1: Add two principles to AGENTS.md
+### Tarefa 1: Add two principles to AGENTS.md
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 
 **Step 1: Write failing test**
@@ -30,9 +30,9 @@ count=$(sed -n '/^## Principles/,/^## /p' AGENTS.md | grep -c "Recommend before 
 ```
 Expected: PASS
 
-### Task 2: Add reviewer dispatch rule to subagent.md
+### Tarefa 2: Add reviewer dispatch rule to subagent.md
 
-**Files:**
+**Arquivos:**
 - Modify: `.claude/rules/subagent.md`
 
 **Step 1: Write failing test**
@@ -52,9 +52,9 @@ grep -q "reviewer 自行读取完整 plan 文件" .claude/rules/subagent.md && e
 ```
 Expected: PASS
 
-### Task 3: Fix reviewer prompt — add calibration, remove forced over-criticism
+### Tarefa 3: Fix reviewer prompt - add calibration, remove forced over-criticism
 
-**Files:**
+**Arquivos:**
 - Modify: `agents/reviewer-prompt.md`
 
 **Step 1: Write failing test**
@@ -105,9 +105,9 @@ grep -q "would cause the plan to fail" agents/reviewer-prompt.md && echo PASS ||
 ```
 Expected: PASS
 
-### Task 4: Update dispatch procedure in planning SKILL.md
+### Tarefa 4: Update dispatch procedure in planning SKILL.md
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Step 1: Write failing test**
@@ -133,9 +133,9 @@ grep -q "pass plan file path" skills/planning/SKILL.md && echo PASS || echo FAIL
 ```
 Expected: PASS
 
-### Task 5: Record episode
+### Tarefa 5: Record episode
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/episodes.md`
 
 **Step 1: Append episode**
@@ -149,7 +149,7 @@ grep -q "Reviewer反复提低价值反馈" knowledge/episodes.md && echo PASS ||
 ```
 Expected: PASS
 
-### Task 6: End-to-end verification
+### Tarefa 6: End-to-end verification
 
 ```bash
 grep -q "Recommend before asking" AGENTS.md && \
@@ -164,13 +164,13 @@ Expected: ALL PASS
 
 ## Review
 
-### Round 1 (old reviewer prompt — for comparison)
+### Round 1 (old reviewer prompt - for comparison)
 Reviewers read plan via path. 4-way parallel succeeded.
 - Compatibility: APPROVE
 - Completeness/Testability/Clarity: all REQUEST CHANGES with low-value feedback (rollback, file existence, encoding, substring precision). All calibrated out.
 Result: 1/4 APPROVE
 
-### Round 2 (new reviewer prompt with calibration — A/B test)
+### Round 2 (new reviewer prompt with calibration - A/B test)
 Same plan, same angles, same path-based dispatch. Only difference: reviewer-prompt.md updated with calibration rules.
 - **Compatibility & Rollback**: APPROVE — no breaking changes, trivial rollback
 - **Completeness**: APPROVE — "minor warning, no critical gaps that would cause execution failure"

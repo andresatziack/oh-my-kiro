@@ -1,4 +1,4 @@
-# Findings
+# Descobertas
 
 ## Decision: Single atomic rewrite
 All checklist items map to a single file (`commands/cpu.md`). The plan's Step 2 specifies verbatim content that satisfies all 7 verify commands simultaneously. No incremental approach needed.

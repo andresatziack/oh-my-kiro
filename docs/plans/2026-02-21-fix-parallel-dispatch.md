@@ -1,17 +1,17 @@
-# Fix Ralph Loop Parallel Dispatch Bugs
+# Corrigir Bugs de Dispatch Paralelo do Ralph Loop
 
-**Goal:** 修复 ralph loop 并行执行的 2 个核心 bug：(1) 已完成 task 被反复调度（unchecked_tasks fallback 返回所有 task），(2) 无改动 worker 的空 merge 被当作冲突浪费 iteration。
-**Non-Goals:** 不改变 scheduler 算法；不改变 worktree 隔离策略；不添加新功能。
-**Architecture:** 修改 plan.py 的 unchecked_tasks() 和 worktree.py 的 merge()。所有改动向后兼容。
+**Objetivo:** 修复 ralph loop 并行执行的 2 个核心 bug：(1) 已完成 task 被反复调度（unchecked_tasks fallback 返回所有 task），(2) 无改动 worker 的空 merge 被当作冲突浪费 iteration。
+**Não-Objetivos:** 不改变 scheduler 算法；不改变 worktree 隔离策略；不添加新功能。
+**Arquitetura:** 修改 plan.py 的 unchecked_tasks() 和 worktree.py 的 merge()。所有改动向后兼容。
 **Tech Stack:** Python 3, pytest
 
-## Tasks
+## Tarefas
 
-### Task 1: Fix unchecked_tasks() unmatched fallback
+### Tarefa 1: Fix unchecked_tasks() unmatched fallback
 
 当 checklist 项（如"回归测试通过"）无法匹配到任何 task 时，当前 fallback 返回所有 task。这导致已完成的 task 被反复调度。
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
@@ -64,13 +64,13 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_skips_completed_with_unmatched_items -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_skips_completed_with_unmatched_items -v`
 
-### Task 2: Handle empty squash merge gracefully
+### Tarefa 2: Handle empty squash merge gracefully
 
 当 worker 在 worktree 中没有产生新 commit（task 已完成或 worker 没做改动），`git merge --squash` 报 "nothing to squash"，`git commit` 因无 staged changes 失败，整个 merge 被当作冲突处理。
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_worktree.py`
 
@@ -112,7 +112,7 @@ Expected: PASS
 
 **Step 5: Commit**
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_no_changes_returns_true -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_worktree.py::test_merge_no_changes_returns_true -v`
 
 ## Checklist
 

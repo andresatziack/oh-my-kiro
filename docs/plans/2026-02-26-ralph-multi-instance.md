@@ -1,18 +1,18 @@
-# Ralph Loop Multi-Instance Support
+# Suporte a Multi-Instância no Ralph Loop
 
-**Goal:** Enable multiple ralph loop instances to run concurrently in the same project, each targeting a different submodule worktree, with zero breaking changes to existing single-instance behavior. Include plan-level `Work Dir` declaration, automatic worktree setup in @execute flow, and hard boundary enforcement via hook.
-**Non-Goals:** Batch orchestrator (ralph_multi.py) for launching multiple instances in one command. Changing plan.py or lock.py.
-**Architecture:** Four layers: (1) `ralph_loop.py` — instance slug from plan name isolates lock/log/result; `RALPH_WORK_DIR` sets CLI subprocess cwd and prompt. (2) `commands/execute.md` — reads `Work Dir` from plan header, creates worktree if needed, sets env vars, launches ralph loop. (3) `hooks/gate/enforce-work-dir.sh` — PreToolUse hook that blocks fs_write outside `RALPH_WORK_DIR` when set. (4) Plan format — optional `**Work Dir:**` header field. When `Work Dir` is absent, all behavior is identical to today.
+**Objetivo:** Enable multiple ralph loop instances to run concurrently in the same project, each targeting a different submodule worktree, with zero breaking changes to existing single-instance behavior. Include plan-level `Work Dir` declaration, automatic worktree setup in @execute flow, and hard boundary enforcement via hook.
+**Não-Objetivos:** Batch orchestrator (ralph_multi.py) for launching multiple instances in one command. Changing plan.py or lock.py.
+**Arquitetura:** Four layers: (1) `ralph_loop.py` - instance slug from plan name isolates lock/log/result; `RALPH_WORK_DIR` sets CLI subprocess cwd and prompt. (2) `commands/execute.md` - reads `Work Dir` from plan header, creates worktree if needed, sets env vars, launches ralph loop. (3) `hooks/gate/enforce-work-dir.sh` - PreToolUse hook that blocks fs_write outside `RALPH_WORK_DIR` when set. (4) Plan format - optional `**Work Dir:**` header field. When `Work Dir` is absent, all behavior is identical to today.
 **Tech Stack:** Python 3, Bash, pytest
 
 ## Review
 <!-- Reviewer writes here -->
 
-## Tasks
+## Tarefas
 
-### Task 1: Instance-Isolated Lock/Log/Result Files
+### Tarefa 1: Instance-Isolated Lock/Log/Result Files
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -50,9 +50,9 @@ Expected: PASS
 **Step 5: Commit**
 `feat: instance-isolated lock/log/result files for multi ralph loop`
 
-### Task 2: RALPH_WORK_DIR Support
+### Tarefa 2: RALPH_WORK_DIR Support
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Modify: `scripts/lib/pty_runner.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
@@ -92,9 +92,9 @@ Expected: PASS
 **Step 5: Commit**
 `feat: RALPH_WORK_DIR support for submodule worktree execution`
 
-### Task 3: Work Dir Boundary Hook
+### Tarefa 3: Work Dir Boundary Hook
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/gate/enforce-work-dir.sh`
 - Test: `tests/ralph-loop/test_ralph_loop.py` (or inline bash test)
 
@@ -172,9 +172,9 @@ Expected: PASS
 **Step 5: Commit**
 `feat: enforce-work-dir hook blocks writes outside RALPH_WORK_DIR`
 
-### Task 4: Plan Format + @execute Flow
+### Tarefa 4: Plan Format + @execute Flow
 
-**Files:**
+**Arquivos:**
 - Modify: `commands/execute.md`
 - Modify: `hooks/feedback/context-enrichment.sh`
 
@@ -235,9 +235,9 @@ Expected: PASS
 **Step 5: Commit**
 `feat: @execute reads Work Dir from plan and sets up worktree`
 
-### Task 5: Hook Registration
+### Tarefa 5: Hook Registration
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/pilot.json` (or equivalent hook config)
 
 **Step 1: Register enforce-work-dir.sh**
@@ -256,9 +256,9 @@ Run: `jq '.hooks' .kiro/agents/pilot.json | grep -q 'enforce-work-dir'`
 **Step 3: Commit**
 `feat: register enforce-work-dir hook in pilot config`
 
-### Task 6: Regression Tests
+### Tarefa 6: Regression Tests
 
-**Files:**
+**Arquivos:**
 - Test: `tests/ralph-loop/`
 
 **Step 1: Run full regression**

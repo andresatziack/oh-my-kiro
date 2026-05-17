@@ -1,17 +1,17 @@
-# Ralph Loop Simplification — Remove Worktree Parallel Execution
+# Simplificação do Ralph Loop - Remover Execução Paralela com Worktree
 
-**Goal:** Remove worktree-based parallel execution from ralph loop to eliminate instability (13 bugs in 2 days), reduce code complexity (~300 lines + ~40 tests), and restore pre-worktree sequential performance (~4 min/item vs 6+ min/item when parallel degrades).
-**Non-Goals:** Add new parallel execution mechanism (future work when platform supports in-process subagent with LSP). Change ralph loop's core restart-on-stop design. Remove executor agent config (used by other subagent scenarios).
-**Architecture:** Strip worktree.py, git_retry.py, scheduler.py, and all parallel code paths from ralph_loop.py. Keep sequential loop with heartbeat/stall detection. Add @execute detection in context-enrichment.sh. Raise stall_timeout default from 300s to 600s.
+**Objetivo:** Remove worktree-based parallel execution from ralph loop to eliminate instability (13 bugs in 2 days), reduce code complexity (~300 lines + ~40 tests), and restore pre-worktree sequential performance (~4 min/item vs 6+ min/item when parallel degrades).
+**Não-Objetivos:** Add new parallel execution mechanism (future work when platform supports in-process subagent with LSP). Change ralph loop's core restart-on-stop design. Remove executor agent config (used by other subagent scenarios).
+**Arquitetura:** Strip worktree.py, git_retry.py, scheduler.py, and all parallel code paths from ralph_loop.py. Keep sequential loop with heartbeat/stall detection. Add @execute detection in context-enrichment.sh. Raise stall_timeout default from 300s to 600s.
 **Tech Stack:** Python 3, Bash, pytest
 
-## Tasks
+## Tarefas
 
-### Task 1: Delete Parallel Modules
+### Tarefa 1: Delete Parallel Modules
 
 Remove the three library modules that only serve parallel execution.
 
-**Files:**
+**Arquivos:**
 - Delete: `scripts/lib/worktree.py`
 - Delete: `scripts/lib/git_retry.py`
 - Delete: `scripts/lib/scheduler.py`
@@ -19,20 +19,20 @@ Remove the three library modules that only serve parallel execution.
 - Delete: `tests/ralph-loop/test_git_retry.py`
 - Delete: `tests/ralph-loop/test_scheduler.py`
 
-**Verify:** `test ! -f scripts/lib/worktree.py && test ! -f scripts/lib/git_retry.py && test ! -f scripts/lib/scheduler.py && test ! -f tests/ralph-loop/test_worktree.py`
+**Verificação:** `test ! -f scripts/lib/worktree.py && test ! -f scripts/lib/git_retry.py && test ! -f scripts/lib/scheduler.py && test ! -f tests/ralph-loop/test_worktree.py`
 
 **What to implement:**
 Delete the 6 files listed above. These modules are only used by parallel execution.
 
-### Task 2: Strip Parallel Code from ralph_loop.py
+### Tarefa 2: Strip Parallel Code from ralph_loop.py
 
 Remove all parallel/worktree code paths from the main loop script. Keep sequential execution, heartbeat, stall detection, circuit breaker.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Modify: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -c "import ast; t=ast.parse(open('scripts/ralph_loop.py').read()); ms=[n.module for n in ast.walk(t) if isinstance(n,ast.ImportFrom) and n.module]; assert 'scripts.lib.scheduler' not in ms and 'scripts.lib.worktree' not in ms; print('OK')"`
+**Verificação:** `python3 -c "import ast; t=ast.parse(open('scripts/ralph_loop.py').read()); ms=[n.module for n in ast.walk(t) if isinstance(n,ast.ImportFrom) and n.module]; assert 'scripts.lib.scheduler' not in ms and 'scripts.lib.worktree' not in ms; print('OK')"`
 
 **What to implement:**
 
@@ -46,26 +46,26 @@ From ralph_loop.py, remove:
 
 From test_ralph_loop.py, remove these tests: `test_parallel_prompt_contains_dispatch`, `test_batch_mode_startup_banner`, `test_parallel_prompt_structure`, `test_partial_parse_still_batches`, `test_worker_prompt_no_plan_update`, `test_parallel_batch_creates_worktrees`, `test_parallel_workers_killed_on_exit`, `test_worker_prompt_includes_checklist_state`, `test_max_parallel_workers_env`, `test_parallel_checklist_persists_after_merge`, `test_build_batch_prompt_uses_real_plan`, `test_batch_prompt_includes_skip_and_security_guidance`
 
-### Task 3: Raise stall_timeout and Clean Up Config
+### Tarefa 3: Raise stall_timeout and Clean Up Config
 
 Raise default stall_timeout from 300s to 600s so agent has more time per iteration to complete multiple tasks without being killed.
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 
-**Verify:** `python3 -c "from scripts.ralph_loop import Config; assert Config().stall_timeout == 600; print('OK')"`
+**Verificação:** `python3 -c "from scripts.ralph_loop import Config; assert Config().stall_timeout == 600; print('OK')"`
 
 **What to implement:**
 In `Config` dataclass, change: `stall_timeout: int = 600`
 
-### Task 4: Add @execute Detection in context-enrichment.sh
+### Tarefa 4: Add @execute Detection in context-enrichment.sh
 
 When user message contains `@execute`, inject a strong directive to run ralph loop immediately.
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
-**Verify:** `echo '{"prompt":"@execute"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q 'ralph_loop'`
+**Verificação:** `echo '{"prompt":"@execute"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q 'ralph_loop'`
 
 **What to implement:**
 Add after the debugging skill reminder block:
@@ -77,14 +77,14 @@ if echo "$USER_MSG" | grep -qE '^@execute|^/execute'; then
 fi
 ```
 
-### Task 5: Simplify SKILL.md Execution Strategies
+### Tarefa 5: Simplify SKILL.md Execution Strategies
 
 Remove Strategy B/C/D and Workspace Isolation sections. Keep only Strategy A (sequential).
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
-**Verify:** `! grep -q 'Strategy B\|Strategy C\|Strategy D\|Workspace Isolation.*Worktree' skills/planning/SKILL.md`
+**Verificação:** `! grep -q 'Strategy B\|Strategy C\|Strategy D\|Workspace Isolation.*Worktree' skills/planning/SKILL.md`
 
 **What to implement:**
 Replace the Strategy Selection table and Strategy B/C/D/Workspace Isolation sections (lines 352-437) with:
@@ -102,26 +102,26 @@ Sequential execution: one task at a time, commit after each.
 Each ralph loop iteration spawns a fresh CLI with clean context. The agent should complete as many tasks as possible per iteration before context fills up.
 ```
 
-### Task 6: Clean Up .worktrees and .gitignore
+### Tarefa 6: Clean Up .worktrees and .gitignore
 
 Remove .worktrees directory and its .gitignore entry.
 
-**Files:**
+**Arquivos:**
 - Modify: `.gitignore`
 
-**Verify:** `test ! -d .worktrees && ! grep -q '.worktrees' .gitignore`
+**Verificação:** `test ! -d .worktrees && ! grep -q '.worktrees' .gitignore`
 
 **What to implement:**
 Remove `.worktrees/` directory. Remove `.worktrees` line from `.gitignore`.
 
-### Task 7: Full Regression Test
+### Tarefa 7: Full Regression Test
 
 Run the complete test suite to verify nothing is broken.
 
-**Files:**
+**Arquivos:**
 - Test: `tests/`
 
-**Verify:** `python3 -m pytest tests/ -v --tb=short 2>&1 | tail -1 | grep -q 'passed'`
+**Verificação:** `python3 -m pytest tests/ -v --tb=short 2>&1 | tail -1 | grep -q 'passed'`
 
 **What to implement:**
 Run `python3 -m pytest tests/ -v`. Expect ALL PASS, ~130 tests (down from 171). Fix any regressions.

@@ -1,20 +1,20 @@
 > **ABANDONED** — 未执行，已关闭
 
-# ~~Fix Ralph Loop Parallel Execution Bugs~~ (OBSOLETE)
+# ~~Corrigir Bugs de Execução Paralela do Ralph Loop~~ (OBSOLETE)
 
 > **⚠️ OBSOLETE** — 废弃于 2026-02-21。原因：plan 创建后 ralph_loop.py/plan.py/worktree.py 累计改动 338 行，行号引用和函数签名全部过时。Bug 描述仍有效，需基于当前代码重新规划。
 
 
-**Goal:** Fix six bugs in ralph_loop.py parallel worktree execution: (1) orphan worker processes surviving after ralph exits, (2) unchecked_tasks() returning completed tasks when task:checklist ratio is not 1:1, (3) worker prompt lacking checklist state causing wasted iterations, (4) no rate-limit awareness causing all workers to fail simultaneously, (5) verify_and_check_all() writes to plan file but doesn't git commit, so subsequent merges overwrite the checked-off items, (6) --no-ff merge creates noisy merge commits polluting git history.
-**Non-Goals:** Rewrite sequential execution path; add new parallel strategies; change scheduler algorithm.
-**Architecture:** All fixes are in ralph_loop.py, plan.py, and worktree.py. Task 1 fixes orphan cleanup. Task 2 fixes unchecked_tasks() for N:M mapping. Task 3 adds checklist context to worker prompt. Task 4 adds worker count throttling. Task 5 fixes checklist persistence after parallel merges. Task 6 switches to squash merge for clean history.
+**Objetivo:** Fix six bugs in ralph_loop.py parallel worktree execution: (1) orphan worker processes surviving after ralph exits, (2) unchecked_tasks() returning completed tasks when task:checklist ratio is not 1:1, (3) worker prompt lacking checklist state causing wasted iterations, (4) no rate-limit awareness causing all workers to fail simultaneously, (5) verify_and_check_all() writes to plan file but doesn't git commit, so subsequent merges overwrite the checked-off items, (6) --no-ff merge creates noisy merge commits polluting git history.
+**Não-Objetivos:** Rewrite sequential execution path; add new parallel strategies; change scheduler algorithm.
+**Arquitetura:** All fixes are in ralph_loop.py, plan.py, and worktree.py. Task 1 fixes orphan cleanup. Task 2 fixes unchecked_tasks() for N:M mapping. Task 3 adds checklist context to worker prompt. Task 4 adds worker count throttling. Task 5 fixes checklist persistence after parallel merges. Task 6 switches to squash merge for clean history.
 **Tech Stack:** Python 3, pytest, git
 
-## Tasks
+## Tarefas
 
-### Task 1: Fix orphan worker process cleanup
+### Tarefa 1: Fix orphan worker process cleanup
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -37,13 +37,13 @@ Expected: PASS
 **Step 4: Commit**
 `fix: ralph_loop — track worker PIDs for orphan-proof cleanup`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_workers_killed_on_exit -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_workers_killed_on_exit -v`
 
 ---
 
-### Task 2: Fix unchecked_tasks() for N:M task:checklist mapping
+### Tarefa 2: Fix unchecked_tasks() for N:M task:checklist mapping
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/plan.py`
 - Test: `tests/ralph-loop/test_plan.py`
 
@@ -68,13 +68,13 @@ Expected: PASS
 **Step 4: Commit**
 `fix: unchecked_tasks() — keyword matching for N:M task:checklist mapping`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_many_to_many -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_many_to_many -v`
 
 ---
 
-### Task 3: Add checklist state to worker prompt
+### Tarefa 3: Add checklist state to worker prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -91,13 +91,13 @@ Expected: PASS
 **Step 4: Commit**
 `fix: worker prompt — include checklist state to prevent wasted iterations`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_includes_checklist_state -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_includes_checklist_state -v`
 
 ---
 
-### Task 4: Rate-limit aware worker throttling
+### Tarefa 4: Rate-limit aware worker throttling
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -114,13 +114,13 @@ Expected: PASS
 **Step 4: Commit**
 `fix: ralph_loop — rate-limit aware worker throttling`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_max_parallel_workers_env -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_max_parallel_workers_env -v`
 
 ---
 
-### Task 5: Fix checklist persistence after parallel merges
+### Tarefa 5: Fix checklist persistence after parallel merges
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Modify: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
@@ -160,13 +160,13 @@ Expected: PASS
 **Step 5: Commit**
 `fix: ralph_loop — git commit checklist after verify_and_check_all in parallel mode`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_checklist_persists_after_merge -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_checklist_persists_after_merge -v`
 
 ---
 
-### Task 6: Switch to squash merge for clean history
+### Tarefa 6: Switch to squash merge for clean history
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_worktree.py`
 
@@ -195,7 +195,7 @@ Expected: PASS
 **Step 5: Commit**
 `fix: worktree merge — switch to squash merge for clean history`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_worktree.py::test_squash_merge_no_merge_commit -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_worktree.py::test_squash_merge_no_merge_commit -v`
 
 ---
 
@@ -207,7 +207,7 @@ Expected: PASS
 - **Testability:** REQUEST CHANGES — valid: Task 3 test too static (keywords vs content), Task 1 macOS /proc issue, Task 2 missing zero-match edge case. **Fixed:** all three addressed.
 - **Security:** REQUEST CHANGES — valid: pkill PID reuse risk, log injection. **Fixed:** replaced pkill with process group validation via os.killpg + stored pgid; log reading limited to 1KB substring match.
 
-### Round 2 (2 reviewers — fixed angles only)
+### Round 2 (2 reviewers - fixed angles only)
 - **Goal Alignment:** REQUEST CHANGES — reviewer checked if implementation exists in source code. **Rejected finding:** this is a plan review, not implementation review. Tests and code are created during @execute phase. Plan structure and coverage are correct.
 - **Verify Correctness:** REQUEST CHANGES — same issue: reviewer ran verify commands against current (pre-implementation) code. **Rejected finding:** verify commands validate post-implementation state. All 5 commands are structurally sound.
 

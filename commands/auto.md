@@ -1,49 +1,49 @@
-You MUST follow this exact sequence. @auto is a fully automated pipeline — no user confirmation between stages except during Expansion questions.
+Você DEVE seguir esta sequência exata. @auto é um pipeline totalmente automatizado, sem confirmação do usuário entre estágios, exceto durante as perguntas de Expansão.
 
-## Stage 1: Expansion (Phase 0 + Readiness Check)
+## Estágio 1: Expansão (Phase 0 + Readiness Check)
 
-Follow `skills/omk-planning/SKILL.md` Phase 0 including **Step 6: Readiness Check**.
+Siga `skills/omk-planning/SKILL.md` Phase 0 incluindo o **Step 6: Readiness Check**.
 
-- Run the 4-dimension checklist (Goal / Constraints / Success Criteria / Context)
-- If any dimension is ❌, ask the user ONE question (with Challenge Modes on 2nd+ question)
-- Once all dimensions are ✅, generate a one-paragraph spec summarizing the validated understanding
+- Execute o checklist de 4 dimensões (Goal / Constraints / Success Criteria / Context)
+- Se alguma dimensão estiver ❌, faça UMA pergunta ao usuário (com Challenge Modes a partir da 2ª pergunta)
+- Quando todas as dimensões estiverem ✅, gere um resumo de um parágrafo descrevendo o entendimento validado
 - `touch .brainstorm-confirmed`
 
-Difference from @plan: @plan waits for explicit user confirmation after Phase 0. @auto proceeds automatically once Readiness Check passes.
+Diferença em relação a @plan: @plan aguarda confirmação explícita do usuário após Phase 0. @auto prossegue automaticamente assim que o Readiness Check passa.
 
-## Stage 2: Planning (Phase 1)
+## Estágio 2: Planejamento (Phase 1)
 
-Read `skills/omk-planning/SKILL.md` Phase 1. Write plan to `docs/plans/<date>-<slug>.md` with Goal, Tasks (TDD structure), `## Review`, and `## Checklist` with verify commands.
+Leia `skills/omk-planning/SKILL.md` Phase 1. Escreva o plan em `docs/plans/<date>-<slug>.md` com Goal, Tasks (estrutura TDD), `## Review` e `## Checklist` com comandos de verify.
 
-Follow all Checklist Structure Rules from `commands/plan.md` Step 2.
+Siga todas as Checklist Structure Rules de `commands/plan.md` Step 2.
 
-## Stage 3: Review (Phase 1.5 + Pre-mortem)
+## Estágio 3: Review (Phase 1.5 + Pre-mortem)
 
-Follow `skills/omk-planning/SKILL.md` Phase 1.5:
-1. Run **Pre-mortem Analysis** — identify 3 failure risks (Integration / Assumption / Environment)
-2. Select review angles (2 fixed + 2 random = 4 reviewers)
-3. Dispatch 4 reviewer subagents in parallel with pre-mortem questions injected
+Siga `skills/omk-planning/SKILL.md` Phase 1.5:
+1. Execute a **Pre-mortem Analysis**, identificando 3 riscos de falha (Integration / Assumption / Environment)
+2. Selecione os ângulos de review (2 fixos + 2 aleatórios = 4 reviewers)
+3. Dispare 4 subagents reviewers em paralelo com as perguntas do pre-mortem injetadas
 
-**Handling REQUEST CHANGES:**
-- @auto autonomously revises the plan based on reviewer feedback (max 2 revision rounds)
-- After each revision, re-dispatch reviewers for the changed sections
-- If still REQUEST CHANGES after 2 rounds: **STOP** and tell the user what remains unresolved. User must intervene manually.
+**Como lidar com REQUEST CHANGES:**
+- @auto revisa o plan autonomamente com base no feedback dos reviewers (máximo 2 rodadas de revisão)
+- Após cada revisão, dispare novamente os reviewers para as seções alteradas
+- Se ainda houver REQUEST CHANGES após 2 rodadas: **PARE** e diga ao usuário o que continua sem resolução. O usuário precisa intervir manualmente.
 
-## Stage 4: Execution
+## Estágio 4: Execução
 
-After all reviewers APPROVE (or after user resolves remaining issues):
-1. Write plan path to `docs/plans/.active`
+Depois que todos os reviewers derem APPROVE (ou após o usuário resolver os pontos pendentes):
+1. Escreva o caminho do plan em `docs/plans/.active`
 2. `unlink .brainstorm-confirmed 2>/dev/null || true`
-3. Auto-commit plan artifacts (explicit file paths only, never `git add -A`)
-4. Run `@execute` to launch task execution
+3. Faça commit automático dos artefatos do plan (apenas caminhos de arquivo explícitos, nunca `git add -A`)
+4. Execute `@execute` para iniciar a execução das tasks
 
-## Stage 5: Completion
+## Estágio 5: Conclusão
 
-When execution finishes:
-- Report final status (completed / remaining / skipped items)
-- If items remain, summarize what failed and suggest next steps
-- Clean up `.active` if all items completed
+Quando a execução terminar:
+- Reporte o status final (itens concluídos / pendentes / pulados)
+- Se houver itens pendentes, resuma o que falhou e sugira próximos passos
+- Limpe `.active` se todos os itens estiverem concluídos
 
 ---
 User's requirement:
-(The user's next message is the requirement. If this is the first message after @auto was invoked and no requirement appears above, wait for the user's next message — it will contain the requirement. Do NOT ask "what do you want to do?" — the user already knows they need to provide input after @auto.)
+(A próxima mensagem do usuário é o requisito. Se esta for a primeira mensagem após @auto ter sido invocado e nenhum requisito aparecer acima, aguarde a próxima mensagem do usuário, ela conterá o requisito. NÃO pergunte "o que você quer fazer?", o usuário já sabe que precisa fornecer a entrada após @auto.)

@@ -1,13 +1,13 @@
 # Hook Governance — 审计、优化、固化
 
-**Goal:** 全面审计现有 hook 体系，修复不一致和冗余，产出 Hook Architecture Design Doc（含扩展性设计）并用代码层机制固化设计，防止后续迭代破坏，同时保证新 hook 的接入有清晰流程。
+**Objetivo:** 全面审计现有 hook 体系，修复不一致和冗余，产出 Hook Architecture Design Doc（含扩展性设计）并用代码层机制固化设计，防止后续迭代破坏，同时保证新 hook 的接入有清晰流程。
 
-**Non-Goals:**
+**Não-Objetivos:**
 - 不新增 hook 功能（如 LLM eval Stop hook、auto-approve 等）
 - 不重构 pre-write.sh 的合并策略（当前合并是有意设计，减少 hook 调用次数）
 - 不改变 security/gate/feedback 三分类体系
 
-**Architecture:** 三层治理：(1) enforcement.md 升级为完整的 Hook Architecture Doc，包含分类原则、命名规范、职责边界 (2) generate_configs.py 增加一致性校验，确保生成的 config 与 architecture doc 一致 (3) pre-write gate 增加对 hooks/ 目录修改的保护，要求同步更新 architecture doc。
+**Arquitetura:** 三层治理：(1) enforcement.md 升级为完整的 Hook Architecture Doc，包含分类原则、命名规范、职责边界 (2) generate_configs.py 增加一致性校验，确保生成的 config 与 architecture doc 一致 (3) pre-write gate 增加对 hooks/ 目录修改的保护，要求同步更新 architecture doc。
 
 **Tech Stack:** Bash (hooks), Python (generator/validator), Markdown (architecture doc)
 
@@ -46,11 +46,11 @@ enforcement.md 的 Determinism Layers 表只有 3 层（Commands/Gate/Feedback�
 有测试的：block-dangerous、block-sed-json、instruction-guard（brainstorm-gate + write-protection）、block-recovery、context-enrichment split、kiro-compat
 无测试的：block-secrets、block-outside-workspace、enforce-ralph-loop、require-regression、session-init、correction-detect、auto-capture、kb-health-report、verify-completion、post-write、post-bash
 
-## Tasks
+## Tarefas
 
-### Task 1: 修复注册表 drift + 清理死代码
+### Tarefa 1: 修复注册表 drift + 清理死代码
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/_lib/llm-eval.sh` → 移到 `.trash/`
 - Modify: `.kiro/rules/enforcement.md`
 
@@ -62,15 +62,15 @@ mv hooks/_lib/llm-eval.sh .trash/llm-eval.sh
 **Step 2: 重写 enforcement.md 为完整注册表**
 更新 enforcement.md，补全所有 15 个 hook（含 2 个影子 hook），标注调用关系和注册状态。
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 llm-eval.sh 已移除
 test ! -f hooks/_lib/llm-eval.sh
 ```
 
-### Task 2: 修复 settings.json drift
+### Tarefa 2: 修复 settings.json drift
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 
 **Step 1: 确认 generate_configs.py 是否已包含 enforce-ralph-loop 和 require-regression 的 CC 版本**
@@ -81,15 +81,15 @@ test ! -f hooks/_lib/llm-eval.sh
 python3 scripts/generate_configs.py
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 settings.json 包含 enforce-ralph-loop
 jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-loop'
 ```
 
-### Task 3: 修复 pre-write.sh Phase 编号
+### Tarefa 3: 修复 pre-write.sh Phase 编号
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 
 **Step 1: 重新编号 Phase**
@@ -102,29 +102,29 @@ jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-l
 - Phase 5: Injection & Secret Scan（原 2）
 - Phase 6: Plan Context Injection（原 3，advisory）
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 Phase 编号连续且递增
 grep -E '^# Phase [0-9]' hooks/gate/pre-write.sh | awk '{print $3}' | sort -n -c 2>&1; echo "exit: $?"
 ```
 
-### Task 4: 清理 session-init.sh 低价值输出
+### Tarefa 4: 清理 session-init.sh 低价值输出
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/feedback/session-init.sh`
 
 **Step 1: 移除硬编码 delegation reminder**
 删除 `echo "⚡ Delegation: >3 independent tasks → use subagent per task. Never delegate code/grep/web_search tasks."` 这行。这是每次 session 都输出的噪音，subagent rules 已经在 `.claude/rules/subagent.md` 中覆盖。
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 delegation reminder 已移除
 ! grep -q 'Delegation:' hooks/feedback/session-init.sh
 ```
 
-### Task 5: 产出 Hook Architecture Design Doc
+### Tarefa 5: 产出 Hook Architecture Design Doc
 
-**Files:**
+**Arquivos:**
 - Create: `docs/designs/2026-02-18-hook-architecture.md`
 - Modify: `docs/INDEX.md`
 
@@ -171,7 +171,7 @@ grep -E '^# Phase [0-9]' hooks/gate/pre-write.sh | awk '{print $3}' | sort -n -c
 **Step 2: 更新 docs/INDEX.md**
 添加 Hook Architecture Doc 的链接。
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 architecture doc 存在且包含关键 section（含扩展性）
 test -f docs/designs/2026-02-18-hook-architecture.md && \
@@ -181,9 +181,9 @@ grep -q '## Lifecycle' docs/designs/2026-02-18-hook-architecture.md && \
 grep -q '## Extensibility' docs/designs/2026-02-18-hook-architecture.md
 ```
 
-### Task 6: 代码层固化 — pre-write advisory + generate_configs validate 强制
+### Tarefa 6: 代码层固化 - pre-write advisory + generate_configs validate 强制
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 
 **Step 1: 在 gate_instruction_files 中增加 hooks/ 目录 advisory 提醒**
@@ -198,15 +198,15 @@ if FILE matches hooks/**/*.sh:
 
 ~~原方案（/tmp 标记文件检查 enforcement.md 是否被修改）已废弃。原因：agent 可以先随便改一行 enforcement.md 触发标记再改 hook，绕过检查。改为 advisory 提醒 + generate_configs.py validate 双层设计：写时提醒（轻量），生成 config 时强制校验（不可绕过）。~~
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 hooks/ 目录修改时有 advisory 提醒
 echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangerous.sh","file_text":"test","command":"str_replace"}}' | bash hooks/gate/pre-write.sh 2>&1 | grep -q 'Hook file modified'
 ```
 
-### Task 7: 代码层固化 — generate_configs.py 增加一致性校验
+### Tarefa 7: 代码层固化 - generate_configs.py 增加一致性校验
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 
 **Step 1: 增加 validate 子命令**
@@ -219,15 +219,15 @@ echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangero
 **Step 2: 在生成 config 时自动运行校验**
 每次 `python3 scripts/generate_configs.py` 生成 config 前，先运行一致性校验。不一致则拒绝生成。
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 validate 模式可用且当前状态一致
 python3 scripts/generate_configs.py --validate
 ```
 
-### Task 8: 修复 reviewer 质量 — reviewer-prompt.md 增加 show-your-work 要求
+### Tarefa 8: 修复 reviewer 质量 - reviewer-prompt.md 增加 show-your-work 要求
 
-**Files:**
+**Arquivos:**
 - Modify: `agents/reviewer-prompt.md`
 
 **Step 1: 在 Output Structure 中增加 Evidence of Analysis 要求**
@@ -255,15 +255,15 @@ python3 scripts/generate_configs.py --validate
 **Step 2: 强化 "What I checked" section**
 将 Output Structure 中的 `**What I checked and found no issues:**` 改为必填，且要求至少列出 3 个具体检查点（不是泛泛的"checked code quality"）。
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 reviewer-prompt.md 包含 show-your-work 规则
 grep -q 'Show your work' agents/reviewer-prompt.md && grep -q 'Per-item analysis' agents/reviewer-prompt.md
 ```
 
-### Task 9: 修复 reviewer 质量 — planning skill angle descriptions 增加 output format 要求
+### Tarefa 9: 修复 reviewer 质量 - planning skill angle descriptions 增加 output format 要求
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Step 1: 给 Verify Correctness angle 增加 required output format**
@@ -315,21 +315,21 @@ test every function in every file it touches — only the functions it changes.
 NOT in Non-Goals. Findings outside scope are noise — discard silently.
 ```
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 planning skill 包含 output format 和 scope guard
 grep -q 'Exit code (correct impl)' skills/planning/SKILL.md && grep -q 'SCOPE:' skills/planning/SKILL.md
 ```
 
-### Task 10: 更新 knowledge 索引
+### Tarefa 10: 更新 knowledge 索引
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/INDEX.md`
 
 **Step 1: 添加 Hook Architecture 路由**
 在 INDEX.md 的 Routing Table 中添加 Hook Architecture 相关的路由条目。
 
-**Verify:**
+**Verificação:**
 ```bash
 # 验证 INDEX.md 包含 hook architecture 路由
 grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md

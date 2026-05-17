@@ -1,39 +1,39 @@
-Before dispatching the reviewer, determine the correct working directory:
+Antes de despachar o reviewer, determine o diretório de trabalho correto:
 
-## Step 1: Resolve review target
+## Step 1: Resolver o alvo do review
 
-1. If the user specifies a path after @review (e.g., `@review worktrees/omk-foo`), use that path.
-2. Otherwise, check if `.active-submodule` exists in the project root:
+1. Se o usuário especificar um path após @review (por exemplo, `@review worktrees/omk-foo`), use esse path.
+2. Caso contrário, verifique se `.active-submodule` existe na raiz do projeto:
 ```bash
 if [ -f .active-submodule ]; then
   jq -r '.worktree // empty' .active-submodule
 fi
 ```
-3. If a worktree path is found, use it as the review working directory.
-4. If neither is available, review the project root (default behavior).
+3. Se um caminho de worktree for encontrado, use-o como diretório de trabalho do review.
+4. Se nenhum dos dois estiver disponível, faça o review na raiz do projeto (comportamento padrão).
 
-Set the resolved path as `REVIEW_DIR`.
+Defina o caminho resolvido como `REVIEW_DIR`.
 
-## Step 2: Gather diff context
+## Step 2: Coletar contexto do diff
 
-Run in the resolved directory to build the review query:
+Rode no diretório resolvido para construir a query de review:
 ```bash
 cd "$REVIEW_DIR"
 git diff --stat
 git diff
 ```
 
-If the diff is empty (no unstaged changes), also check staged changes:
+Se o diff estiver vazio (sem alterações fora de stage), verifique também as alterações em stage:
 ```bash
 cd "$REVIEW_DIR"
 git diff --cached --stat
 git diff --cached
 ```
 
-## Step 3: Dispatch reviewer
+## Step 3: Despachar o reviewer
 
-Dispatch a reviewer subagent (`agent_name: "reviewer"`) with this query:
+Despache um subagent reviewer (`agent_name: "reviewer"`) com esta query:
 
-"Review the code changes in `<REVIEW_DIR>`. Run `git -C <REVIEW_DIR> diff --stat` then `git -C <REVIEW_DIR> diff`. If no unstaged changes, check `git -C <REVIEW_DIR> diff --cached`. Categorize findings: P0 Critical / P1 High / P2 Medium / P3 Low. Check: correctness, security, SOLID violations, test coverage, edge cases. Be specific — cite file:line and show code examples."
+"Review the code changes in `<REVIEW_DIR>`. Run `git -C <REVIEW_DIR> diff --stat` then `git -C <REVIEW_DIR> diff`. If no unstaged changes, check `git -C <REVIEW_DIR> diff --cached`. Categorize findings: P0 Critical / P1 High / P2 Medium / P3 Low. Check: correctness, security, SOLID violations, test coverage, edge cases. Be specific, cite file:line and show code examples."
 
-Report the findings to me.
+Reporte os findings para mim.

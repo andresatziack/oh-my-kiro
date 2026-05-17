@@ -1,18 +1,18 @@
-Commit all changes, push to remote, and create a Pull Request. (CPR = Commit Push PR)
+Faz commit de todas as alterações, push para o remote e cria um Pull Request. (CPR = Commit Push PR)
 
-## Scope
-Only operate on the current git repository. NEVER cd into or commit/push other repositories.
+## Escopo
+Opera apenas no repositório git atual. NUNCA faça cd para outros repositórios nem rode commit/push neles.
 
 ## Steps
 
-### Step 1: Stage & Commit
-1. `git add -A && git status --short` — show what's staged
-2. Ask user for commit message if not provided, or generate one from the diff
+### Step 1: Stage e Commit
+1. `git add -A && git status --short`, mostra o que está em stage
+2. Pergunte ao usuário pela commit message se nenhuma foi fornecida, ou gere uma a partir do diff
 3. `git commit -m "<message>"`
 4. `git push`
-5. Report: commit hash + push result
+5. Reporte: hash do commit + resultado do push
 
-### Step 2: Detect PR Target Branch
+### Step 2: Detectar a branch alvo do PR
 
 ```bash
 current_branch=$(git branch --show-current)
@@ -30,19 +30,19 @@ fi
 echo "PR_TARGET=$base"
 ```
 
-Show the detected target branch to user and ask for confirmation:
+Mostre a branch alvo detectada e peça confirmação ao usuário:
 - "PR target: `<base>`. Confirm? (or specify a different branch)"
-- If user provides a different branch, use that instead.
+- Se o usuário fornecer outra branch, use-a.
 
-### Step 3: Create PR
+### Step 3: Criar o PR
 
 ```bash
 gh pr create --base "$base" --title "<generate from commits>" --body "<summary of changes>"
 ```
 
-Report: "PR created: <url>. Target: `<base>`."
+Reporte: "PR created: <url>. Target: `<base>`."
 
-### Step 4: Worktree Cleanup (only if in worktree)
+### Step 4: Limpeza do worktree (somente se estiver em worktree)
 
 ```bash
 wt_dir=$(git rev-parse --git-common-dir 2>/dev/null)
@@ -55,10 +55,10 @@ if [ "$wt_dir" != "$git_dir" ]; then
 fi
 ```
 
-## Edge Cases
-- **No gh CLI:** Warn user, skip PR creation. Just commit + push.
-- **No changes to commit:** Skip commit, still create PR if there are pushed commits not yet in a PR.
-- **User on main/default branch:** Warn "You're on the default branch, PR doesn't make sense." and abort.
+## Casos de borda
+- **Sem gh CLI:** Avise o usuário e pule a criação do PR. Apenas commit + push.
+- **Sem alterações para commitar:** Pule o commit, mas ainda crie o PR se houver commits enviados que ainda não estejam em um PR.
+- **Usuário na branch padrão/main:** Avise "You're on the default branch, PR doesn't make sense." e aborte.
 
 ---
 User's message (the text after @cpr):

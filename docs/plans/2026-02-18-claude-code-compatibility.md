@@ -1,22 +1,22 @@
-# Claude Code Compatibility — Hooks Verification + Agent Adaptation
+# Compatibilidade com Claude Code - Verificação de Hooks + Adaptação de Agente
 
-**Goal:** Verify all existing hooks work correctly in real Claude Code environment, and generate `.claude/agents/*.md` files from `generate_configs.py` so subagents (reviewer, researcher, executor) work in CC — without breaking any existing Kiro CLI functionality.
+**Objetivo:** Verify all existing hooks work correctly in real Claude Code environment, and generate `.claude/agents/*.md` files from `generate_configs.py` so subagents (reviewer, researcher, executor) work in CC - without breaking any existing Kiro CLI functionality.
 
-**Non-Goals:**
+**Não-Objetivos:**
 - Leveraging CC-only features (SessionStart, async hooks, prompt hooks, PermissionRequest, etc.)
 - Changing hook behavior or adding new hooks
 - Modifying Kiro agent JSON configs
 - Supporting CC agent teams or persistent memory
 
-**Architecture:** Extend `generate_configs.py` to output `.claude/agents/*.md` files (Markdown + YAML frontmatter) alongside existing outputs. Write a CC-format test script mirroring `test-kiro-compat.sh` but using CC tool names (`Bash`, `Write`, `Edit`) and field names (`file_path`, `content`). Provide a manual verification checklist for real CC testing.
+**Arquitetura:** Extend `generate_configs.py` to output `.claude/agents/*.md` files (Markdown + YAML frontmatter) alongside existing outputs. Write a CC-format test script mirroring `test-kiro-compat.sh` but using CC tool names (`Bash`, `Write`, `Edit`) and field names (`file_path`, `content`). Provide a manual verification checklist for real CC testing.
 
 **Tech Stack:** Python 3, Bash, jq, Claude Code CLI
 
-## Tasks
+## Tarefas
 
-### Task 1: CC-Format Hook Test Script
+### Tarefa 1: CC-Format Hook Test Script
 
-**Files:**
+**Arquivos:**
 - Create: `tests/hooks/test-cc-compat.sh`
 
 **Step 1: Write failing test**
@@ -37,11 +37,11 @@ The test script covers all 13 wired hooks with CC-format stdin:
 Run: `bash tests/hooks/test-cc-compat.sh`
 Expected: All PASS
 
-**Verify:** `bash tests/hooks/test-cc-compat.sh`
+**Verificação:** `bash tests/hooks/test-cc-compat.sh`
 
-### Task 2: Generate `.claude/agents/*.md` from `generate_configs.py`
+### Tarefa 2: Generate `.claude/agents/*.md` from `generate_configs.py`
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 - Create: `.claude/agents/reviewer.md` (generated)
 - Create: `.claude/agents/researcher.md` (generated)
@@ -74,11 +74,11 @@ Add to `generate_configs.py`:
 Run: `python3 -m pytest tests/test_generate_configs.py -v -k cc_agent`
 Expected: PASS
 
-**Verify:** `python3 -m pytest tests/test_generate_configs.py -v -k cc_agent`
+**Verificação:** `python3 -m pytest tests/test_generate_configs.py -v -k cc_agent`
 
-### Task 3: Validate Generated CC Agents Have Correct Hook Format
+### Tarefa 3: Validate Generated CC Agents Have Correct Hook Format
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/test_generate_configs.py`
 
 **Step 1: Write failing test**
@@ -98,11 +98,11 @@ Add YAML frontmatter parsing validation to the test.
 Run: `python3 -m pytest tests/test_generate_configs.py -v -k cc_hook_format`
 Expected: PASS
 
-**Verify:** `python3 -m pytest tests/test_generate_configs.py -v -k cc_hook_format`
+**Verificação:** `python3 -m pytest tests/test_generate_configs.py -v -k cc_hook_format`
 
-### Task 4: Kiro Regression — Ensure Existing Outputs Unchanged
+### Tarefa 4: Kiro Regression - Ensure Existing Outputs Unchanged
 
-**Files:**
+**Arquivos:**
 - (no new files — regression check only)
 
 **Step 1: Snapshot current outputs**
@@ -118,11 +118,11 @@ Diff current outputs against snapshots. All Kiro configs and `.claude/settings.j
 Run: `bash tests/hooks/test-kiro-compat.sh`
 Expected: All PASS (no regression)
 
-**Verify:** `bash tests/hooks/test-kiro-compat.sh && python3 -m pytest tests/test_generate_configs.py -v`
+**Verificação:** `bash tests/hooks/test-kiro-compat.sh && python3 -m pytest tests/test_generate_configs.py -v`
 
-### Task 5: Automated CC Integration Test Script
+### Tarefa 5: Automated CC Integration Test Script
 
-**Files:**
+**Arquivos:**
 - Create: `tests/hooks/test-cc-integration.sh`
 
 **Step 1: Write test script**
@@ -181,7 +181,7 @@ The script must:
 26. plan structure enforcement: prompt CC to write a plan missing ## Checklist → verify pre-write blocks it
 27. checklist verify enforcement: prompt CC to check off a checklist item without running verify command → verify block
 
-**Verify:** `bash tests/hooks/test-cc-integration.sh`
+**Verificação:** `bash tests/hooks/test-cc-integration.sh`
 
 ## Review
 

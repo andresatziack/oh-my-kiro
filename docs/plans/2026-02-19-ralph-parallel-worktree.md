@@ -1,10 +1,10 @@
-# Ralph Loop Parallel Worktree Execution
+# Execução em Worktree Paralelo do Ralph Loop
 
-**Goal:** Make ralph_loop.py execute parallel batches via process-level parallelism with git worktree isolation, achieving ~4x speedup for independent tasks while preserving all existing reliability guarantees (circuit breaker, timeout, signal cleanup, lock guard).
+**Objetivo:** Make ralph_loop.py execute parallel batches via process-level parallelism with git worktree isolation, achieving ~4x speedup for independent tasks while preserving all existing reliability guarantees (circuit breaker, timeout, signal cleanup, lock guard).
 
-**Non-Goals:** Not changing plan file format. Not changing scheduler algorithm (greedy is sufficient). Not implementing work-stealing (P3 future). Not changing hook architecture beyond the minimal env var check.
+**Não-Objetivos:** Not changing plan file format. Not changing scheduler algorithm (greedy is sufficient). Not implementing work-stealing (P3 future). Not changing hook architecture beyond the minimal env var check.
 
-**Architecture:** Three-layer change: (1) `scripts/lib/worktree.py` — worktree lifecycle management (create/merge/cleanup), (2) `scripts/ralph_loop.py` — parallel batch execution via multiple subprocess.Popen with per-worker worktree isolation, selective merge, multi-worker signal cleanup, (3) `hooks/gate/enforce-ralph-loop.sh` — add `_RALPH_LOOP_RUNNING` env var check so workers in worktrees pass the gate. Sequential batches unchanged. Worker prompt is task-only (no plan updates, no progress writes). Ralph_loop.py handles all plan/progress/git coordination.
+**Arquitetura:** Three-layer change: (1) `scripts/lib/worktree.py` - worktree lifecycle management (create/merge/cleanup), (2) `scripts/ralph_loop.py` - parallel batch execution via multiple subprocess.Popen with per-worker worktree isolation, selective merge, multi-worker signal cleanup, (3) `hooks/gate/enforce-ralph-loop.sh` - add `_RALPH_LOOP_RUNNING` env var check so workers in worktrees pass the gate. Sequential batches unchanged. Worker prompt is task-only (no plan updates, no progress writes). Ralph_loop.py handles all plan/progress/git coordination.
 
 **Tech Stack:** Python 3, git worktree, pytest
 
@@ -22,15 +22,15 @@ Round 2 (2 fixed angles, verifying fixes):
 - Goal Alignment: APPROVE — coverage confirmed
 - Verify Correctness: REQUEST CHANGES — verify #6 unsound (`echo hello` passes read-only allowlist regardless of env var). **Accepted**: changed to `grep -q '_RALPH_LOOP_RUNNING' hooks/gate/enforce-ralph-loop.sh` — currently returns exit 1 (string absent), will return exit 0 after implementation. Sound.
 
-## Tasks
+## Tarefas
 
-### Task 1: Worktree Lifecycle Manager
+### Tarefa 1: Worktree Lifecycle Manager
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/lib/worktree.py`
 - Test: `tests/ralph-loop/test_worktree.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_worktree.py -v`
 
 **What to implement:**
 
@@ -45,13 +45,13 @@ Tests cover: create/cleanup, create multiple (4), stale cleanup, merge success (
 
 ---
 
-### Task 2: enforce-ralph-loop Env Var Bypass
+### Tarefa 2: enforce-ralph-loop Env Var Bypass
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh`
 - Test: `tests/ralph-loop/test-enforcement.sh`
 
-**Verify:** `grep -q '_RALPH_LOOP_RUNNING' hooks/gate/enforce-ralph-loop.sh`
+**Verificação:** `grep -q '_RALPH_LOOP_RUNNING' hooks/gate/enforce-ralph-loop.sh`
 
 **What to implement:**
 
@@ -61,13 +61,13 @@ Test: set env var, pipe a bash tool call, assert exit 0.
 
 ---
 
-### Task 3: Worker Prompt Isolation
+### Tarefa 3: Worker Prompt Isolation
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_no_plan_update -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_no_plan_update -v`
 
 **What to implement:**
 
@@ -77,13 +77,13 @@ Test: extract function from source, call it, assert no plan-update or progress k
 
 ---
 
-### Task 4: Empty File Set Fallback
+### Tarefa 4: Empty File Set Fallback
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/scheduler.py`
 - Test: `tests/ralph-loop/test_scheduler.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_empty_file_sets_sequential -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_scheduler.py::test_empty_file_sets_sequential -v`
 
 **What to implement:**
 
@@ -93,13 +93,13 @@ Test: 3 tasks with empty file sets → 3 sequential batches. Also update existin
 
 ---
 
-### Task 5: Precheck Cache + Remove Sleep
+### Tarefa 5: Precheck Cache + Remove Sleep
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `! grep -q 'time\.sleep(2)' scripts/ralph_loop.py && grep -q 'prev_exit' scripts/ralph_loop.py`
+**Verificação:** `! grep -q 'time\.sleep(2)' scripts/ralph_loop.py && grep -q 'prev_exit' scripts/ralph_loop.py`
 
 **What to implement:**
 
@@ -110,13 +110,13 @@ Test: assert `time.sleep(2)` not in source.
 
 ---
 
-### Task 6: Heartbeat Stall Detection
+### Tarefa 6: Heartbeat Stall Detection
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `grep -q 'STALL_TIMEOUT' scripts/ralph_loop.py`
+**Verificação:** `grep -q 'STALL_TIMEOUT' scripts/ralph_loop.py`
 
 **What to implement:**
 
@@ -126,13 +126,13 @@ Test: KIRO_CMD=sleep 60, TASK_TIMEOUT=30, STALL_TIMEOUT=4, HEARTBEAT_INTERVAL=1 
 
 ---
 
-### Task 7: Parallel Batch Execution in ralph_loop.py
+### Tarefa 7: Parallel Batch Execution in ralph_loop.py
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_batch_creates_worktrees -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_batch_creates_worktrees -v`
 
 **What to implement:**
 
@@ -152,9 +152,9 @@ Test: plan with 2 independent tasks + marker script → stdout contains "paralle
 
 ---
 
-### Task 8: Regression
+### Tarefa 8: Regression
 
-**Files:**
+**Arquivos:**
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 - Test: `tests/ralph-loop/test_scheduler.py`
 - Test: `tests/ralph-loop/test_worktree.py`
@@ -162,13 +162,13 @@ Test: plan with 2 independent tasks + marker script → stdout contains "paralle
 - Test: `tests/ralph-loop/test_precheck.py`
 - Test: `tests/ralph-loop/test_lock.py`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/ -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/ -v`
 
 Run full regression. Fix any tests broken by changes. Expected: All pass.
 
 ---
 
-## Findings
+## Descobertas
 <!-- Append-only during execution -->
 - Industry consensus: worktree per agent is standard pattern (Anthropic Swarm, incident.io, mldangelo 1000+ PRs)
 - Merge strategy: --no-ff preferred over cherry-pick/rebase for traceability

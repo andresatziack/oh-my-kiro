@@ -1,15 +1,15 @@
-# Evaluator Plan Findings
+# Descobertas do Plano do Evaluator
 
-## Codebase Patterns
+## Padrões da Codebase
 
-- **Command file pattern:** Commands in `commands/` are markdown files with Step 1/2/3 structure. See `commands/review.md` for reference pattern (resolve target → gather context → dispatch subagent → report).
-- **Skills directory naming:** Skills use `omk-` prefix (e.g., `skills/omk-debugging/`), not bare names.
-- **Subagent dispatch:** Use `use_subagent` with up to 4 parallel entries. Each gets a persona, specific instructions, and structured output requirements.
-- **Hook enforcement:** Checklist marking hook requires the exact verify command to be run via `execute_bash` (not wrapped in echo) immediately before the `str_replace` call.
-- **Config pattern:** All env var reads in `main()` must go through `Config` dataclass + `parse_config()`. The `test_main_has_no_inline_env_reads` test enforces this — adding a new `os.environ.get` in `main()` will fail CI.
-- **Test env defaults:** The `run_ralph` test helper sets `RALPH_SKIP_*=1` for all skip-able stages. New stages must add their skip env var to this default set to prevent unrelated tests from hanging.
+- **Padrão de arquivo de comando:** Comandos em `commands/` são arquivos markdown com estrutura Step 1/2/3. Veja `commands/review.md` como padrão de referência (resolver alvo -> coletar contexto -> dispatch de subagent -> reportar).
+- **Nomenclatura do diretório de skills:** Skills usam o prefixo `omk-` (por exemplo, `skills/omk-debugging/`), não nomes simples.
+- **Dispatch de subagent:** Use `use_subagent` com até 4 entradas paralelas. Cada uma recebe uma persona, instruções específicas e requisitos de saída estruturada.
+- **Enforcement de hook:** O hook que marca o checklist exige que o comando verify exato seja executado via `execute_bash` (não envolto em echo) imediatamente antes da chamada `str_replace`.
+- **Padrão de config:** Toda leitura de env var em `main()` deve passar pelo dataclass `Config` + `parse_config()`. O teste `test_main_has_no_inline_env_reads` faz esse enforcement - adicionar um novo `os.environ.get` em `main()` quebra o CI.
+- **Defaults de env de teste:** O helper de teste `run_ralph` define `RALPH_SKIP_*=1` para todos os estágios skip-able. Novos estágios precisam adicionar sua env var de skip a esse conjunto default para evitar que testes não relacionados travem.
 
-## Design Decisions
+## Decisões de Design
 
-- Evaluator prompt uses 7 REJECTED enforcement points (4 per-subagent empty-table rules + 3 in aggregation) to prevent rubber-stamp evaluations.
-- Canary questions are per-subagent and require reading actual source code to answer — prevents evaluators from generating generic feedback without reading the diff.
+- O prompt do evaluator usa 7 pontos de enforcement REJECTED (4 regras de tabela vazia por subagent + 3 na agregação) para prevenir avaliações rubber-stamp.
+- Canary questions são por subagent e exigem leitura efetiva do código fonte para serem respondidas - previne que evaluators gerem feedback genérico sem ler o diff.

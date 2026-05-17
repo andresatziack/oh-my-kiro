@@ -1,8 +1,8 @@
-# CC Integration Tests — Effect-Based Verification
+# Testes de Integração CC - Verificação Baseada em Efeito
 
-**Goal:** 将 CC 集成测试从 keyword-grep 断言升级为 effect-based（文件系统副作用）断言，通过真实 `claude -p` CLI 调用证明每类 hook 实际触发。
-**Non-Goals:** 修复认证环境；修改 hook 实现；测试 Kiro 格式（unit tests 已覆盖）；测试 Stop hook（需要完整会话生命周期，复杂度过高，留待后续）。
-**Architecture:** 新增 `lib/helpers.sh` 提供状态工具和断言函数；重写 `test-hooks-fire.sh` 改用文件系统效果断言；新增 3 个针对性测试；更新 `run.sh` 纳入新测试。
+**Objetivo:** 将 CC 集成测试从 keyword-grep 断言升级为 effect-based（文件系统副作用）断言，通过真实 `claude -p` CLI 调用证明每类 hook 实际触发。
+**Não-Objetivos:** 修复认证环境；修改 hook 实现；测试 Kiro 格式（unit tests 已覆盖）；测试 Stop hook（需要完整会话生命周期，复杂度过高，留待后续）。
+**Arquitetura:** 新增 `lib/helpers.sh` 提供状态工具和断言函数；重写 `test-hooks-fire.sh` 改用文件系统效果断言；新增 3 个针对性测试；更新 `run.sh` 纳入新测试。
 **Tech Stack:** bash, `claude -p` headless CLI, mktemp, shasum (SHA-1)
 
 ## Review
@@ -35,16 +35,16 @@
 - [x] shellcheck 通过（所有新增文件）| `shellcheck tests/cc-integration/lib/helpers.sh tests/cc-integration/test-hooks-fire.sh tests/cc-integration/test-workspace-boundary.sh tests/cc-integration/test-instruction-guard.sh tests/cc-integration/test-posttooluse.sh`
 - [x] 现有单元测试不受影响 | `bash tests/hooks/test-cc-compat.sh && bash tests/hooks/test-kiro-compat.sh`
 
-## Tasks
+## Tarefas
 
 ---
 
-### Task 1: Add `tests/cc-integration/lib/helpers.sh`
+### Tarefa 1: Add `tests/cc-integration/lib/helpers.sh`
 
-**Files:**
+**Arquivos:**
 - Create: `tests/cc-integration/lib/helpers.sh`
 
-**Implementation:**
+**Implementação:**
 
 ```bash
 #!/bin/bash
@@ -132,13 +132,13 @@ assert_verify_log_written() {
 }
 ```
 
-**Verify:** `bash -n tests/cc-integration/lib/helpers.sh`
+**Verificação:** `bash -n tests/cc-integration/lib/helpers.sh`
 
 ---
 
-### Task 2: Rewrite `tests/cc-integration/test-hooks-fire.sh`
+### Tarefa 2: Rewrite `tests/cc-integration/test-hooks-fire.sh`
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/cc-integration/test-hooks-fire.sh`
 
 **核心设计：** 用文件系统副作用验证 hook 触发，不依赖 output 文本。
@@ -146,7 +146,7 @@ assert_verify_log_written() {
 - Test 2 (sed-json): 建 JSON → 请 Claude 用 **`perl -i -pe`** 修改（跨平台，`block-sed-json` pattern `(sed|awk|perl).*\.json` 同样命中）→ 内容不变 = hook 触发。避免 BSD `sed -i`（macOS 无 extension suffix 时会直接报错导致假阳性）。
 - Test 3 (secrets): 仍用 output grep，但拆分 key 避免自触发
 
-**Implementation:**
+**Implementação:**
 
 ```bash
 #!/bin/bash
@@ -204,16 +204,16 @@ echo "=== hooks-fire: $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
 ```
 
-**Verify:** `bash -n tests/cc-integration/test-hooks-fire.sh`
+**Verificação:** `bash -n tests/cc-integration/test-hooks-fire.sh`
 
 ---
 
-### Task 3: New `tests/cc-integration/test-workspace-boundary.sh`
+### Tarefa 3: New `tests/cc-integration/test-workspace-boundary.sh`
 
-**Files:**
+**Arquivos:**
 - Create: `tests/cc-integration/test-workspace-boundary.sh`
 
-**Implementation:**
+**Implementação:**
 
 ```bash
 #!/bin/bash
@@ -249,16 +249,16 @@ echo "=== workspace-boundary: $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
 ```
 
-**Verify:** `bash -n tests/cc-integration/test-workspace-boundary.sh`
+**Verificação:** `bash -n tests/cc-integration/test-workspace-boundary.sh`
 
 ---
 
-### Task 4: New `tests/cc-integration/test-instruction-guard.sh`
+### Tarefa 4: New `tests/cc-integration/test-instruction-guard.sh`
 
-**Files:**
+**Arquivos:**
 - Create: `tests/cc-integration/test-instruction-guard.sh`
 
-**Implementation:**
+**Implementação:**
 
 ```bash
 #!/bin/bash
@@ -294,20 +294,20 @@ echo "=== instruction-guard: $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
 ```
 
-**Verify:** `bash -n tests/cc-integration/test-instruction-guard.sh`
+**Verificação:** `bash -n tests/cc-integration/test-instruction-guard.sh`
 
 ---
 
-### Task 5: New `tests/cc-integration/test-posttooluse.sh`
+### Tarefa 5: New `tests/cc-integration/test-posttooluse.sh`
 
-**Files:**
+**Arquivos:**
 - Create: `tests/cc-integration/test-posttooluse.sh`
 
 **设计亮点：** 这是最能区分 "hook 真实触发" vs "Claude 自然拒绝" 的测试。`echo` 完全安全，Claude 必然调用 Bash；若 post-bash.sh 未触发则 verify-log 为空 → 测试失败。
 
 **重要前置：** 执行前需读 `hooks/_lib/common.sh` 确认 `WS_HASH` 精确计算方式，`ws_hash()` 必须与其完全一致。
 
-**Implementation:**
+**Implementação:**
 
 ```bash
 #!/bin/bash
@@ -339,13 +339,13 @@ echo "=== post-tooluse: $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
 ```
 
-**Verify:** `bash -n tests/cc-integration/test-posttooluse.sh`
+**Verificação:** `bash -n tests/cc-integration/test-posttooluse.sh`
 
 ---
 
-### Task 6: Update `tests/cc-integration/run.sh`
+### Tarefa 6: Update `tests/cc-integration/run.sh`
 
-**Files:**
+**Arquivos:**
 - Modify: `tests/cc-integration/run.sh`
 
 在 `run_integration "plan-workflow" ...` 之后插入：
@@ -361,7 +361,7 @@ run_integration "post-tooluse"       "$SCRIPT_DIR/test-posttooluse.sh"
 echo "=== CC Integration Results: $PASS passed, $FAIL failed, $SKIP skipped ($((PASS+FAIL+SKIP)) total) ==="
 ```
 
-**Verify:** `bash -n tests/cc-integration/run.sh`
+**Verificação:** `bash -n tests/cc-integration/run.sh`
 
 ---
 

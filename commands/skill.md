@@ -1,3 +1,3 @@
-Read skills/find-skills/SKILL.md, then follow its methodology to help the user find a skill that matches their need.
+Leia skills/find-skills/SKILL.md e, em seguida, siga a metodologia descrita lá para ajudar o usuário a encontrar uma skill que atenda à sua necessidade.
 
-Ask the user what they're looking for if they haven't already described it.
+Pergunte ao usuário o que ele está procurando, caso ainda não tenha descrito.

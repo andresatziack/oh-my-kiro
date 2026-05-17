@@ -1,6 +1,6 @@
-# Episodes (Episodic Memory)
+# Episodes (Memória Episódica)
 
-> Timestamped events. ≤30 entries. Auto-captured by hook + manual via @reflect.
+> Eventos com timestamp. ≤30 entradas. Capturados automaticamente por hook + manualmente via @reflect.
 
 <!-- FORMAT: DATE | STATUS | KEYWORDS | SUMMARY -->
 <!-- STATUS: active / resolved / promoted -->

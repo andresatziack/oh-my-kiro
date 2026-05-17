@@ -1,8 +1,8 @@
-# Review Flow Optimization
+# Otimização do Fluxo de Review
 
-**Goal:** Improve plan review quality and efficiency by reducing max rounds from 5 to 3, using 2 reviewers (not 4) for Round 2+, and adding fill-in templates to Completeness and Testability angles.
-**Non-Goals:** Restructuring the review flow (e.g., splitting into discovery/verdict phases), changing the random angle pool size, changing reviewer prompt calibration, modifying execution-phase Socratic checks.
-**Architecture:** Three targeted edits to `skills/planning/SKILL.md` Phase 1.5 section — change round cap, add Round 2+ reviewer reduction rule, convert Completeness/Testability missions to fill-in templates.
+**Objetivo:** Improve plan review quality and efficiency by reducing max rounds from 5 to 3, using 2 reviewers (not 4) for Round 2+, and adding fill-in templates to Completeness and Testability angles.
+**Não-Objetivos:** Restructuring the review flow (e.g., splitting into discovery/verdict phases), changing the random angle pool size, changing reviewer prompt calibration, modifying execution-phase Socratic checks.
+**Arquitetura:** Three targeted edits to `skills/planning/SKILL.md` Phase 1.5 section - change round cap, add Round 2+ reviewer reduction rule, convert Completeness/Testability missions to fill-in templates.
 **Tech Stack:** Markdown only (no code changes)
 
 ## Review
@@ -17,11 +17,11 @@ Round 2 (2 fixed-angle reviewers — verifying fixes):
 - Goal Alignment: APPROVE — all tasks map to goal, no dependencies, execution order valid
 - Verify Correctness: APPROVE — all 8 verify commands sound, section-scoped awk fixes confirmed working
 
-## Tasks
+## Tarefas
 
-### Task 1: Reduce Round Cap and Add Round 2+ Reviewer Rule
+### Tarefa 1: Reduce Round Cap and Add Round 2+ Reviewer Rule
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to change:**
@@ -38,15 +38,15 @@ In the `### Orchestration` section:
 
 4. In `### Resource Constraints`, update: "Fixed at 4 per round" → "Round 1: 4 reviewers. Round 2+: 2 reviewers (fixed angles only)."
 
-**Verify:** Confirm the 4 changes are present:
+**Verificação:** Confirm the 4 changes are present:
 - `or 3 rounds reached` exists
 - `After 3 rounds` exists
 - `Round 2+ reviewer count` section exists
 - `Round 2+: 2 reviewers` exists in Resource Constraints
 
-### Task 2: Add Fill-in Template to Completeness Angle
+### Tarefa 2: Add Fill-in Template to Completeness Angle
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to change:**
@@ -59,11 +59,11 @@ You MUST copy each table below and fill EVERY cell. Missing rows = review REJECT
 
 Keep the Analysis Method as "Source-to-task traceability matrix" and Output as "Uncovered Functions / Unexercised Error Paths / Verdict".
 
-**Verify:** Confirm the Completeness row contains `You MUST copy each table below and fill EVERY cell`
+**Verificação:** Confirm the Completeness row contains `You MUST copy each table below and fill EVERY cell`
 
-### Task 3: Add Fill-in Template to Testability Angle
+### Tarefa 3: Add Fill-in Template to Testability Angle
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **What to change:**
@@ -76,7 +76,7 @@ You MUST copy this table and fill EVERY cell. Missing rows = review REJECTED.\n\
 
 Keep the Analysis Method as "False negative analysis per test" and Output as "Weak Assertions / False Negative Risks / Verdict".
 
-**Verify:** Confirm the Testability row contains `You MUST copy this table and fill EVERY cell`
+**Verificação:** Confirm the Testability row contains `You MUST copy this table and fill EVERY cell`
 
 ## Checklist
 

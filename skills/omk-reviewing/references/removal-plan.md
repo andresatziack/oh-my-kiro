@@ -1,52 +1,52 @@
-# Removal and Iteration Plan Template
+# Template de Removal e Plan de Iteração
 
-## Priority Levels
+## Níveis de prioridade
 
-- [ ] **P0**: Immediate removal needed (security risk, significant cost, blocking other work)
-- [ ] **P1**: Remove in current sprint
-- [ ] **P2**: Backlog / next iteration
+- [ ] **P0**: remoção imediata necessária (risco de segurança, custo significativo, bloqueando outro trabalho)
+- [ ] **P1**: remover na sprint atual
+- [ ] **P2**: backlog / próxima iteração
 
 ---
 
-## Safe to Remove Now
+## Seguro para remover agora
 
 ### Item: [Name/Description]
 
-| Field | Details |
+| Campo | Detalhes |
 |-------|---------|
-| **Location** | `path/to/file.ts:line` |
-| **Rationale** | Why this should be removed |
-| **Evidence** | Unused (no references), dead feature flag, deprecated API |
-| **Impact** | None / Low - no active consumers |
-| **Deletion steps** | 1. Remove code 2. Remove tests 3. Remove config |
-| **Verification** | Run tests, check no runtime errors, monitor logs |
+| **Localização** | `path/to/file.ts:line` |
+| **Justificativa** | Por que isso deve ser removido |
+| **Evidência** | Sem uso (sem referências), feature flag morto, API deprecated |
+| **Impacto** | Nenhum / baixo, sem consumers ativos |
+| **Steps de deleção** | 1. Remover código 2. Remover testes 3. Remover config |
+| **Verificação** | Rodar testes, checar runtime errors, monitorar logs |
 
 ---
 
-## Defer Removal (Plan Required)
+## Adiar remoção (plan obrigatório)
 
 ### Item: [Name/Description]
 
-| Field | Details |
+| Campo | Detalhes |
 |-------|---------|
-| **Location** | `path/to/file.ts:line` |
-| **Why defer** | Active consumers, needs migration, stakeholder sign-off |
-| **Preconditions** | Feature flag off for 2 weeks, telemetry shows 0 usage |
-| **Breaking changes** | List any API/contract changes |
-| **Migration plan** | Steps for consumers to migrate |
-| **Timeline** | Target date or sprint |
-| **Owner** | Person/team responsible |
-| **Validation** | Metrics to confirm safe removal (error rates, usage counts) |
-| **Rollback plan** | How to restore if issues found |
+| **Localização** | `path/to/file.ts:line` |
+| **Por que adiar** | Consumers ativos, precisa de migration, sign-off de stakeholder |
+| **Pré-condições** | Feature flag desligado por 2 semanas, telemetria mostrando 0 uso |
+| **Breaking changes** | Liste quaisquer alterações de API/contrato |
+| **Plan de migração** | Steps para os consumers migrarem |
+| **Timeline** | Data alvo ou sprint |
+| **Owner** | Pessoa/time responsável |
+| **Validação** | Métricas para confirmar remoção segura (taxas de erro, contagens de uso) |
+| **Plan de rollback** | Como restaurar em caso de problemas |
 
 ---
 
-## Checklist Before Removal
+## Checklist antes da remoção
 
-- [ ] Searched codebase for all references (`rg`, `grep`)
-- [ ] Checked for dynamic/reflection-based usage
-- [ ] Verified no external consumers (APIs, SDKs, docs)
-- [ ] Feature flag telemetry reviewed (if applicable)
-- [ ] Tests updated/removed
-- [ ] Documentation updated
-- [ ] Team notified (if shared code)
+- [ ] Buscou todas as referências na codebase (`rg`, `grep`)
+- [ ] Verificou uso dinâmico/via reflection
+- [ ] Verificou que não há consumers externos (APIs, SDKs, docs)
+- [ ] Telemetria de feature flag revisada (se aplicável)
+- [ ] Testes atualizados/removidos
+- [ ] Documentação atualizada
+- [ ] Time notificado (se for código compartilhado)

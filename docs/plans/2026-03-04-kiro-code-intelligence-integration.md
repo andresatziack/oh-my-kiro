@@ -1,19 +1,19 @@
 # Kiro Code Intelligence Integration
 
-**Goal:** Integrate Kiro CLI's code intelligence capabilities (LSP auto-init, codebase overview, pattern_search/rewrite) into OMCC framework rules and skills to maximize agent code analysis quality.
-**Non-Goals:** Changing hook scripts (hooks are bash, can't call code tool); integrating checkpoint/todos/delegate (not stable or not programmatically accessible); changing generate_configs.py or agent JSON.
-**Architecture:** Pure documentation changes — update 3 markdown files (1 rule + 1 planning skill + 1 debugging reference) to guide agent behavior toward using code intelligence tools effectively.
+**Objetivo:** Integrate Kiro CLI's code intelligence capabilities (LSP auto-init, codebase overview, pattern_search/rewrite) into OMCC framework rules and skills to maximize agent code analysis quality.
+**Não-Objetivos:** Changing hook scripts (hooks are bash, can't call code tool); integrating checkpoint/todos/delegate (not stable or not programmatically accessible); changing generate_configs.py or agent JSON.
+**Arquitetura:** Pure documentation changes - update 3 markdown files (1 rule + 1 planning skill + 1 debugging reference) to guide agent behavior toward using code intelligence tools effectively.
 **Tech Stack:** Markdown
-**Work Dir:** `.`
+**Diretório de Trabalho:** `.`
 
 ## Review
 <!-- Reviewer writes here -->
 
-## Tasks
+## Tarefas
 
-### Task 1: Enhance code-analysis.md rule
+### Tarefa 1: Enhance code-analysis.md rule
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/rules/code-analysis.md`
 
 Add 4 new directives:
@@ -23,25 +23,25 @@ Add 4 new directives:
 4. Safe code transformation: use `pattern_rewrite` (with dry_run) as sed replacement for structural code changes. Reference `block-sed-json.sh` hook as motivation
 5. Document python pattern_search caveat: `def $FUNC($$$):` doesn't work, need `def $FUNC($$$ARGS): $$$BODY`
 
-**Verify:** `grep -q 'initialize_workspace' .kiro/rules/code-analysis.md && grep -q 'generate_codebase_overview' .kiro/rules/code-analysis.md && grep -q 'pattern_search' .kiro/rules/code-analysis.md && grep -q 'pattern_rewrite' .kiro/rules/code-analysis.md && grep -q 'python' .kiro/rules/code-analysis.md`
+**Verificação:** `grep -q 'initialize_workspace' .kiro/rules/code-analysis.md && grep -q 'generate_codebase_overview' .kiro/rules/code-analysis.md && grep -q 'pattern_search' .kiro/rules/code-analysis.md && grep -q 'pattern_rewrite' .kiro/rules/code-analysis.md && grep -q 'python' .kiro/rules/code-analysis.md`
 
-### Task 2: Add codebase overview to planning Phase 0
+### Tarefa 2: Add codebase overview to planning Phase 0
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 In Phase 0 Step 1 ("Form Initial Understanding"), add `generate_codebase_overview` as the recommended first action before reading specific files. One sentence addition, not a restructure.
 
-**Verify:** `grep -q 'generate_codebase_overview' skills/planning/SKILL.md`
+**Verificação:** `grep -q 'generate_codebase_overview' skills/planning/SKILL.md`
 
-### Task 3: Add pattern_search to debugging reference
+### Tarefa 3: Add pattern_search to debugging reference
 
-**Files:**
+**Arquivos:**
 - Modify: `skills/debugging/reference.md`
 
 Add a `pattern_search` recipe section after the existing LSP recipes. Show how to use it for bug pattern detection (e.g., find all unchecked error returns, find all subprocess calls without timeout).
 
-**Verify:** `grep -q 'pattern_search' skills/debugging/reference.md`
+**Verificação:** `grep -q 'pattern_search' skills/debugging/reference.md`
 
 ## Checklist
 

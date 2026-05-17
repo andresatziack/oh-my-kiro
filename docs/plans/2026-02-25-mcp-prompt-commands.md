@@ -1,18 +1,18 @@
-# MCP Prompt Commands — `@o/agent` & `@o/know`
+# MCP Prompt Commands - `@o/agent` e `@o/know`
 
-**Goal:** Replace file-based custom commands with MCP prompts (Kiro) and CC skills (Claude Code) to enable parameter passing. Two commands: `agent` (沉淀顶层纲领 → `knowledge/rules.md`) and `know` (沉淀知识 → `knowledge/episodes.md`).
+**Objetivo:** Replace file-based custom commands with MCP prompts (Kiro) and CC skills (Claude Code) to enable parameter passing. Two commands: `agent` (沉淀顶层纲领 → `knowledge/rules.md`) and `know` (沉淀知识 → `knowledge/episodes.md`).
 
-**Non-Goals:** Changing the knowledge distillation pipeline (distill.sh, auto-capture). Modifying AGENTS.md directly. Adding new knowledge categories beyond rules/episodes.
+**Não-Objetivos:** Changing the knowledge distillation pipeline (distill.sh, auto-capture). Modifying AGENTS.md directly. Adding new knowledge categories beyond rules/episodes.
 
-**Architecture:** Dual-platform implementation: (1) Kiro — lightweight MCP prompt server (`scripts/mcp-prompts.py`) registered in `.kiro/settings/mcp.json`, server name `o`, exposes `agent` and `know` prompts with optional `content` argument. (2) Claude Code — `.claude/skills/{agent,know}/SKILL.md` files using `$ARGUMENTS` substitution. (3) Delete `commands/reflect.md` (replaced by `know`). (4) Update `generate_configs.py` to output CC skill files. (5) Update `sync-omcc.sh` to symlink skills.
+**Arquitetura:** Dual-platform implementation: (1) Kiro - lightweight MCP prompt server (`scripts/mcp-prompts.py`) registered in `.kiro/settings/mcp.json`, server name `o`, exposes `agent` and `know` prompts with optional `content` argument. (2) Claude Code - `.claude/skills/{agent,know}/SKILL.md` files using `$ARGUMENTS` substitution. (3) Delete `commands/reflect.md` (replaced by `know`). (4) Update `generate_configs.py` to output CC skill files. (5) Update `sync-omcc.sh` to symlink skills.
 
 **Tech Stack:** Python (MCP server via `mcp` SDK), Markdown (CC skills), bash (sync)
 
-## Tasks
+## Tarefas
 
-### Task 1: CC Skills — `agent` and `know`
+### Tarefa 1: CC Skills - `agent` and `know`
 
-**Files:**
+**Arquivos:**
 - Create: `.claude/skills/agent/SKILL.md`
 - Create: `.claude/skills/know/SKILL.md`
 - Delete: `commands/reflect.md`
@@ -93,11 +93,11 @@ Remove the old file — its functionality is now in `know`.
 
 **Step 4: Verify**
 
-**Verify:** `test -f .claude/skills/agent/SKILL.md && test -f .claude/skills/know/SKILL.md && ! test -f commands/reflect.md && echo PASS`
+**Verificação:** `test -f .claude/skills/agent/SKILL.md && test -f .claude/skills/know/SKILL.md && ! test -f commands/reflect.md && echo PASS`
 
-### Task 2: MCP Prompt Server for Kiro
+### Tarefa 2: MCP Prompt Server for Kiro
 
-**Files:**
+**Arquivos:**
 - Create: `scripts/mcp-prompts.py`
 
 **Step 1: Write MCP prompt server**
@@ -180,11 +180,11 @@ if __name__ == "__main__":
 
 **Step 2: Verify server starts**
 
-**Verify:** `cd /Users/wanshao/project/oh-my-claude-code && python3 -c "import mcp.server.fastmcp; print('OK')" 2>/dev/null && echo PASS || echo "NEED: pip install mcp"`
+**Verificação:** `cd /Users/wanshao/project/oh-my-claude-code && python3 -c "import mcp.server.fastmcp; print('OK')" 2>/dev/null && echo PASS || echo "NEED: pip install mcp"`
 
-### Task 3: Register MCP Server in Kiro Config
+### Tarefa 3: Register MCP Server in Kiro Config
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/settings/mcp.json`
 
 **Step 1: Add `o` server to mcp.json**
@@ -208,11 +208,11 @@ Add the `o` MCP server entry pointing to `scripts/mcp-prompts.py`:
 
 **Step 2: Verify**
 
-**Verify:** `jq -e '.mcpServers.o.command' .kiro/settings/mcp.json | grep -q python3 && echo PASS`
+**Verificação:** `jq -e '.mcpServers.o.command' .kiro/settings/mcp.json | grep -q python3 && echo PASS`
 
-### Task 4: Update generate_configs.py — CC Skill Generation
+### Tarefa 4: Update generate_configs.py - CC Skill Generation
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 
 **Step 1: Add CC skill generation to main()**
@@ -236,11 +236,11 @@ Add to `main()` after the `for path, content in cc_targets:` loop (around line 3
 
 **Step 2: Verify**
 
-**Verify:** `grep -q "CC skill files" scripts/generate_configs.py && echo PASS`
+**Verificação:** `grep -q "CC skill files" scripts/generate_configs.py && echo PASS`
 
-### Task 5: Update sync-omcc.sh — MCP Config Sync
+### Tarefa 5: Update sync-omcc.sh - MCP Config Sync
 
-**Files:**
+**Arquivos:**
 - Modify: `tools/sync-omcc.sh`
 
 **Step 1: Add mcp.json merge step**
@@ -268,11 +268,11 @@ fi
 
 **Step 2: Verify**
 
-**Verify:** `grep -q "mcp-prompts" tools/sync-omcc.sh && echo PASS`
+**Verificação:** `grep -q "mcp-prompts" tools/sync-omcc.sh && echo PASS`
 
-### Task 6: Update AGENTS.md Skill Routing Table
+### Tarefa 6: Update AGENTS.md Skill Routing Table
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 
 **Step 1: Update skill routing table**
@@ -299,7 +299,7 @@ Insert after the self-reflect row:
 | 沉淀知识 | know (CC skill / MCP prompt) | `/know` or `@o/know` | 按需读取 |
 ```
 
-**Verify:** `grep -q '@o/agent' AGENTS.md && grep -q '@o/know' AGENTS.md && echo PASS`
+**Verificação:** `grep -q '@o/agent' AGENTS.md && grep -q '@o/know' AGENTS.md && echo PASS`
 
 ## Review
 
@@ -331,4 +331,4 @@ Round 2: Goal Alignment APPROVE + Verify Correctness APPROVE.
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas

@@ -1,22 +1,22 @@
-# GTM ↔ OMCC Framework Integration Plan
+# Plano de Integração GTM ↔ OMCC Framework
 
-**Goal:** Integrate OMCC framework into the existing gtm project via git submodule, giving gtm access to OMCC's hooks, skills, config generation, and self-learning capabilities — without breaking gtm's existing knowledge base, AGENTS.md business content, or operational workflows.
+**Objetivo:** Integrate OMCC framework into the existing gtm project via git submodule, giving gtm access to OMCC's hooks, skills, config generation, and self-learning capabilities - without breaking gtm's existing knowledge base, AGENTS.md business content, or operational workflows.
 
-**Non-Goals:**
+**Não-Objetivos:**
 - Rewriting gtm's AGENTS.md business sections (identity, roles, 四种角色, 客户优先级, 邮件规则 etc.)
 - Modifying gtm's knowledge/ directory content
 - Migrating gtm's 103 third-party skills out of `.agents/skills/`
 - Adding git-lfs or other large-file handling
 
-**Architecture:** Git init gtm → add OMCC as `.omcc/` submodule → create `.omcc-overlay.json` with gtm-specific hooks/skills → run `sync-omcc.sh` to generate agent configs, symlink hooks/skills/scripts → inject OMCC shared sections into AGENTS.md via `<!-- BEGIN/END OMCC -->` markers → clean up redundant IDE directories.
+**Arquitetura:** Git init gtm → add OMCC as `.omcc/` submodule → create `.omcc-overlay.json` with gtm-specific hooks/skills → run `sync-omcc.sh` to generate agent configs, symlink hooks/skills/scripts → inject OMCC shared sections into AGENTS.md via `<!-- BEGIN/END OMCC -->` markers → clean up redundant IDE directories.
 
 **Tech Stack:** bash, git submodule, Python (generate_configs.py), jq
 
-## Tasks
+## Tarefas
 
-### Task 1: Git Init + .gitignore
+### Tarefa 1: Git Init + .gitignore
 
-**Files:**
+**Arquivos:**
 - Create: `.gitignore` (overwrite existing)
 - Create: `.git/` (via git init)
 
@@ -24,7 +24,7 @@
 
 Write comprehensive .gitignore (excluding tmp/, .firecrawl/, IDE dirs, caches, .DS_Store), then `git init` and make initial commit with all existing content.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && git rev-parse --is-inside-work-tree && git log --oneline -1
 ```
@@ -32,9 +32,9 @@ Expected: `true` + initial commit message
 
 ---
 
-### Task 2: Add OMCC as Submodule
+### Tarefa 2: Add OMCC as Submodule
 
-**Files:**
+**Arquivos:**
 - Create: `.omcc` (submodule)
 - Create: `.gitmodules`
 
@@ -42,7 +42,7 @@ Expected: `true` + initial commit message
 
 Add OMCC as git submodule at `.omcc/` using local path `/Users/wanshao/project/oh-my-claude-code`. Commit.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && test -f .omcc/AGENTS.md && test -f .omcc/scripts/generate_configs.py && echo OK
 ```
@@ -50,9 +50,9 @@ Expected: `OK`
 
 ---
 
-### Task 3: Set Up Hooks Directory + Create Overlay
+### Tarefa 3: Set Up Hooks Directory + Create Overlay
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/` directory (with OMCC hooks copied + project hooks)
 - Create: `hooks/project/` directory
 - Move: `.kiro/hooks/*.sh` → `hooks/project/*.sh`
@@ -70,7 +70,7 @@ Error handling:
 - If `.kiro/hooks` is already a symlink, remove it before recreating.
 - If `.kiro/hooks/*.sh` doesn't exist (already moved), skip move step gracefully.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && test -f hooks/project/three-rules-check.sh && test -f hooks/security/block-dangerous.sh && test -L .kiro/hooks && python3 -c "import json; d=json.load(open('.omcc-overlay.json')); assert len(d['extra_skills'])==5; assert len(d['extra_hooks'])==3; print('OK')"
 ```
@@ -78,9 +78,9 @@ Expected: `OK`
 
 ---
 
-### Task 4: Run sync-omcc.sh + Generate Configs
+### Tarefa 4: Run sync-omcc.sh + Generate Configs
 
-**Files:**
+**Arquivos:**
 - Symlink: `scripts/` → `.omcc/scripts`
 - Symlink: `commands/` → `.omcc/commands`
 - Symlink: `.kiro/prompts` → `../commands`
@@ -100,7 +100,7 @@ Run `bash .omcc/tools/sync-omcc.sh .` which will:
 
 Note: `--skip-validate` is needed because generate_configs.py's validate() checks hooks against enforcement.md in OMCC root, not in the project. The overlay hooks are validated separately by load_overlay().
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && test -f .kiro/agents/default.json && jq -e '.hooks.userPromptSubmit[] | select(.command | contains("three-rules-check"))' .kiro/agents/default.json > /dev/null && echo OK
 ```
@@ -108,9 +108,9 @@ Expected: `OK`
 
 ---
 
-### Task 5: Inject OMCC Shared Sections into AGENTS.md
+### Tarefa 5: Inject OMCC Shared Sections into AGENTS.md
 
-**Files:**
+**Arquivos:**
 - Modify: `AGENTS.md`
 
 **What to implement:**
@@ -123,7 +123,7 @@ Insert 4 OMCC shared sections into gtm's AGENTS.md using `<!-- BEGIN/END OMCC --
 
 Preserve ALL gtm-specific content: identity, 四种角色, 客户优先级, 邮件规则, 复利原则, 三大铁律, 第四铁律, 工作流 SOP, 自定义命令, 更新日志.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && test $(grep -c 'BEGIN OMCC' AGENTS.md) -ge 4 && grep -q 'AutoMQ GTM Engine' AGENTS.md && grep -q '客户优先级' AGENTS.md && echo OK
 ```
@@ -131,16 +131,16 @@ Expected: `OK`
 
 ---
 
-### Task 6: Clean Up Redundant IDE Directories
+### Tarefa 6: Clean Up Redundant IDE Directories
 
-**Files:**
+**Arquivos:**
 - Remove: `.cursor/`, `.gemini/`, `.trae/`, `.opencode/`, `.claude/`, `.agent/`
 
 **What to implement:**
 
 Remove 6 redundant IDE directories. These are already in `.gitignore`. Only `.kiro/` is kept.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && ! ls -d .cursor .gemini .trae .opencode .claude .agent 2>/dev/null && echo Clean
 ```
@@ -148,9 +148,9 @@ Expected: `Clean`
 
 ---
 
-### Task 7: Rebuild .kiro/skills Symlinks
+### Tarefa 7: Rebuild .kiro/skills Symlinks
 
-**Files:**
+**Arquivos:**
 - Rebuild: `.kiro/skills/` symlinks
 
 **What to implement:**
@@ -164,7 +164,7 @@ If sync created `.kiro/skills` as a symlink to `skills/`, remove it and recreate
 
 Handle naming conflicts: gtm's `research` skill (Tavily-based) vs OMCC's `research` skill — keep gtm's version since it's customized for gtm's multi-level search strategy.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && test $(ls .kiro/skills/ | wc -l) -ge 110 && test -d .kiro/skills/content-ideation && echo OK
 ```
@@ -172,16 +172,16 @@ Expected: `OK`
 
 ---
 
-### Task 8: Final Commit + Validation
+### Tarefa 8: Final Commit + Validation
 
-**Files:**
+**Arquivos:**
 - Commit all changes
 
 **What to implement:**
 
 Stage and commit all integration changes. Run full validation: git status clean, agent configs exist, hooks work, OMCC markers present, knowledge untouched, no IDE dirs.
 
-**Verify:**
+**Verificação:**
 ```bash
 cd /Users/wanshao/project/gtm && git status --porcelain | wc -l | grep -q 0 && echo OK
 ```
@@ -197,7 +197,7 @@ Expected: `OK`
 | Error | Task | Attempt | Resolution |
 |-------|------|---------|------------|
 
-## Findings
+## Descobertas
 
 - gtm's `block-dangerous-commands.sh` is a subset of OMCC's `security/block-dangerous.sh` — safe to drop
 - gtm's `kiro-reflect` skill overlaps with OMCC's `self-reflect` skill — keep both (gtm's is customized for three-layer sync)

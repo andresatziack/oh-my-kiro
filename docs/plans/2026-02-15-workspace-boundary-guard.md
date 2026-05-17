@@ -1,7 +1,7 @@
-# Workspace Boundary Guard
+# Guarda de Fronteira do Workspace
 
-**Goal:** 阻止 agent 写入 workspace 以外的文件，防止破坏系统文件。
-**Architecture:** 新建 `hooks/security/block-outside-workspace.sh`，同时挂到 `fs_write` 和 `execute_bash` 两个 matcher。fs_write 用 realpath 精确检查目标路径；bash 用正则检测明显的外部写入模式。所有 agent（default/reviewer/researcher）+ Claude Code 配置统一挂载。
+**Objetivo:** 阻止 agent 写入 workspace 以外的文件，防止破坏系统文件。
+**Arquitetura:** 新建 `hooks/security/block-outside-workspace.sh`，同时挂到 `fs_write` 和 `execute_bash` 两个 matcher。fs_write 用 realpath 精确检查目标路径；bash 用正则检测明显的外部写入模式。所有 agent（default/reviewer/researcher）+ Claude Code 配置统一挂载。
 **Tech Stack:** Shell (bash), jq
 
 ## Key Decisions
@@ -14,11 +14,11 @@
 6. **Hook 顺序**：block-outside-workspace 在 pre-write.sh 之前（先安全检查，再 workflow gate）
 7. **不做的事**：symlink 攻击、race condition、unicode 攻击、process substitution — 这些是 OS 级沙箱的职责，应用层 hook 做不到也不该做。我们的目标是拦截 agent 的 **正常误操作**，不是防御恶意 prompt injection 的高级攻击
 
-## Tasks
+## Tarefas
 
-### Task 1: 创建 block-outside-workspace.sh
+### Tarefa 1: 创建 block-outside-workspace.sh
 
-**Files:**
+**Arquivos:**
 - Create: `hooks/security/block-outside-workspace.sh`
 
 脚本逻辑：
@@ -107,11 +107,11 @@ esac
 exit 0
 ```
 
-**Verify:** `bash -n hooks/security/block-outside-workspace.sh` 无语法错误；`ls -la hooks/security/block-outside-workspace.sh` 确认可执行
+**Verificação:** `bash -n hooks/security/block-outside-workspace.sh` 无语法错误；`ls -la hooks/security/block-outside-workspace.sh` 确认可执行
 
-### Task 2: 更新所有 Kiro agent JSON — 挂载新 hook
+### Tarefa 2: 更新所有 Kiro agent JSON - 挂载新 hook
 
-**Files:**
+**Arquivos:**
 - Modify: `.kiro/agents/default.json`
 - Modify: `.kiro/agents/reviewer.json`
 - Modify: `.kiro/agents/researcher.json`
@@ -125,11 +125,11 @@ exit 0
 default.json 已有 `fs_write` matcher（pre-write.sh），新 hook 加在它之前（先安全检查，再 workflow gate）。
 reviewer/researcher 之前没有 fs_write matcher，直接新增。
 
-**Verify:** `jq '.hooks.preToolUse[] | select(.command | contains("block-outside-workspace"))' .kiro/agents/{default,reviewer,researcher}.json | jq -s 'length'` = 6（每个 agent 2 条 × 3 个 agent）
+**Verificação:** `jq '.hooks.preToolUse[] | select(.command | contains("block-outside-workspace"))' .kiro/agents/{default,reviewer,researcher}.json | jq -s 'length'` = 6（每个 agent 2 条 × 3 个 agent）
 
-### Task 3: 更新 Claude Code 配置 — generate-platform-configs.sh
+### Tarefa 3: 更新 Claude Code 配置 - generate-platform-configs.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate-platform-configs.sh`
 
 在 `.claude/settings.json` 生成部分：
@@ -139,9 +139,9 @@ reviewer/researcher 之前没有 fs_write matcher，直接新增。
 在 reviewer/researcher agent 生成部分：
 - `preToolUse` 数组中添加 fs_write + execute_bash 两条 block-outside-workspace 配置
 
-**Verify:** `bash scripts/generate-platform-configs.sh && grep -c 'block-outside-workspace' .claude/settings.json .kiro/agents/*.json` — .claude/settings.json ≥ 2，每个 agent json ≥ 2
+**Verificação:** `bash scripts/generate-platform-configs.sh && grep -c 'block-outside-workspace' .claude/settings.json .kiro/agents/*.json` - .claude/settings.json ≥ 2，每个 agent json ≥ 2
 
-### Task 4: 手动测试 hook
+### Tarefa 4: 手动测试 hook
 
 **测试 A: fs_write 拦截外部路径**
 ```bash
@@ -185,18 +185,18 @@ echo '{"tool_name":"execute_bash","tool_input":{"command":"tar -xf archive.tar -
 # 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
-**Verify:** 4 个测试全部通过
+**Verificação:** 4 个测试全部通过
 
-### Task 5: 记录到 knowledge
+### Tarefa 5: 记录到 knowledge
 
-**Files:**
+**Arquivos:**
 - Modify: `knowledge/episodes.md`
 - Modify: `knowledge/rules.md`
 
 episodes.md 追加本次实现记录。
 rules.md 如有相关 rule 则更新，否则新增 workspace boundary rule。
 
-**Verify:** `grep -c 'workspace' knowledge/episodes.md` ≥ 1
+**Verificação:** `grep -c 'workspace' knowledge/episodes.md` ≥ 1
 
 ## Review
 

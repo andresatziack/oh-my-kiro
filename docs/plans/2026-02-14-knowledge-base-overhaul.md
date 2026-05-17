@@ -1,10 +1,10 @@
-# Knowledge Base Overhaul — Dual-Channel Memory Architecture
+# Reformulação da Knowledge Base - Arquitetura de Memória de Canal Duplo
 
-**Goal:** 将混合知识库重构为 rules + episodes 双层结构，通过自动落库 + 人工落库双通道实现知识持续演进，用 hook 硬约束替代 prompt 软约束。
+**Objetivo:** 将混合知识库重构为 rules + episodes 双层结构，通过自动落库 + 人工落库双通道实现知识持续演进，用 hook 硬约束替代 prompt 软约束。
 
-**Core Insight:** 没有 hook 强制的行为 = 不会发生（sed/JSON ×10 验证）。知识库的落库、召回、治理必须尽可能由 hook 驱动。
+**Insight Central:** 没有 hook 强制的行为 = 不会发生（sed/JSON ×10 验证）。知识库的落库、召回、治理必须尽可能由 hook 驱动。
 
-## Architecture
+## Arquitetura
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -42,7 +42,7 @@
 └─────────────────────────────────────────────────────┘
 ```
 
-## Decisions
+## Decisões
 
 | # | 决策 | 原因 | 状态 |
 |---|------|------|------|
@@ -58,23 +58,23 @@
 | 10 | keywords 只提取英文技术术语 | grep -iw 对中文 word boundary 无效 | ✅ |
 | 11 | auto-capture 用 exit code 区分结果 | 避免自动捕获后仍提醒 self-reflect | ✅ |
 
-### Known Limitations
+### Limitações Conhecidas
 - 并发写入：多 agent 同时 append episodes.md 理论上有竞争，当前规模（≤30 条，低频）可接受
 
 ---
 
-## Steps
+## Passos
 
-### Task 0: 备份
+### Tarefa 0: 备份
 
 ```bash
 cp knowledge/lessons-learned.md knowledge/lessons-learned.md.bak
 git status --short knowledge/
 ```
 
-### Task 1: 创建 rules.md + episodes.md
+### Tarefa 1: 创建 rules.md + episodes.md
 
-**Files:** Create `knowledge/rules.md`, `knowledge/episodes.md`; Delete `knowledge/lessons-learned.md`
+**Arquivos:** Create `knowledge/rules.md`, `knowledge/episodes.md`; Delete `knowledge/lessons-learned.md`
 
 **Step 1: 提炼 rules.md**
 
@@ -142,9 +142,9 @@ grep -c '[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} |' knowledge/episodes.md  # ≤30
 test ! -f knowledge/lessons-learned.md && echo "DELETED"
 ```
 
-### Task 2: 自动落库 pipeline（hook）
+### Tarefa 2: 自动落库 pipeline（hook）
 
-**Files:** Create `hooks/feedback/auto-capture.sh`; Modify `hooks/feedback/context-enrichment.sh`
+**Arquivos:** Create `hooks/feedback/auto-capture.sh`; Modify `hooks/feedback/context-enrichment.sh`
 
 **Step 1: 创建 auto-capture.sh**
 
@@ -270,9 +270,9 @@ echo '别用sed处理JSON，用jq' | bash hooks/feedback/auto-capture.sh "别用
 cat knowledge/episodes.md | tail -1
 ```
 
-### Task 3: 质量报告生成
+### Tarefa 3: 质量报告生成
 
-**Files:** Create `hooks/feedback/kb-health-report.sh`; Modify Stop hook
+**Arquivos:** Create `hooks/feedback/kb-health-report.sh`; Modify Stop hook
 
 **Step 1: 创建 kb-health-report.sh**
 
@@ -375,9 +375,9 @@ bash hooks/feedback/kb-health-report.sh
 cat knowledge/.health-report.md
 ```
 
-### Task 4: @reflect 命令（人工落库通道）
+### Tarefa 4: @reflect 命令（人工落库通道）
 
-**Files:** Create `.kiro/prompts/reflect.md` (Kiro) 或 `.claude/commands/reflect.md` (CC)
+**Arquivos:** Create `.kiro/prompts/reflect.md` (Kiro) 或 `.claude/commands/reflect.md` (CC)
 
 **Step 1: 创建 reflect prompt**
 
@@ -412,9 +412,9 @@ test -f .kiro/prompts/reflect.md && echo "EXISTS"
 test -f .claude/commands/reflect.md && echo "EXISTS"
 ```
 
-### Task 5: self-reflect skill 简化
+### Tarefa 5: self-reflect skill 简化
 
-**Files:** Modify `skills/self-reflect/SKILL.md`
+**Arquivos:** Modify `skills/self-reflect/SKILL.md`
 
 收窄职责为两个场景：
 
@@ -445,9 +445,9 @@ quality reporting (hook does it).
 | Code-enforceable rule | .kiro/rules/enforcement.md |
 ```
 
-### Task 6: 更新 INDEX.md、AGENTS.md 和全局引用
+### Tarefa 6: 更新 INDEX.md、AGENTS.md 和全局引用
 
-**Files:** Modify `knowledge/INDEX.md`, `AGENTS.md`, grep 全项目清理
+**Arquivos:** Modify `knowledge/INDEX.md`, `AGENTS.md`, grep 全项目清理
 
 **Step 1: INDEX.md**
 

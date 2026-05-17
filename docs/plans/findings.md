@@ -1,66 +1,66 @@
-# Findings — TDD Checklist Enforcement
+# Descobertas - TDD Checklist Enforcement
 
-## Pipe vs Process Substitution in Bash Hooks
+## Pipe vs Process Substitution em Hooks Bash
 
-**Problem:** `echo "$CONTENT" | grep ... | while read` runs the while loop in a subshell. `exit 2` inside the loop only exits the subshell, not the parent script. The hook appears to succeed (exit 0) even when it should block.
+**Problema:** `echo "$CONTENT" | grep ... | while read` executa o loop while em uma subshell. `exit 2` dentro do loop só encerra a subshell, não o script pai. O hook aparenta sucesso (exit 0) mesmo quando deveria bloquear.
 
-**Solution:** Use process substitution: `while read ...; do ... done < <(echo "$CONTENT" | grep ...)`. This runs the loop in the current shell, so `exit 2` propagates correctly.
+**Solução:** Use process substitution: `while read ...; do ... done < <(echo "$CONTENT" | grep ...)`. Isso executa o loop na shell atual, e `exit 2` propaga corretamente.
 
-**Rule:** All hooks that iterate over filtered content and may need to `exit 2` must use process substitution, never pipe-based while loops.
+**Regra:** Todos os hooks que iteram sobre conteúdo filtrado e podem precisar de `exit 2` devem usar process substitution, nunca loops while baseados em pipe.
 
-## Live Lock Testing in Hooks
+## Teste de Lock Vivo em Hooks
 
-**Problem:** Using background processes (`bash -c 'echo $$ > lock; sleep 5' &`) in test suites causes hangs when the test runner exits before the background process.
+**Problema:** Usar processos em background (`bash -c 'echo $$ > lock; sleep 5' &`) em suítes de teste causa hangs quando o test runner sai antes do processo em background.
 
-**Solution:** Use the current shell's PID (`$$`) as the live lock PID — it's guaranteed alive during test execution. No background processes needed.
+**Solução:** Use o PID da shell atual (`$$`) como o PID do lock vivo - é garantido estar vivo durante a execução do teste. Sem necessidade de processos em background.
 
-## Consolidated Hook Design (enforce-ralph-loop)
+## Design de Hook Consolidado (enforce-ralph-loop)
 
-**Decision:** Single hook handles both `execute_bash` and `fs_write` via MODE variable, registered twice in default.json with different matchers. This is cleaner than embedding ralph-loop checks in pre-write.sh (separation of concerns).
+**Decisão:** Um único hook trata tanto `execute_bash` quanto `fs_write` via variável MODE, registrado duas vezes em default.json com matchers diferentes. Isso é mais limpo do que embutir verificações de ralph-loop em pre-write.sh (separação de responsabilidades).
 
-**Key patterns:**
-- `case "$TOOL_NAME" in ... MODE="bash" / MODE="write"` for tool dispatch
-- Path-based allowlist via `case "$FILE" in` for fs_write (simpler than regex)
-- Strict read-only allowlist + chain rejection for execute_bash (no `&&`, `||`, `;`, `|`, `>`, backticks, `$(`)
+**Padrões-chave:**
+- `case "$TOOL_NAME" in ... MODE="bash" / MODE="write"` para dispatch da tool
+- Allowlist baseado em path via `case "$FILE" in` para fs_write (mais simples que regex)
+- Allowlist read-only estrito + rejeição de chain para execute_bash (sem `&&`, `||`, `;`, `|`, `>`, backticks, `$(`)
 
-## Workspace Hash Isolation for Hook Tests
+## Isolamento de Hash de Workspace para Testes de Hook
 
-**Problem:** Integration tests that invoke security hooks directly share the same `/tmp/block-count-<hash>.jsonl` file as live hooks, because both run from the same workspace directory. Counts accumulate across the interactive session and test runs, causing flaky assertions.
+**Problema:** Testes de integração que invocam hooks de segurança diretamente compartilham o mesmo arquivo `/tmp/block-count-<hash>.jsonl` com os hooks ao vivo, porque ambos rodam no mesmo diretório de workspace. Os contadores acumulam entre a sessão interativa e as execuções de teste, causando assertions instáveis.
 
-**Solution:** Run hook invocations from a `mktemp -d` directory. The `pwd | shasum` in `block-recovery.sh` produces a unique hash, isolating test counts from live session counts. Cleanup via `trap 'rm -rf "$TEST_DIR"' EXIT`.
+**Solução:** Execute as invocações de hook a partir de um diretório `mktemp -d`. O `pwd | shasum` em `block-recovery.sh` produz um hash único, isolando contagens de teste das contagens de sessão ao vivo. Limpeza via `trap 'rm -rf "$TEST_DIR"' EXIT`.
 
-## Git Stash Self-Revert in ralph-loop.sh
+## Auto-Reversão de Git Stash em ralph-loop.sh
 
-**Problem:** `ralph-loop.sh` runs `git stash push` before each iteration to save dirty state. When testing the script with uncommitted changes to the script itself, the stash reverts those changes mid-execution. The script then runs the old (pre-edit) version.
+**Problema:** `ralph-loop.sh` executa `git stash push` antes de cada iteração para salvar estado sujo. Ao testar o script com mudanças não commitadas no próprio script, o stash reverte essas mudanças no meio da execução. O script então roda a versão antiga (pré-edição).
 
-**Solution:** Always commit changes to `ralph-loop.sh` before running integration tests that invoke it. The `git stash push` inside the script is by design (protects against dirty state during agent runs), so the fix is in the workflow, not the code.
+**Solução:** Sempre commite mudanças em `ralph-loop.sh` antes de rodar testes de integração que invocam o script. O `git stash push` dentro do script é por design (protege contra estado sujo durante runs do agent), então a correção está no fluxo de trabalho, não no código.
 
-**Rule:** When modifying ralph-loop.sh, commit before testing.
+**Regra:** Ao modificar ralph-loop.sh, commite antes de testar.
 
-## enforce-ralph-loop Blocks Checklist Verify Commands
+## enforce-ralph-loop Bloqueia Comandos Verify do Checklist
 
-**Problem:** Several checklist verify commands are themselves blocked by enforce-ralph-loop.sh:
-- `python3 -m pytest tests/ -q` — not in read-only allowlist
-- `grep -c '|' docs/INDEX.md` — hook interprets `|` in grep pattern as a pipe character
-- `diff CLAUDE.md AGENTS.md` — standalone `diff` not in allowlist (only `git diff` is)
+**Problema:** Vários comandos verify do checklist são eles próprios bloqueados por enforce-ralph-loop.sh:
+- `python3 -m pytest tests/ -q` - não está no allowlist read-only
+- `grep -c '|' docs/INDEX.md` - o hook interpreta `|` no padrão grep como caractere de pipe
+- `diff CLAUDE.md AGENTS.md` - `diff` standalone não está no allowlist (apenas `git diff` está)
 
-**Impact:** When executing the final checklist items outside ralph-loop, the verify commands can't be run via bash. Must use alternative tools (grep tool, md5 command, fs_read) or run inside ralph-loop.
+**Impacto:** Ao executar os itens finais do checklist fora do ralph-loop, os comandos verify não podem ser executados via bash. É preciso usar tools alternativas (grep tool, comando md5, fs_read) ou rodar dentro do ralph-loop.
 
-**Recommendation:** Consider adding `python3 -m pytest`, `diff`, and `bash -c 'test ...'` to the read-only allowlist, or make the pipe detection smarter (distinguish `|` in grep patterns from actual shell pipes).
+**Recomendação:** Considere adicionar `python3 -m pytest`, `diff` e `bash -c 'test ...'` ao allowlist read-only, ou tornar a detecção de pipe mais inteligente (distinguir `|` em padrões grep de pipes shell reais).
 
-## pre-write.sh Absolute Path Bug (Kiro Compatibility)
+## Bug de Path Absoluto em pre-write.sh (Compatibilidade Kiro)
 
-**Problem:** Kiro CLI sends absolute paths in `tool_input.path` (e.g. `/Users/.../CLAUDE.md`), but `gate_instruction_files` in pre-write.sh only matched relative paths (`CLAUDE.md`, `./CLAUDE.md`). This meant the instruction file write protection was silently bypassed when running under Kiro.
+**Problema:** Kiro CLI envia paths absolutos em `tool_input.path` (ex.: `/Users/.../CLAUDE.md`), mas `gate_instruction_files` em pre-write.sh só fazia match em paths relativos (`CLAUDE.md`, `./CLAUDE.md`). Isso significava que a proteção de escrita em arquivos de instrução era silenciosamente ignorada ao rodar sob Kiro.
 
-**Fix:** Added workspace-relative path normalization immediately after FILE extraction:
+**Correção:** Adicionada normalização de path relativo ao workspace logo após a extração de FILE:
 ```bash
 WORKSPACE=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 case "$FILE" in "$WORKSPACE"/*) FILE="${FILE#$WORKSPACE/}" ;; esac
 ```
 
-**Impact:** Same pattern already existed in `enforce-ralph-loop.sh`. Any hook that does path-based matching on `tool_input.path`/`tool_input.file_path` must normalize to relative paths first.
+**Impacto:** O mesmo padrão já existia em `enforce-ralph-loop.sh`. Qualquer hook que faça matching baseado em path em `tool_input.path`/`tool_input.file_path` deve normalizar para paths relativos primeiro.
 
-**Rule:** All hooks parsing file paths from tool_input must normalize absolute→relative before pattern matching.
+**Regra:** Todos os hooks que parseiam paths de arquivo de tool_input devem normalizar absoluto->relativo antes do matching de padrão.
 
 ## Long-Running Agent Research (2026-02-19)
 

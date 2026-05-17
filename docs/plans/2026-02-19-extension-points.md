@@ -1,22 +1,22 @@
-# Extension Points Implementation Plan
+# Plano de Implementação de Pontos de Extensão
 
-**Goal:** Enable domain-specific projects (iOS, Java, GTM) to extend the OMCC framework via 5 extension points (skills, hooks, knowledge, rules, AGENTS.md) with automated validation to ensure correctness.
+**Objetivo:** Enable domain-specific projects (iOS, Java, GTM) to extend the OMCC framework via 5 extension points (skills, hooks, knowledge, rules, AGENTS.md) with automated validation to ensure correctness.
 
-**Non-Goals:**
+**Não-Objetivos:**
 - Implementing the submodule distribution itself (covered by `2026-02-19-omcc-submodule-distribution.md`)
 - Modifying downstream projects (CPA, automqbox, GTM) — this plan only changes the OMCC framework repo
 - Skill override/replacement mechanism (not needed per research)
 - Plugin interface abstractions (OMCC is config-driven, not code-driven)
 
-**Architecture:** Extend `generate_configs.py` to read `.omcc-overlay.json` with `extra_skills` + `extra_hooks` fields and merge them into generated agent configs. Provide `tools/validate-project.sh` as a hard gate before config generation. Provide `tools/install-skill.sh` to bridge `npx skills` ecosystem with OMCC overlay. Provide `templates/agents-sections/` for AGENTS.md layered inheritance. Update `tools/init-project.sh` to accept `--type` and assemble AGENTS.md from sections.
+**Arquitetura:** Extend `generate_configs.py` to read `.omcc-overlay.json` with `extra_skills` + `extra_hooks` fields and merge them into generated agent configs. Provide `tools/validate-project.sh` as a hard gate before config generation. Provide `tools/install-skill.sh` to bridge `npx skills` ecosystem with OMCC overlay. Provide `templates/agents-sections/` for AGENTS.md layered inheritance. Update `tools/init-project.sh` to accept `--type` and assemble AGENTS.md from sections.
 
 **Tech Stack:** Python (generate_configs.py), Bash (validate, install-skill, init-project, sync-omcc)
 
-## Tasks
+## Tarefas
 
-### Task 1: Extend generate_configs.py with overlay support
+### Tarefa 1: Extend generate_configs.py with overlay support
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/generate_configs.py`
 - Test: `tests/test_generate_configs.py`
 
@@ -29,11 +29,11 @@
 - Agent builders accept optional `extra_hooks` dict, append to hook arrays
 - Backward compatible: no args = current behavior
 
-**Verify:** `python3 -m pytest tests/test_generate_configs.py -v`
+**Verificação:** `python3 -m pytest tests/test_generate_configs.py -v`
 
-### Task 2: Create validate-project.sh
+### Tarefa 2: Create validate-project.sh
 
-**Files:**
+**Arquivos:**
 - Create: `tools/validate-project.sh`
 - Test: `tests/test-validate-project.sh`
 
@@ -42,11 +42,11 @@
 - Error checks (exit 1): E1 overlay missing/invalid JSON, E2 extra_skills path missing SKILL.md, E3 extra_hooks command missing/not executable, E4 extra_hooks invalid event name, E5 project skill name conflicts framework skill, E6 AGENTS.md missing BEGIN/END markers, E7 key symlinks broken, E8 knowledge/INDEX.md missing/empty
 - Warning checks (exit 0): W1 SKILL.md missing frontmatter, W2 extra_skills not in Skill Routing, W3 project hook name similar to framework, W4 knowledge file >50KB, W5 AGENTS.md >200 lines
 
-**Verify:** `bash tests/test-validate-project.sh`
+**Verificação:** `bash tests/test-validate-project.sh`
 
-### Task 3: Create AGENTS.md section templates
+### Tarefa 3: Create AGENTS.md section templates
 
-**Files:**
+**Arquivos:**
 - Create: `templates/agents-sections/principles.md`
 - Create: `templates/agents-sections/workflow.md`
 - Create: `templates/agents-sections/self-learning.md`
@@ -60,11 +60,11 @@
 - Type templates provide Identity/Roles/Domain Rules skeleton
 - Total assembled < 200 lines
 
-**Verify:** `bash tests/test-agents-template.sh`
+**Verificação:** `bash tests/test-agents-template.sh`
 
-### Task 4: Update init-project.sh with --type and overlay scaffolding
+### Tarefa 4: Update init-project.sh with --type and overlay scaffolding
 
-**Files:**
+**Arquivos:**
 - Modify: `tools/init-project.sh`
 - Test: `tests/test-init-project.sh`
 
@@ -77,11 +77,11 @@
 - Create `hooks/project/` directory
 - Backward compatible without `--type`
 
-**Verify:** `bash tests/test-init-project.sh`
+**Verificação:** `bash tests/test-init-project.sh`
 
-### Task 5: Create install-skill.sh and sync-omcc.sh
+### Tarefa 5: Create install-skill.sh and sync-omcc.sh
 
-**Files:**
+**Arquivos:**
 - Create: `tools/install-skill.sh`
 - Create: `tools/sync-omcc.sh`
 - Test: `tests/test-install-skill.sh`
@@ -91,17 +91,17 @@
 - `install-skill.sh SOURCE`: npx skills add → move to skills/ → register → sync
 - `sync-omcc.sh`: submodule update → validate → generate_configs → update AGENTS.md framework sections
 
-**Verify:** `bash tests/test-install-skill.sh`
+**Verificação:** `bash tests/test-install-skill.sh`
 
-### Task 6: Create EXTENSION-GUIDE.md
+### Tarefa 6: Create EXTENSION-GUIDE.md
 
-**Files:**
+**Arquivos:**
 - Create: `docs/EXTENSION-GUIDE.md`
 
 **What to implement:**
 - Concise speed-reference (< 60 lines): add skill, add hook, install community skill, validation, don'ts
 
-**Verify:** `wc -l docs/EXTENSION-GUIDE.md | awk '{exit ($1 > 60)}'`
+**Verificação:** `wc -l docs/EXTENSION-GUIDE.md | awk '{exit ($1 > 60)}'`
 
 ## Review
 

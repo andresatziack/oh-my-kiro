@@ -1,15 +1,15 @@
-# Security Audit Scan — Sensitive Information Leak Detection
+# Auditoria de Segurança - Detecção de Vazamento de Informação Sensível
 
-**Goal:** Scan all tracked files in the codebase for sensitive information leaks (API keys, tokens, passwords, private keys, AWS credentials, hardcoded secrets, IP addresses, PII like emails/phone numbers, internal URLs) and output findings to terminal.
-**Non-Goals:** Auto-fix findings, add pre-commit hooks, write findings to file, scan git history.
-**Architecture:** Use grep-based pattern matching against git-tracked files. Multiple regex passes for different secret categories. Terminal output grouped by severity.
+**Objetivo:** Scan all tracked files in the codebase for sensitive information leaks (API keys, tokens, passwords, private keys, AWS credentials, hardcoded secrets, IP addresses, PII like emails/phone numbers, internal URLs) and output findings to terminal.
+**Não-Objetivos:** Auto-fix findings, add pre-commit hooks, write findings to file, scan git history.
+**Arquitetura:** Use grep-based pattern matching against git-tracked files. Multiple regex passes for different secret categories. Terminal output grouped by severity.
 **Tech Stack:** grep, git ls-files, bash
 
-## Tasks
+## Tarefas
 
-### Task 1: High-Severity — Secrets & Credentials
+### Tarefa 1: High-Severity - Secrets & Credentials
 
-**Files:**
+**Arquivos:**
 - Read: all git-tracked files
 
 **What to scan:**
@@ -22,11 +22,11 @@
 - GitHub/GitLab personal access token patterns
 - Generic secret assignment patterns (secret/key = "long string")
 
-**Verify:** `echo "password = 'hunter2'" | grep -qE "password[[:space:]]*=[[:space:]]*['\"]"`
+**Verificação:** `echo "password = 'hunter2'" | grep -qE "password[[:space:]]*=[[:space:]]*['\"]"`
 
-### Task 2: Medium-Severity — PII & Network Info
+### Tarefa 2: Medium-Severity - PII & Network Info
 
-**Files:**
+**Arquivos:**
 - Read: all git-tracked files
 
 **What to scan:**
@@ -36,11 +36,11 @@
 - Internal URLs (non-public hostnames, internal domains)
 - Hardcoded file paths with usernames
 
-**Verify:** `echo "user@example.com" | grep -qE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'`
+**Verificação:** `echo "user@example.com" | grep -qE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'`
 
-### Task 3: Low-Severity — Suspicious Patterns
+### Tarefa 3: Low-Severity - Suspicious Patterns
 
-**Files:**
+**Arquivos:**
 - Read: all git-tracked files
 
 **What to scan:**
@@ -49,13 +49,13 @@
 - TODO or FIXME comments mentioning security
 - Commented-out credential assignments
 
-**Verify:** `echo "TODO: fix security" | grep -qi 'TODO.*secur\|FIXME.*secur'`
+**Verificação:** `echo "TODO: fix security" | grep -qi 'TODO.*secur\|FIXME.*secur'`
 
-### Task 4: Output Results
+### Tarefa 4: Output Results
 
 Group findings by severity (High then Medium then Low), show file:line:match for each, with deduplication.
 
-**Verify:** `echo "grouped output" | grep -q "output"`
+**Verificação:** `echo "grouped output" | grep -q "output"`
 
 ## Checklist
 

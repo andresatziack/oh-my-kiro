@@ -1,15 +1,15 @@
 # Ralph Loop 执行效率优化
 
-**Goal:** 减少 Ralph Loop 每次迭代的固定开销（实测 ~17-24s/迭代），提升代码稳定性和可维护性
-**Non-Goals:** 改变 Ralph Loop 的核心架构（每次新 session = 干净 context）；改变 CLI 调用方式（session resume 已调研证伪）；改变 hook 系统
-**Architecture:** 缓存 detect_cli 结果避免重复 ping；precheck 只跑一次；合并重复 prompt 函数；修复 pty_runner fd 所有权；简化 heartbeat 逻辑；claude 模式加 --no-session-persistence
+**Objetivo:** 减少 Ralph Loop 每次迭代的固定开销（实测 ~17-24s/迭代），提升代码稳定性和可维护性
+**Não-Objetivos:** 改变 Ralph Loop 的核心架构（每次新 session = 干净 context）；改变 CLI 调用方式（session resume 已调研证伪）；改变 hook 系统
+**Arquitetura:** 缓存 detect_cli 结果避免重复 ping；precheck 只跑一次；合并重复 prompt 函数；修复 pty_runner fd 所有权；简化 heartbeat 逻辑；claude 模式加 --no-session-persistence
 **Tech Stack:** Python 3, pytest
 
-## Tasks
+## Tarefas
 
-### Task 1: detect_cli() 结果缓存
+### Tarefa 1: detect_cli() 结果缓存
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/cli_detect.py`
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
@@ -45,9 +45,9 @@ Expected: PASS
 
 ---
 
-### Task 2: precheck 只跑一次
+### Tarefa 2: precheck 只跑一次
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -77,9 +77,9 @@ Expected: PASS
 
 ---
 
-### Task 3: 合并 build_prompt 和 build_init_prompt
+### Tarefa 3: 合并 build_prompt 和 build_init_prompt
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -108,9 +108,9 @@ Expected: PASS
 
 ---
 
-### Task 4: pty_runner fd 所有权修复
+### Tarefa 4: pty_runner fd 所有权修复
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/pty_runner.py`
 - Test: `tests/ralph-loop/test_pty_runner.py`
 
@@ -141,9 +141,9 @@ Expected: PASS
 
 ---
 
-### Task 5: heartbeat 逻辑简化
+### Tarefa 5: heartbeat 逻辑简化
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -172,9 +172,9 @@ Expected: PASS
 
 ---
 
-### Task 6: claude 模式加 --no-session-persistence
+### Tarefa 6: claude 模式加 --no-session-persistence
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/lib/cli_detect.py`
 - Test: `tests/ralph-loop/test_ralph_loop.py`
 
@@ -232,7 +232,7 @@ Round 2: Goal Alignment ✅ APPROVE | Verify Correctness ❌ REQUEST CHANGES (�
 
 ## Reviewer Feedback (Round 1)
 
-### Completeness reviewer — REQUEST CHANGES
+### Completeness reviewer - REQUEST CHANGES
 **Finding:** Task 3 removes `build_init_prompt` but `test_init_prompt_differs_from_regular` (test_ralph_loop.py:442) imports it. Plan mentions updating the test but doesn't specify how.
 
 **Resolution:** Task 3 Step 3 updated — the test must be rewritten to call `build_prompt(is_first=True)` vs `build_prompt(is_first=False)` and verify the "FIRST iteration" text difference. The import line `from scripts.ralph_loop import build_init_prompt` must be removed.

@@ -1,8 +1,8 @@
-# Docs Index
+# Índice de Docs
 
-> All design documents, plans, research, and decisions.
+> Todos os documentos de design, plans, research e decisões.
 
-| Date | Type | Title | Link |
+| Data | Tipo | Título | Link |
 |------|------|-------|------|
 | 2026-02-13 | design | Framework v2 Upgrade | [link](designs/2026-02-13-framework-v2-upgrade.md) |
 | 2026-02-14 | plan | Framework v3 Deterministic Overhaul | [link](plans/2026-02-14-framework-v3-deterministic-overhaul.md) |
@@ -39,4 +39,4 @@
 | 2026-02-18 | plan | Claude Code Parity | [link](plans/2026-02-18-claude-code-parity.md) |
 
 ---
-*Last updated: 2026-02-18*
+*Última atualização: 2026-02-18*

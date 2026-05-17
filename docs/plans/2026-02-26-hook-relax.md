@@ -1,15 +1,15 @@
-# Hook Relax — Plan-Aware Protection Mode
+# Hook Relax - Modo de Proteção com Awareness do Plan
 
-**Goal:** Change hook system from plan-centric enforcement to plan-aware protection: allow all operations without a plan, allow non-plan-file operations with a plan, and make ralph loop dirty check a warning instead of a blocker.
-**Non-Goals:** Changing security hooks (block-dangerous, block-secrets, etc.), modifying hook dispatch architecture, changing ralph loop execution logic beyond dirty check.
-**Architecture:** Three targeted modifications to existing files — no new files, no new abstractions. enforce-ralph-loop.sh removes git commit interception and reorders bypass logic; pre-write.sh removes plan-requirement gate; ralph_loop.py softens dirty check.
+**Objetivo:** Change hook system from plan-centric enforcement to plan-aware protection: allow all operations without a plan, allow non-plan-file operations with a plan, and make ralph loop dirty check a warning instead of a blocker.
+**Não-Objetivos:** Changing security hooks (block-dangerous, block-secrets, etc.), modifying hook dispatch architecture, changing ralph loop execution logic beyond dirty check.
+**Arquitetura:** Three targeted modifications to existing files - no new files, no new abstractions. enforce-ralph-loop.sh removes git commit interception and reorders bypass logic; pre-write.sh removes plan-requirement gate; ralph_loop.py softens dirty check.
 **Tech Stack:** Bash, Python3
 
-## Tasks
+## Tarefas
 
-### Task 1: Relax enforce-ralph-loop.sh
+### Tarefa 1: Relax enforce-ralph-loop.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/enforce-ralph-loop.sh`
 - Test: `tests/hooks/test-ralph-gate.sh`
 
@@ -35,11 +35,11 @@ Expected: PASS
 **Step 5: Commit**
 `feat: relax enforce-ralph-loop — remove git commit interception`
 
-**Verify:** `bash tests/hooks/test-ralph-gate.sh`
+**Verificação:** `bash tests/hooks/test-ralph-gate.sh`
 
-### Task 2: Remove plan-requirement gate from pre-write.sh
+### Tarefa 2: Remove plan-requirement gate from pre-write.sh
 
-**Files:**
+**Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 - Test: `tests/hooks/test-pre-write-relax.sh`
 
@@ -63,11 +63,11 @@ Expected: PASS
 **Step 5: Commit**
 `feat: remove plan-requirement gate from pre-write`
 
-**Verify:** `bash tests/hooks/test-pre-write-relax.sh`
+**Verificação:** `bash tests/hooks/test-pre-write-relax.sh`
 
-### Task 3: Soften ralph_loop.py dirty check
+### Tarefa 3: Soften ralph_loop.py dirty check
 
-**Files:**
+**Arquivos:**
 - Modify: `scripts/ralph_loop.py`
 - Test: `tests/ralph-loop/test_dirty_check.py`
 
@@ -94,11 +94,11 @@ Expected: PASS
 **Step 5: Commit**
 `feat: soften ralph-loop dirty check to warning`
 
-**Verify:** `python3 -m pytest tests/ralph-loop/test_dirty_check.py -v`
+**Verificação:** `python3 -m pytest tests/ralph-loop/test_dirty_check.py -v`
 
-### Task 4: Regression — existing tests still pass
+### Tarefa 4: Regression - existing tests still pass
 
-**Files:**
+**Arquivos:**
 - Test: `tests/hooks/test-ralph-gate.sh`
 - Test: `tests/ralph-loop/`
 
@@ -112,7 +112,7 @@ Run: `python3 -m pytest tests/ralph-loop/ -v`
 
 **Step 4: Commit if fixes needed**
 
-**Verify:** `bash tests/hooks/test-ralph-gate.sh && python3 -m pytest tests/ralph-loop/ -v`
+**Verificação:** `bash tests/hooks/test-ralph-gate.sh && python3 -m pytest tests/ralph-loop/ -v`
 
 ## Checklist
 

@@ -3,91 +3,91 @@ name: writing-clearly-and-concisely
 description: Use when writing prose humans will read—documentation, commit messages, error messages, explanations, reports, or UI text. Applies Strunk's timeless rules for clearer, stronger, more professional writing.
 ---
 
-# Writing Clearly and Concisely
+# Escrevendo com Clareza e Concisão
 
-## Overview
+## Visão Geral
 
-Write with clarity and force. This skill covers what to do (Strunk) and what not to do (AI patterns).
+Escreva com clareza e força. Esta skill cobre o que fazer (Strunk) e o que evitar (padrões de IA).
 
-## When to Use This Skill
+## Quando Usar Esta Skill
 
-Use this skill whenever you write prose for humans:
+Use esta skill sempre que escrever prosa para humanos:
 
-- Documentation, README files, technical explanations
-- Commit messages, pull request descriptions
-- Error messages, UI copy, help text, comments
-- Reports, summaries, or any explanation
-- Editing to improve clarity
+- Documentação, arquivos README, explicações técnicas
+- Commit messages, descrições de pull request
+- Mensagens de erro, copy de UI, textos de ajuda, comentários
+- Reports, resumos ou qualquer explicação
+- Edição para melhorar a clareza
 
-**If you're writing sentences for a human to read, use this skill.**
+**Se você está escrevendo frases para um humano ler, use esta skill.**
 
-## Limited Context Strategy
+## Estratégia em Contexto Limitado
 
-When context is tight:
+Quando o contexto está apertado:
 
-1. Write your draft using judgment
-2. Dispatch a subagent with your draft and the relevant section file
-3. Have the subagent copyedit and return the revision
+1. Escreva seu rascunho usando o próprio julgamento
+2. Despache um subagent com seu rascunho e o arquivo da seção relevante
+3. Peça ao subagent que faça o copy-edit e devolva a revisão
 
-Loading a single section (~1,000-4,500 tokens) instead of everything saves significant context.
+Carregar uma única seção (cerca de 1.000 a 4.500 tokens) em vez de tudo economiza um contexto significativo.
 
 ## Elements of Style
 
-William Strunk Jr.'s *The Elements of Style* (1918) teaches you to write clearly and cut ruthlessly.
+*The Elements of Style* (1918), de William Strunk Jr., ensina a escrever com clareza e a cortar sem dó.
 
-### Rules
+### Regras
 
-**Elementary Rules of Usage (Grammar/Punctuation)**:
+**Regras Elementares de Uso (Gramática/Pontuação)**:
 
-1. Form possessive singular by adding 's
-2. Use comma after each term in series except last
-3. Enclose parenthetic expressions between commas
-4. Comma before conjunction introducing co-ordinate clause
-5. Don't join independent clauses by comma
-6. Don't break sentences in two
-7. Participial phrase at beginning refers to grammatical subject
+1. Forme o possessivo singular adicionando 's
+2. Use vírgula após cada termo de uma série, exceto o último
+3. Cerque expressões parentéticas com vírgulas
+4. Use vírgula antes da conjunção que introduz uma cláusula coordenada
+5. Não una orações independentes apenas com vírgula
+6. Não quebre frases ao meio
+7. Frase participial no início se refere ao sujeito gramatical
 
-**Elementary Principles of Composition**:
+**Princípios Elementares de Composição**:
 
-8. One paragraph per topic
-9. Begin paragraph with topic sentence
-10. **Use active voice**
-11. **Put statements in positive form**
-12. **Use definite, specific, concrete language**
-13. **Omit needless words**
-14. Avoid succession of loose sentences
-15. Express co-ordinate ideas in similar form
-16. **Keep related words together**
-17. Keep to one tense in summaries
-18. **Place emphatic words at end of sentence**
+8. Um parágrafo por tópico
+9. Comece o parágrafo com uma frase-tópico
+10. **Use voz ativa**
+11. **Coloque afirmações na forma positiva**
+12. **Use linguagem definida, específica e concreta**
+13. **Omita palavras desnecessárias**
+14. Evite sucessão de frases soltas
+15. Expresse ideias coordenadas em forma similar
+16. **Mantenha palavras relacionadas próximas**
+17. Mantenha um único tempo verbal em resumos
+18. **Coloque palavras enfáticas no fim da frase**
 
-### Reference Files
+### Arquivos de Referência
 
-The rules above are summarized from Strunk's original text. For complete explanations with examples:
+As regras acima são resumos do texto original de Strunk. Para explicações completas com exemplos:
 
-| Section | File | ~Tokens |
+| Seção | Arquivo | ~Tokens |
 |---------|------|---------|
-| Grammar, punctuation, comma rules | `02-elementary-rules-of-usage.md` | 2,500 |
-| Paragraph structure, active voice, concision | `03-elementary-principles-of-composition.md` | 4,500 |
-| Headings, quotations, formatting | `04-a-few-matters-of-form.md` | 1,000 |
-| Word choice, common errors | `05-words-and-expressions-commonly-misused.md` | 4,000 |
+| Gramática, pontuação, regras de vírgula | `02-elementary-rules-of-usage.md` | 2,500 |
+| Estrutura de parágrafo, voz ativa, concisão | `03-elementary-principles-of-composition.md` | 4,500 |
+| Headings, citações, formatação | `04-a-few-matters-of-form.md` | 1,000 |
+| Escolha de palavras, erros comuns | `05-words-and-expressions-commonly-misused.md` | 4,000 |
 
-**Most tasks need only `03-elementary-principles-of-composition.md`** — it covers active voice, positive form, concrete language, and omitting needless words.
+**A maioria das tarefas precisa apenas de `03-elementary-principles-of-composition.md`** - cobre voz ativa, forma positiva, linguagem concreta e omissão de palavras desnecessárias.
 
-## AI Writing Patterns to Avoid
+## Padrões de Escrita de IA a Evitar
 
-LLMs regress to statistical means, producing generic, puffy prose. Avoid:
+LLMs regridem para a média estatística e produzem prosa genérica e inflada. Evite:
 
 - **Puffery:** pivotal, crucial, vital, testament, enduring legacy
-- **Empty "-ing" phrases:** ensuring reliability, showcasing features, highlighting capabilities
-- **Promotional adjectives:** groundbreaking, seamless, robust, cutting-edge
-- **Overused AI vocabulary:** delve, leverage, multifaceted, foster, realm, tapestry
-- **Formatting overuse:** excessive bullets, emoji decorations, bold on every other word
+- **Frases vazias com "-ing":** ensuring reliability, showcasing features, highlighting capabilities
+- **Adjetivos promocionais:** groundbreaking, seamless, robust, cutting-edge
+- **Vocabulário típico de IA, usado em excesso:** delve, leverage, multifaceted, foster, realm, tapestry
+- **Excesso de formatação:** bullets em demasia, decorações com emoji, negrito a cada outra palavra
 
-Be specific, not grandiose. Say what it actually does.
+Seja específico, não grandioso. Diga o que realmente faz.
 
-For comprehensive research on why these patterns occur, see `signs-of-ai-writing.md`. Wikipedia editors developed this guide to detect AI-generated submissions — their patterns are well-documented and field-tested.
+Para uma pesquisa abrangente sobre por que esses padrões surgem, consulte `signs-of-ai-writing.md`. Editores da Wikipedia desenvolveram este guia para detectar submissões geradas por IA, os padrões estão bem documentados e testados em campo.
 
-## Bottom Line
+## Conclusão
 
-Writing for humans? Load the relevant section from `elements-of-style/` and apply the rules. For most tasks, `03-elementary-principles-of-composition.md` covers what matters most.
+Escrevendo para humanos? Carregue a seção relevante de `elements-of-style/` e aplique as regras. Para a maioria das tarefas, `03-elementary-principles-of-composition.md` cobre o que mais importa.

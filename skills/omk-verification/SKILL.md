@@ -10,25 +10,25 @@ description: "Evidence before claims — run verification commands before any co
 - "this fix looks correct" → 先跑验证
 - "done, moving to next task" → 先跑验证
 
-# Verification Before Completion
+# Verificação antes da conclusão
 
-## Overview
+## Visão geral
 
-Claiming work is complete without verification is dishonesty, not efficiency.
+Reivindicar que o trabalho está concluído sem verificar é desonestidade, não eficiência.
 
-**Core principle:** Evidence before claims, always.
+**Princípio central:** Evidência antes da reivindicação, sempre.
 
-**Violating the letter of this rule is violating the spirit of this rule.**
+**Violar a letra desta regra é violar o espírito desta regra.**
 
-## The Iron Law
+## A Lei de Ferro
 
 ```
 NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 ```
 
-If you haven't run the verification command in this message, you cannot claim it passes.
+Se você não rodou o comando de verificação nesta mensagem, não pode reivindicar que ele passa.
 
-## The Gate Function
+## A função-Gate
 
 ```
 BEFORE claiming any status or expressing satisfaction:
@@ -44,43 +44,43 @@ BEFORE claiming any status or expressing satisfaction:
 Skip any step = lying, not verifying
 ```
 
-## Common Failures
+## Falhas comuns
 
-| Claim | Requires | Not Sufficient |
+| Reivindicação | Requer | Não é suficiente |
 |-------|----------|----------------|
-| Tests pass | Test command output: 0 failures | Previous run, "should pass" |
-| Linter clean | Linter output: 0 errors | Partial check, extrapolation |
-| Build succeeds | Build command: exit 0 | Linter passing, logs look good |
-| Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
-| Regression test works | Red-green cycle verified | Test passes once |
-| Agent completed | VCS diff shows changes | Agent reports "success" |
-| Requirements met | Line-by-line checklist | Tests passing |
+| Tests pass | Saída do test command: 0 falhas | Run anterior, "should pass" |
+| Linter clean | Saída do linter: 0 erros | Verificação parcial, extrapolação |
+| Build succeeds | Build command: exit 0 | Linter passando, "logs look good" |
+| Bug fixed | Testar o sintoma original: passa | Código mudou, assumido como fixed |
+| Regression test works | Ciclo red-green verificado | Teste passa uma vez |
+| Agent completed | Diff do VCS mostra alterações | Agent reportou "success" |
+| Requirements met | Checklist linha a linha | Tests passing |
 
-## Red Flags - STOP
+## Sinais de alerta - PARE
 
-- Using "should", "probably", "seems to"
-- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!", etc.)
-- About to commit/push/PR without verification
-- Trusting agent success reports
-- Relying on partial verification
-- Thinking "just this once"
-- Tired and wanting work over
-- **ANY wording implying success without having run verification**
+- Usar "should", "probably", "seems to"
+- Expressar satisfação antes de verificar ("Great!", "Perfect!", "Done!", etc.)
+- Prestes a commit/push/PR sem verificar
+- Confiar em relatórios de sucesso de agents
+- Apoiar-se em verificação parcial
+- Pensar "just this once"
+- Cansado e querendo encerrar
+- **QUALQUER frase que implique sucesso sem ter rodado a verificação**
 
-## Rationalization Prevention
+## Prevenção de racionalizações
 
-| Excuse | Reality |
+| Desculpa | Realidade |
 |--------|---------|
-| "Should work now" | RUN the verification |
-| "I'm confident" | Confidence ≠ evidence |
-| "Just this once" | No exceptions |
-| "Linter passed" | Linter ≠ compiler |
-| "Agent said success" | Verify independently |
-| "I'm tired" | Exhaustion ≠ excuse |
-| "Partial check is enough" | Partial proves nothing |
-| "Different words so rule doesn't apply" | Spirit over letter |
+| "Should work now" | RODE a verificação |
+| "I'm confident" | Confiança ≠ evidência |
+| "Just this once" | Sem exceções |
+| "Linter passed" | Linter ≠ compilador |
+| "Agent said success" | Verifique de forma independente |
+| "I'm tired" | Cansaço ≠ desculpa |
+| "Partial check is enough" | Parcial não prova nada |
+| "Different words so rule doesn't apply" | Espírito sobre letra |
 
-## Key Patterns
+## Padrões-chave
 
 **Tests:**
 ```
@@ -106,41 +106,41 @@ Skip any step = lying, not verifying
 ❌ "Tests pass, phase complete"
 ```
 
-**Agent delegation:**
+**Delegação para agent:**
 ```
 ✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
 ❌ Trust agent report
 ```
 
-## Why This Matters
+## Por que isso importa
 
-From 24 failure memories:
-- your human partner said "I don't believe you" - trust broken
-- Undefined functions shipped - would crash
-- Missing requirements shipped - incomplete features
-- Time wasted on false completion → redirect → rework
-- Violates: "Honesty is a core value. If you lie, you'll be replaced."
+De 24 falhas registradas:
+- O human partner disse "I don't believe you", confiança quebrada
+- Funções não definidas foram para produção, iam crashar
+- Requirements faltando foram para produção, features incompletas
+- Tempo perdido em conclusão falsa → redirect → retrabalho
+- Viola: "Honesty is a core value. If you lie, you'll be replaced."
 
-## When To Apply
+## Quando aplicar
 
-**ALWAYS before:**
-- ANY variation of success/completion claims
-- ANY expression of satisfaction
-- ANY positive statement about work state
-- Committing, PR creation, task completion
-- Moving to next task
-- Delegating to agents
+**SEMPRE antes de:**
+- QUALQUER variação de reivindicação de sucesso/conclusão
+- QUALQUER expressão de satisfação
+- QUALQUER afirmação positiva sobre o estado do trabalho
+- Commitar, criar PR, concluir task
+- Avançar para a próxima task
+- Delegar para agents
 
-**Rule applies to:**
-- Exact phrases
-- Paraphrases and synonyms
-- Implications of success
-- ANY communication suggesting completion/correctness
+**A regra se aplica a:**
+- Frases exatas
+- Paráfrases e sinônimos
+- Implicações de sucesso
+- QUALQUER comunicação que sugira conclusão/correção
 
-## The Bottom Line
+## A linha final
 
-**No shortcuts for verification.**
+**Sem atalhos para a verificação.**
 
-Run the command. Read the output. THEN claim the result.
+Rode o comando. Leia a saída. ENTÃO declare o resultado.
 
-This is non-negotiable.
+Isso é não negociável.
