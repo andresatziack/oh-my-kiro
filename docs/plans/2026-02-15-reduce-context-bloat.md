@@ -1,62 +1,62 @@
 # Reduzir Inchaço de Contexto - Merge de Hook + Estratégia de Subagentes
 
-**Objetivo:** 减少对话膨胀速度，缓解 Kiro CLI compaction 失败问题。合并 hooks 降低消息数，优化 subagent 执行策略隔离重活。
+**Objetivo:** Reduzir a velocidade de inflar a conversa e mitigar falhas de compaction do Kiro CLI. Merge de hooks para diminuir mensagens e otimizar a estrategia de subagent para isolar trabalho pesado.
 
-**Arquitetura:** 将 postToolUse 3 个 hooks 合并为 `post-write.sh`，preToolUse 3 个合并为 `pre-write.sh`（security hooks 保持独立）。在 planning skill 中增加 subagent 执行阈值规则。
+**Arquitetura:** Merge dos 3 hooks de postToolUse em `post-write.sh`, merge dos 3 de preToolUse em `pre-write.sh` (security hooks permanecem independentes). Adicionar regras de threshold para subagent na planning skill.
 
 **Tech Stack:** Bash (hooks), Markdown (skill docs), JSON (agent config)
 
 ## Tarefas
 
-### Tarefa 1: 合并 postToolUse hooks → post-write.sh
+### Tarefa 1: merge dos hooks postToolUse -> post-write.sh
 
-将 `auto-test.sh` + `auto-lint.sh` + `remind-update-progress.sh` 合并为单文件 `hooks/feedback/post-write.sh`。
+Merge de `auto-test.sh` + `auto-lint.sh` + `remind-update-progress.sh` em um unico arquivo `hooks/feedback/post-write.sh`.
 
 **Arquivos:**
 - Create: `hooks/feedback/post-write.sh`
-- Modify: `.kiro/agents/default.json` (postToolUse 改为单条)
-- Modify: `.kiro/agents/implementer.json` (postToolUse 同步)
+- Modify: `.kiro/agents/default.json` (postToolUse passa a ter uma unica entrada)
+- Modify: `.kiro/agents/implementer.json` (postToolUse sincronizado)
 
-**Error handling:** 各函数独立 try-catch，一个失败不影响其他。lint/remind 失败静默，test 失败才 exit 1。
+**Error handling:** cada funcao com try-catch independente, falha em uma nao afeta as outras. lint/remind falham silenciosamente, apenas falha de test sai com exit 1.
 
 **Steps:**
-1. 创建 `post-write.sh`，包含三个函数：`run_lint`、`run_test`、`remind_progress`，每个函数内部捕获错误
-2. 更新 `default.json` postToolUse 从 3 条 → 1 条
-3. 更新 `implementer.json` postToolUse 同步
-4. 测试：`echo '{"tool_name":"fs_write","tool_input":{"file_path":"test.ts"}}' | bash hooks/feedback/post-write.sh`
+1. Criar `post-write.sh` com tres funcoes: `run_lint`, `run_test`, `remind_progress`, cada uma capturando erros internamente
+2. Atualizar `default.json` postToolUse de 3 entradas -> 1 entrada
+3. Atualizar `implementer.json` postToolUse para refletir a mudanca
+4. Testar: `echo '{"tool_name":"fs_write","tool_input":{"file_path":"test.ts"}}' | bash hooks/feedback/post-write.sh`
 
-### Tarefa 2: 合并 preToolUse hooks → pre-write.sh
+### Tarefa 2: merge dos hooks preToolUse -> pre-write.sh
 
-将 `require-workflow.sh` + `scan-skill-injection.sh`（在 security/ 下）+ `inject-plan-context.sh`（在 feedback/ 下）合并为 `hooks/gate/pre-write.sh`。Security hooks for execute_bash 保持独立不动。
+Merge de `require-workflow.sh` + `scan-skill-injection.sh` (em security/) + `inject-plan-context.sh` (em feedback/) em `hooks/gate/pre-write.sh`. Security hooks de execute_bash permanecem independentes.
 
 **Arquivos:**
 - Create: `hooks/gate/pre-write.sh`
-- Modify: `.kiro/agents/default.json` (preToolUse fs_write 从 3 条 → 1 条)
+- Modify: `.kiro/agents/default.json` (preToolUse fs_write de 3 entradas -> 1 entrada)
 
-**Error handling:** gate check (require-workflow) 失败 → exit 2 硬拦截。injection scan 失败 → exit 2。plan context inject 失败 → 静默 exit 0（advisory only）。
+**Error handling:** falha do gate check (require-workflow) -> exit 2 (bloqueio forte). Falha do injection scan -> exit 2. Falha do plan context inject -> exit 0 silencioso (advisory).
 
 **Steps:**
-1. 创建 `pre-write.sh`，三阶段顺序执行：gate check → injection scan → plan context inject
-2. 更新 `default.json` preToolUse
-3. 测试：确认无 plan 时 gate 拦截仍 exit 2
+1. Criar `pre-write.sh` com tres fases sequenciais: gate check -> injection scan -> plan context inject
+2. Atualizar `default.json` preToolUse
+3. Testar: confirmar que sem plan ativo o gate ainda intercepta com exit 2
 
-### Tarefa 3: 更新 planning skill - subagent 执行阈值
+### Tarefa 3: atualizar planning skill - threshold de subagent
 
-在 `skills/planning/SKILL.md` 的 Phase 2 执行策略中，增加明确的 subagent 触发规则。
+Adicionar regras de trigger de subagent na Phase 2 da estrategia de execucao em `skills/planning/SKILL.md`.
 
 **Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
 **Steps:**
-1. 在 Phase 2 开头增加执行策略选择规则：
-   - checklist ≤3 项 → Strategy A (主对话顺序执行)
-   - checklist >3 项 → Strategy C (subagent per task)
-   - 2+ 独立无依赖任务 → Strategy B (并行 subagent)
-2. 确保规则简洁，不超过 10 行
+1. Adicionar no inicio da Phase 2 a regra de selecao da estrategia de execucao:
+   - checklist <= 3 itens -> Strategy A (execucao sequencial na conversa principal)
+   - checklist > 3 itens -> Strategy C (subagent por task)
+   - 2+ tarefas independentes sem dependencia -> Strategy B (subagents em paralelo)
+2. Manter as regras enxutas, no maximo 10 linhas
 
-### Tarefa 4: 清理旧 hook 文件
+### Tarefa 4: limpar arquivos de hook antigos
 
-合并完成且验证通过后，删除被合并的旧文件。
+Apos o merge concluido e validado, apagar os arquivos antigos.
 
 **Arquivos:**
 - Delete: `hooks/feedback/auto-test.sh`
@@ -67,11 +67,11 @@
 - Delete: `hooks/security/scan-skill-injection.sh`
 
 **Steps:**
-1. `grep -r 'auto-test\|auto-lint\|remind-update-progress\|inject-plan-context\|require-workflow\|scan-skill-injection' --include='*.json' --include='*.sh' --include='*.md' .` 确认无残留引用
-2. `git rm` 旧文件
-3. 如果发现残留引用，先修复再删除
+1. `grep -r 'auto-test\|auto-lint\|remind-update-progress\|inject-plan-context\|require-workflow\|scan-skill-injection' --include='*.json' --include='*.sh' --include='*.md' .` para confirmar que nao restam referencias
+2. `git rm` nos arquivos antigos
+3. Se aparecer referencia residual, corrigir antes de apagar
 
-**Rollback:** 所有旧文件在 git 历史中可恢复，`git checkout HEAD~1 -- hooks/feedback/auto-test.sh` 等即可回退。
+**Rollback:** todos os arquivos antigos podem ser recuperados via git, com `git checkout HEAD~1 -- hooks/feedback/auto-test.sh` (etc.).
 
 ## Review
 
@@ -96,12 +96,12 @@ All fixed in plan revision: error handling per-function, rollback via git histor
 
 ## Checklist
 
-- [x] `hooks/feedback/post-write.sh` 创建，包含 lint + test + remind 三个功能
-- [x] `hooks/gate/pre-write.sh` 创建，包含 workflow gate + injection scan + plan context
-- [x] `default.json` postToolUse 从 3 条 → 1 条
-- [x] `default.json` preToolUse[fs_write] 从 3 条 → 1 条
-- [x] `implementer.json` postToolUse 同步更新
-- [x] Security hooks (block-dangerous/block-secrets/block-sed-json) 保持独立不变
-- [x] `skills/planning/SKILL.md` 增加 subagent 执行阈值规则
-- [x] 旧 hook 文件已删除，无残留引用
-- [x] gate check (exit 2 拦截) 在合并后仍然生效
+- [x] `hooks/feedback/post-write.sh` criado, com as tres funcoes lint + test + remind
+- [x] `hooks/gate/pre-write.sh` criado, com workflow gate + injection scan + plan context
+- [x] `default.json` postToolUse de 3 entradas -> 1 entrada
+- [x] `default.json` preToolUse[fs_write] de 3 entradas -> 1 entrada
+- [x] `implementer.json` postToolUse atualizado em sincronia
+- [x] Security hooks (block-dangerous/block-secrets/block-sed-json) permanecem independentes
+- [x] `skills/planning/SKILL.md` ganhou a regra de threshold de subagent
+- [x] arquivos de hook antigos apagados, sem referencias residuais
+- [x] gate check (exit 2 de bloqueio) continua valendo apos o merge

@@ -95,11 +95,11 @@ echo ""
 
 ## Checklist
 
-- [x] 心跳间隔默认 60s | `grep -q 'HEARTBEAT_INTERVAL:-60' scripts/ralph-loop.sh`
-- [x] 心跳显示实际进度 | `grep -q 'local_checked.*local_total.*done' scripts/ralph-loop.sh`
-- [x] 启动 banner 精简为一行 | `grep -q 'tasks remaining' scripts/ralph-loop.sh`
-- [x] 旧 banner 已移除 | `! grep -q 'Max iterations:' scripts/ralph-loop.sh`
-- [x] 脚本语法正确 | `bash -n scripts/ralph-loop.sh`
+- [x] intervalo de heartbeat padrao 60s | `grep -q 'HEARTBEAT_INTERVAL:-60' scripts/ralph-loop.sh`
+- [x] heartbeat exibe progresso real | `grep -q 'local_checked.*local_total.*done' scripts/ralph-loop.sh`
+- [x] banner inicial reduzido a uma linha | `grep -q 'tasks remaining' scripts/ralph-loop.sh`
+- [x] banner antigo foi removido | `! grep -q 'Max iterations:' scripts/ralph-loop.sh`
+- [x] sintaxe do script correta | `bash -n scripts/ralph-loop.sh`
 
 ## Errors
 

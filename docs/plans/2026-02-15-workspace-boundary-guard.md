@@ -1,27 +1,27 @@
 # Guarda de Fronteira do Workspace
 
-**Objetivo:** 阻止 agent 写入 workspace 以外的文件，防止破坏系统文件。
-**Arquitetura:** 新建 `hooks/security/block-outside-workspace.sh`，同时挂到 `fs_write` 和 `execute_bash` 两个 matcher。fs_write 用 realpath 精确检查目标路径；bash 用正则检测明显的外部写入模式。所有 agent（default/reviewer/researcher）+ Claude Code 配置统一挂载。
+**Objetivo:** Bloquear gravacoes do agent fora do workspace, prevenindo dano a arquivos do sistema.
+**Arquitetura:** Criar `hooks/security/block-outside-workspace.sh`, registrado nos matchers `fs_write` e `execute_bash`. fs_write usa realpath para checar o caminho alvo com precisao; bash usa regex para detectar padroes obvios de escrita externa. Todos os agents (default/reviewer/researcher) e a configuracao do Claude Code recebem o hook.
 **Tech Stack:** Shell (bash), jq
 
 ## Key Decisions
 
-1. **方案 B**：fs_write 路径检查 + bash 外部写入模式检测，workspace 内不限制
-2. **硬拦截**（exit 2），不是警告
-3. **所有 agent** 统一挂载（default + reviewer + researcher）
-4. **Workspace = git root**，fallback 到 `$PWD`；检测失败则 block 所有写入（fail-closed）
-5. **单文件实现**：一个 hook 脚本处理两种 tool_name（fs_write 和 execute_bash），通过 tool_name 分支
-6. **Hook 顺序**：block-outside-workspace 在 pre-write.sh 之前（先安全检查，再 workflow gate）
-7. **不做的事**：symlink 攻击、race condition、unicode 攻击、process substitution — 这些是 OS 级沙箱的职责，应用层 hook 做不到也不该做。我们的目标是拦截 agent 的 **正常误操作**，不是防御恶意 prompt injection 的高级攻击
+1. **Estrategia B**: validacao de path em fs_write + deteccao de padroes de escrita externa em bash; sem restricao dentro do workspace
+2. **Bloqueio forte** (exit 2), nao warning
+3. **Todos os agents** recebem o hook (default + reviewer + researcher)
+4. **Workspace = git root**, com fallback para `$PWD`; se a deteccao falhar, bloqueia toda escrita (fail-closed)
+5. **Implementacao em arquivo unico**: um script que trata os dois tool_name (fs_write e execute_bash) com branch por tool_name
+6. **Ordem do hook**: block-outside-workspace antes de pre-write.sh (primeiro a checagem de seguranca, depois o workflow gate)
+7. **Fora de escopo**: ataque com symlink, race condition, ataque com unicode, process substitution - sao responsabilidade do sandbox a nivel de SO; um hook de aplicacao nao consegue tratar e nao deve. O objetivo aqui e interceptar **erros operacionais comuns do agent**, nao atacante sofisticado via prompt injection
 
 ## Tarefas
 
-### Tarefa 1: 创建 block-outside-workspace.sh
+### Tarefa 1: criar block-outside-workspace.sh
 
 **Arquivos:**
 - Create: `hooks/security/block-outside-workspace.sh`
 
-脚本逻辑：
+Logica do script:
 
 ```bash
 #!/bin/bash
@@ -107,96 +107,96 @@ esac
 exit 0
 ```
 
-**Verificação:** `bash -n hooks/security/block-outside-workspace.sh` 无语法错误；`ls -la hooks/security/block-outside-workspace.sh` 确认可执行
+**Verificação:** `bash -n hooks/security/block-outside-workspace.sh` sem erro de sintaxe; `ls -la hooks/security/block-outside-workspace.sh` confirma que e executavel
 
-### Tarefa 2: 更新所有 Kiro agent JSON - 挂载新 hook
+### Tarefa 2: atualizar todos os agent JSONs do Kiro - registrar o novo hook
 
 **Arquivos:**
 - Modify: `.kiro/agents/default.json`
 - Modify: `.kiro/agents/reviewer.json`
 - Modify: `.kiro/agents/researcher.json`
 
-每个 agent 的 `preToolUse` 数组中添加两条：
+No array `preToolUse` de cada agent, adicionar duas entradas:
 ```json
 {"matcher": "fs_write", "command": "hooks/security/block-outside-workspace.sh"},
 {"matcher": "execute_bash", "command": "hooks/security/block-outside-workspace.sh"}
 ```
 
-default.json 已有 `fs_write` matcher（pre-write.sh），新 hook 加在它之前（先安全检查，再 workflow gate）。
-reviewer/researcher 之前没有 fs_write matcher，直接新增。
+default.json ja tem matcher `fs_write` (pre-write.sh); o novo hook entra antes (primeiro a checagem de seguranca, depois o workflow gate).
+reviewer/researcher nao tinham matcher fs_write antes, entao basta adicionar.
 
-**Verificação:** `jq '.hooks.preToolUse[] | select(.command | contains("block-outside-workspace"))' .kiro/agents/{default,reviewer,researcher}.json | jq -s 'length'` = 6（每个 agent 2 条 × 3 个 agent）
+**Verificação:** `jq '.hooks.preToolUse[] | select(.command | contains("block-outside-workspace"))' .kiro/agents/{default,reviewer,researcher}.json | jq -s 'length'` = 6 (2 entradas por agent x 3 agents)
 
-### Tarefa 3: 更新 Claude Code 配置 - generate-platform-configs.sh
+### Tarefa 3: atualizar a configuracao do Claude Code - generate-platform-configs.sh
 
 **Arquivos:**
 - Modify: `scripts/generate-platform-configs.sh`
 
-在 `.claude/settings.json` 生成部分：
-- `PreToolUse` Bash matcher 的 hooks 数组中添加 `block-outside-workspace.sh`
-- `PreToolUse` 新增 `Write|Edit` matcher 的 hooks 中添加 `block-outside-workspace.sh`（在 pre-write.sh 之前）
+Na geracao de `.claude/settings.json`:
+- No array de hooks do `PreToolUse` matcher Bash, adicionar `block-outside-workspace.sh`
+- Adicionar novo `PreToolUse` matcher `Write|Edit` com `block-outside-workspace.sh` (antes de pre-write.sh)
 
-在 reviewer/researcher agent 生成部分：
-- `preToolUse` 数组中添加 fs_write + execute_bash 两条 block-outside-workspace 配置
+Na geracao dos agents reviewer/researcher:
+- No array `preToolUse`, adicionar as duas entradas de block-outside-workspace (fs_write + execute_bash)
 
-**Verificação:** `bash scripts/generate-platform-configs.sh && grep -c 'block-outside-workspace' .claude/settings.json .kiro/agents/*.json` - .claude/settings.json ≥ 2，每个 agent json ≥ 2
+**Verificação:** `bash scripts/generate-platform-configs.sh && grep -c 'block-outside-workspace' .claude/settings.json .kiro/agents/*.json` - .claude/settings.json >= 2; cada agent json >= 2
 
-### Tarefa 4: 手动测试 hook
+### Tarefa 4: testes manuais do hook
 
-**测试 A: fs_write 拦截外部路径**
+**Teste A: fs_write bloqueia caminho externo**
 ```bash
 echo '{"tool_name":"fs_write","tool_input":{"file_path":"/tmp/evil.txt","command":"create"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
-**测试 B: fs_write 放行 workspace 内路径**
+**Teste B: fs_write libera caminho dentro do workspace**
 ```bash
 echo '{"tool_name":"fs_write","tool_input":{"file_path":"hooks/test.txt","command":"create"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 0, 无输出
 ```
 
-**测试 C: bash 拦截外部写入**
+**Teste C: bash bloqueia escrita externa**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"echo hello > ~/.zshrc"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
-**测试 D: bash 放行正常命令**
+**Teste D: bash libera comando normal**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"echo hello"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 0, 无输出
 ```
 
-**测试 E: fs_write 拦截路径穿越**
+**Teste E: fs_write bloqueia path traversal**
 ```bash
 echo '{"tool_name":"fs_write","tool_input":{"file_path":"../../../etc/passwd","command":"create"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
-**测试 F: bash 拦截 append 重定向**
+**Teste F: bash bloqueia redirect com append**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"echo data >> ~/evil.txt"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
-**测试 G: bash 拦截 tar -C 外部路径**
+**Teste G: bash bloqueia tar -C externo**
 ```bash
 echo '{"tool_name":"execute_bash","tool_input":{"command":"tar -xf archive.tar -C /usr/local/"}}' | bash hooks/security/block-outside-workspace.sh
 # 预期: exit 2, stderr 包含 "BLOCKED"
 ```
 
-**Verificação:** 4 个测试全部通过
+**Verificação:** os 4 testes passam
 
-### Tarefa 5: 记录到 knowledge
+### Tarefa 5: registrar em knowledge
 
 **Arquivos:**
 - Modify: `knowledge/episodes.md`
 - Modify: `knowledge/rules.md`
 
-episodes.md 追加本次实现记录。
-rules.md 如有相关 rule 则更新，否则新增 workspace boundary rule。
+Em episodes.md, fazer append do registro desta implementacao.
+Em rules.md, atualizar a regra existente, ou criar a regra de workspace boundary se nao existir.
 
-**Verificação:** `grep -c 'workspace' knowledge/episodes.md` ≥ 1
+**Verificação:** `grep -c 'workspace' knowledge/episodes.md` >= 1
 
 ## Review
 
@@ -276,26 +276,26 @@ rules.md 如有相关 rule 则更新，否则新增 workspace boundary rule。
 #### Assessment
 The core security gaps from Round 1 are adequately addressed. The path normalization using Python3 is robust, fail-closed behavior prevents bypasses during workspace detection failures, and pattern coverage is significantly improved.
 
-The remaining issues are edge cases that would require sophisticated prompt injection to exploit. For the stated goal of preventing "agent 正常误操作" rather than defending against malicious attacks, this implementation provides sufficient protection.
+The remaining issues are edge cases that would require sophisticated prompt injection to exploit. For the stated goal of preventing accidental agent missteps rather than defending against malicious attacks, this implementation provides sufficient protection.
 
 #### Verdict: **APPROVE**
 
 The plan now meets security requirements for preventing accidental agent writes outside workspace boundaries. The documented scope limitations (Decision 7) appropriately exclude OS-level attack vectors that belong in system sandboxing rather than application hooks.
 
 ## Checklist
-- [x] `hooks/security/block-outside-workspace.sh` 存在且可执行
-- [x] hook 语法正确（`bash -n` 通过）
-- [x] workspace 检测失败时 fail-closed（block 所有写入）
-- [x] default.json preToolUse 包含 block-outside-workspace（fs_write + execute_bash 两条）
-- [x] reviewer.json preToolUse 包含 block-outside-workspace（fs_write + execute_bash 两条）
-- [x] researcher.json preToolUse 包含 block-outside-workspace（fs_write + execute_bash 两条）
-- [x] generate-platform-configs.sh 包含 block-outside-workspace 配置
-- [x] `.claude/settings.json` 生成后包含 block-outside-workspace
-- [x] 测试 A: fs_write 外部路径被拦截（exit 2）
-- [x] 测试 B: fs_write workspace 内路径放行（exit 0）
-- [x] 测试 C: bash 外部写入被拦截（exit 2）
-- [x] 测试 D: bash 正常命令放行（exit 0）
-- [x] 测试 E: fs_write 路径穿越被拦截（exit 2）
-- [x] 测试 F: bash append 重定向被拦截（exit 2）
-- [x] 测试 G: bash tar -C 外部路径被拦截（exit 2）
-- [x] knowledge 已记录
+- [x] `hooks/security/block-outside-workspace.sh` existe e e executavel
+- [x] sintaxe do hook correta (`bash -n` passa)
+- [x] fail-closed quando a deteccao de workspace falha (bloqueia toda escrita)
+- [x] default.json preToolUse contem block-outside-workspace (2 entradas: fs_write + execute_bash)
+- [x] reviewer.json preToolUse contem block-outside-workspace (2 entradas: fs_write + execute_bash)
+- [x] researcher.json preToolUse contem block-outside-workspace (2 entradas: fs_write + execute_bash)
+- [x] generate-platform-configs.sh inclui a configuracao de block-outside-workspace
+- [x] `.claude/settings.json` apos a geracao contem block-outside-workspace
+- [x] Teste A: fs_write com caminho externo bloqueado (exit 2)
+- [x] Teste B: fs_write com caminho interno passa (exit 0)
+- [x] Teste C: bash com escrita externa bloqueado (exit 2)
+- [x] Teste D: bash com comando normal passa (exit 0)
+- [x] Teste E: fs_write com path traversal bloqueado (exit 2)
+- [x] Teste F: bash com append redirect bloqueado (exit 2)
+- [x] Teste G: bash com tar -C externo bloqueado (exit 2)
+- [x] knowledge atualizado

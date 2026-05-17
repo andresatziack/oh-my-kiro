@@ -1,66 +1,66 @@
-# Hook Governance — 审计、优化、固化
+# Hook Governance - auditoria, otimizacao, fixacao
 
-**Objetivo:** 全面审计现有 hook 体系，修复不一致和冗余，产出 Hook Architecture Design Doc（含扩展性设计）并用代码层机制固化设计，防止后续迭代破坏，同时保证新 hook 的接入有清晰流程。
+**Objetivo:** Auditar todo o sistema de hooks, corrigir inconsistencias e redundancias, produzir o Hook Architecture Design Doc (com decisoes de extensibilidade) e fixar essas decisoes via codigo para que iteracoes futuras nao quebrem o desenho, garantindo tambem um fluxo claro para integrar hooks novos.
 
 **Não-Objetivos:**
-- 不新增 hook 功能（如 LLM eval Stop hook、auto-approve 等）
-- 不重构 pre-write.sh 的合并策略（当前合并是有意设计，减少 hook 调用次数）
-- 不改变 security/gate/feedback 三分类体系
+- Sem novas funcionalidades de hook (ex.: Stop hook com LLM eval, auto-approve, etc.)
+- Sem refatorar a estrategia de merge de pre-write.sh (a uniao atual e proposital, reduzindo o numero de invocacoes)
+- Sem mexer na taxonomia security/gate/feedback
 
-**Arquitetura:** 三层治理：(1) enforcement.md 升级为完整的 Hook Architecture Doc，包含分类原则、命名规范、职责边界 (2) generate_configs.py 增加一致性校验，确保生成的 config 与 architecture doc 一致 (3) pre-write gate 增加对 hooks/ 目录修改的保护，要求同步更新 architecture doc。
+**Arquitetura:** Tres camadas de governanca: (1) enforcement.md vira o Hook Architecture Doc completo, com principios de classificacao, regras de nomeclatura e fronteiras de responsabilidade; (2) generate_configs.py adiciona validacao de consistencia, garantindo que o config gerado bate com o architecture doc; (3) o gate pre-write protege a pasta hooks/, exigindo que mudancas nela ocorram em paralelo a atualizacao do architecture doc.
 
 **Tech Stack:** Bash (hooks), Python (generator/validator), Markdown (architecture doc)
 
 ## Audit Findings
 
-### F1: 注册表 drift — enforcement.md 缺失 2 个 hook
-`enforce-ralph-loop.sh` 和 `require-regression.sh` 在 generate_configs.py 和 Kiro agent JSON 中注册，但 enforcement.md 没有记录。enforcement.md 作为"单一事实来源"不完整。
+### F1: drift do registro - enforcement.md sem 2 hooks
+`enforce-ralph-loop.sh` e `require-regression.sh` estao em generate_configs.py e nos JSON dos agents do Kiro, mas faltam em enforcement.md. enforcement.md, como "fonte unica da verdade", esta incompleto.
 
-### F2: 注册表 drift — settings.json 缺失 2 个 hook
-`enforce-ralph-loop.sh` 和 `require-regression.sh` 在 Kiro agent JSON 中注册，但 `.claude/settings.json` 没有。CC 用户不会触发这两个 gate。
+### F2: drift do registro - settings.json sem 2 hooks
+`enforce-ralph-loop.sh` e `require-regression.sh` estao nos JSON do Kiro, mas faltam em `.claude/settings.json`. Em CC, esses dois gates nunca disparam.
 
-### F3: llm-eval.sh 是死代码
-`_lib/llm-eval.sh` 存在但没有任何 hook 脚本 source 它。v2 design 规划了 LLM eval 的 Stop hook，但从未接入。50 行死代码。
+### F3: llm-eval.sh e codigo morto
+`_lib/llm-eval.sh` existe mas nenhum hook faz source dele. O design v2 previa um Stop hook com LLM eval, mas nunca foi conectado. 50 linhas de codigo morto.
 
-### F4: pre-write.sh Phase 编号混乱
-Phase 顺序是 0 → 1 → 2 → 3 → 1.5a0 → 1.5a → 1.5b。执行顺序和编号不一致（Phase 1.5 系列在 Phase 2/3 之后定义，但在 Phase 2 之前执行）。不影响功能但降低可读性。
+### F4: numeracao confusa de Phase em pre-write.sh
+A ordem das Phases e 0 -> 1 -> 2 -> 3 -> 1.5a0 -> 1.5a -> 1.5b. A numeracao nao reflete a ordem de execucao (a familia Phase 1.5 esta declarada apos Phase 2/3 mas roda antes da Phase 2). Nao afeta funcionalidade, mas reduz legibilidade.
 
-### F5: auto-capture.sh 和 kb-health-report.sh 是"影子 hook"
-这两个脚本不在 settings.json 或 agent JSON 中注册，而是被其他 hook 内部调用（correction-detect → auto-capture, verify-completion → kb-health-report）。enforcement.md 没有记录这种调用关系。
+### F5: auto-capture.sh e kb-health-report.sh sao "shadow hooks"
+Esses dois scripts nao estao registrados em settings.json nem nos JSON dos agents; sao chamados por outros hooks (correction-detect -> auto-capture, verify-completion -> kb-health-report). enforcement.md nao documenta essa relacao.
 
-### F6: session-init.sh 职责过重
-73 行，承担 5 个职责：episode cleanup、rules injection、promotion reminder、delegation reminder、KB health report。其中 delegation reminder 是硬编码的一行 echo，每次 session 都输出，价值存疑。
+### F6: session-init.sh com responsabilidades demais
+73 linhas, com 5 responsabilidades: episode cleanup, rules injection, promotion reminder, delegation reminder, KB health report. Entre elas, o delegation reminder e uma linha echo hardcoded, impressa toda session, com valor questionavel.
 
-### F7: block-outside-workspace.sh 在每个 agent 中注册了两次
-default.json、executor.json、pilot.json、researcher.json、reviewer.json 中，block-outside-workspace.sh 都出现两次（一次 matcher=execute_bash，一次 matcher=fs_write）。这是正确的（不同事件），但 enforcement.md 只记录了一条。
+### F7: block-outside-workspace.sh registrado duas vezes em cada agent
+Em default.json, executor.json, pilot.json, researcher.json e reviewer.json, block-outside-workspace.sh aparece duas vezes (uma com matcher=execute_bash, outra com matcher=fs_write). Esta correto (eventos diferentes), mas enforcement.md so registra uma entrada.
 
-### F8: 三分类体系边界模糊
-- `gate/` = 阻断（exit 2），但 `pre-write.sh` 的 `inject_plan_context` 是 advisory（不阻断）
-- `feedback/` = 不阻断，但 `post-write.sh` 的 `run_test` 返回 exit 1（PostToolUse 的 exit 1 行为未明确）
-- 分类原则没有文档化
+### F8: fronteiras das tres categorias estao borradas
+- `gate/` = bloqueia (exit 2), porem `inject_plan_context` em `pre-write.sh` e advisory (nao bloqueia)
+- `feedback/` = nao bloqueia, porem `run_test` em `post-write.sh` retorna exit 1 (o comportamento de exit 1 em PostToolUse nao esta documentado)
+- O principio de classificacao nao esta documentado
 
-### F9: Determinism Layers 表不完整
-enforcement.md 的 Determinism Layers 表只有 3 层（Commands/Gate/Feedback），缺少 L0（security hooks，也是 100% hard block）。security 和 gate 都是 exit 2 阻断，但被分到不同层级。
+### F9: tabela Determinism Layers incompleta
+A tabela Determinism Layers em enforcement.md so tem 3 camadas (Commands/Gate/Feedback); falta a L0 (security hooks, tambem sao 100% hard block). security e gate, ambos exit 2 de bloqueio, estao em camadas diferentes.
 
-### F10: 测试覆盖不均匀
-有测试的：block-dangerous、block-sed-json、instruction-guard（brainstorm-gate + write-protection）、block-recovery、context-enrichment split、kiro-compat
-无测试的：block-secrets、block-outside-workspace、enforce-ralph-loop、require-regression、session-init、correction-detect、auto-capture、kb-health-report、verify-completion、post-write、post-bash
+### F10: cobertura de testes desigual
+Com testes: block-dangerous, block-sed-json, instruction-guard (brainstorm-gate + write-protection), block-recovery, context-enrichment split, kiro-compat
+Sem testes: block-secrets, block-outside-workspace, enforce-ralph-loop, require-regression, session-init, correction-detect, auto-capture, kb-health-report, verify-completion, post-write, post-bash
 
 ## Tarefas
 
-### Tarefa 1: 修复注册表 drift + 清理死代码
+### Tarefa 1: corrigir drift do registro + remover codigo morto
 
 **Arquivos:**
-- Modify: `hooks/_lib/llm-eval.sh` → 移到 `.trash/`
+- Modify: `hooks/_lib/llm-eval.sh` -> mover para `.trash/`
 - Modify: `.kiro/rules/enforcement.md`
 
-**Step 1: 移除死代码 llm-eval.sh**
+**Step 1: remover o codigo morto llm-eval.sh**
 ```bash
 mv hooks/_lib/llm-eval.sh .trash/llm-eval.sh
 ```
 
-**Step 2: 重写 enforcement.md 为完整注册表**
-更新 enforcement.md，补全所有 15 个 hook（含 2 个影子 hook），标注调用关系和注册状态。
+**Step 2: reescrever enforcement.md como registro completo**
+Atualizar enforcement.md, contemplando todos os 15 hooks (incluindo os 2 shadow hooks) e indicando relacoes de chamada e estado de registro.
 
 **Verificação:**
 ```bash
@@ -68,15 +68,15 @@ mv hooks/_lib/llm-eval.sh .trash/llm-eval.sh
 test ! -f hooks/_lib/llm-eval.sh
 ```
 
-### Tarefa 2: 修复 settings.json drift
+### Tarefa 2: corrigir drift de settings.json
 
 **Arquivos:**
 - Modify: `scripts/generate_configs.py`
 
-**Step 1: 确认 generate_configs.py 是否已包含 enforce-ralph-loop 和 require-regression 的 CC 版本**
-检查 generate_configs.py 的 CC settings.json 生成逻辑，补全缺失的 hook 注册。
+**Step 1: confirmar se generate_configs.py ja inclui as versoes CC de enforce-ralph-loop e require-regression**
+Inspecionar a logica de geracao do CC settings.json em generate_configs.py e completar os hooks faltantes.
 
-**Step 2: 重新生成 configs**
+**Step 2: regenerar configs**
 ```bash
 python3 scripts/generate_configs.py
 ```
@@ -87,20 +87,20 @@ python3 scripts/generate_configs.py
 jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-loop'
 ```
 
-### Tarefa 3: 修复 pre-write.sh Phase 编号
+### Tarefa 3: corrigir a numeracao de Phase em pre-write.sh
 
 **Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 
-**Step 1: 重新编号 Phase**
-按实际执行顺序重新编号：
-- Phase 0: Instruction File Write Protection（不变）
-- Phase 1: Workflow Gate（不变）
-- Phase 2: Brainstorming Gate（原 1.5a0）
-- Phase 3: Plan Structure Rubric（原 1.5a）
-- Phase 4: Checklist Check-off Gate（原 1.5b）
-- Phase 5: Injection & Secret Scan（原 2）
-- Phase 6: Plan Context Injection（原 3，advisory）
+**Step 1: renumerar as Phases**
+Renumerar conforme a ordem real de execucao:
+- Phase 0: Instruction File Write Protection (inalterado)
+- Phase 1: Workflow Gate (inalterado)
+- Phase 2: Brainstorming Gate (era 1.5a0)
+- Phase 3: Plan Structure Rubric (era 1.5a)
+- Phase 4: Checklist Check-off Gate (era 1.5b)
+- Phase 5: Injection & Secret Scan (era 2)
+- Phase 6: Plan Context Injection (era 3, advisory)
 
 **Verificação:**
 ```bash
@@ -108,13 +108,13 @@ jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-l
 grep -E '^# Phase [0-9]' hooks/gate/pre-write.sh | awk '{print $3}' | sort -n -c 2>&1; echo "exit: $?"
 ```
 
-### Tarefa 4: 清理 session-init.sh 低价值输出
+### Tarefa 4: limpar saidas de baixo valor em session-init.sh
 
 **Arquivos:**
 - Modify: `hooks/feedback/session-init.sh`
 
-**Step 1: 移除硬编码 delegation reminder**
-删除 `echo "⚡ Delegation: >3 independent tasks → use subagent per task. Never delegate code/grep/web_search tasks."` 这行。这是每次 session 都输出的噪音，subagent rules 已经在 `.claude/rules/subagent.md` 中覆盖。
+**Step 1: remover o delegation reminder hardcoded**
+Apagar `echo "⚡ Delegation: >3 independent tasks → use subagent per task. Never delegate code/grep/web_search tasks."`. Esse echo e ruido em toda session, e as regras de subagent ja vivem em `.claude/rules/subagent.md`.
 
 **Verificação:**
 ```bash
@@ -122,54 +122,54 @@ grep -E '^# Phase [0-9]' hooks/gate/pre-write.sh | awk '{print $3}' | sort -n -c
 ! grep -q 'Delegation:' hooks/feedback/session-init.sh
 ```
 
-### Tarefa 5: 产出 Hook Architecture Design Doc
+### Tarefa 5: produzir o Hook Architecture Design Doc
 
 **Arquivos:**
 - Create: `docs/designs/2026-02-18-hook-architecture.md`
 - Modify: `docs/INDEX.md`
 
-**Step 1: 写 Hook Architecture Design Doc**
-内容包含：
-1. **设计原则** — 三分类体系（security/gate/feedback）的定义和边界
-2. **命名规范** — 文件命名、函数命名、Phase 编号规则
-3. **Hook 全景注册表** — 所有 hook 的事件、类型、职责、调用关系、注册位置
-4. **共享库契约** — `_lib/` 中每个文件的 API 和使用规则
-5. **影子 hook 规则** — 被其他 hook 内部调用的脚本的管理规范
-6. **新增/修改/废弃流程** — 改 hook 的标准流程
-7. **Config 生成规则** — generate_configs.py 是唯一 config 来源，禁止手动编辑
-8. **扩展性设计** — 包含：
-   - **分类决策树** — 新 hook 应该放 security/ 还是 gate/ 还是 feedback/？决策流程：
+**Step 1: redigir o Hook Architecture Design Doc**
+Conteudo:
+1. **Principios de design** - definicao e fronteiras das tres categorias (security/gate/feedback)
+2. **Convencoes de nome** - regras para nome de arquivo, nome de funcao e numeracao de Phase
+3. **Registro panoramico de hooks** - eventos, tipos, responsabilidades, relacoes de chamada e local de registro de cada hook
+4. **Contrato das libs compartilhadas** - API e regras de uso de cada arquivo em `_lib/`
+5. **Regras dos shadow hooks** - como gerir scripts chamados internamente por outros hooks
+6. **Fluxo para criar/alterar/depreciar hooks** - processo padrao de mudanca
+7. **Regras de geracao de config** - generate_configs.py e a unica fonte de configs; edicao manual proibida
+8. **Design de extensibilidade** - inclui:
+   - **Arvore de decisao por categoria** - novo hook deve ir para security/, gate/ ou feedback/?
      ```
      新 hook 需求
        ├── 必须阻断危险操作？ → security/（exit 2, 无条件拦截）
        ├── 必须阻断不合规流程？ → gate/（exit 2, 可 bypass）
        └── 提供反馈/注入上下文？ → feedback/（exit 0, advisory）
      ```
-   - **新增 hook 标准流程 checklist** — 从需求到落地的完整步骤：
-     1. 确定分类（用决策树）
-     2. 写脚本到 `hooks/<category>/`，source `_lib/common.sh`
-     3. 更新 enforcement.md 注册表
-     4. 更新 generate_configs.py（添加到对应 agent 的 hook 列表）
-     5. 运行 `python3 scripts/generate_configs.py` 重新生成 config
-     6. 运行 `python3 scripts/generate_configs.py --validate` 确认一致性
-     7. 写测试到 `tests/hooks/`
-   - **_lib/ 共享库扩展规则** — 新增共享函数的规范（函数签名、文档、向后兼容）
-   - **影子 hook 接入规范** — 何时允许 hook 内部调用另一个脚本，如何在注册表中标注
-   - **事件扩展点** — 当前覆盖的 4 个事件（PreToolUse/PostToolUse/UserPromptSubmit/Stop）+ 预留的扩展事件（如 Kiro 未来支持 agentSpawn 等新事件时的接入方式）
-   - **废弃 hook 标准流程** — hook 废弃/删除的步骤：
-     1. 在 enforcement.md 中标记 `deprecated`，注明原因和替代方案
-     2. 从 generate_configs.py 中移除注册（config 不再包含该 hook）
-     3. 运行 `python3 scripts/generate_configs.py` 重新生成 config
-     4. 脚本移到 `.trash/`（保留可恢复），不直接删除
-     5. 下一个 major 版本时清理 `.trash/` 中的废弃脚本
-   - **Source of Truth 关系** — 明确 enforcement.md（文档）与 generate_configs.py（代码）的主从关系：
-     - enforcement.md 是**设计层 source of truth**（分类原则、职责边界、调用关系、扩展规则）
-     - generate_configs.py 是**配置层 source of truth**（哪个 hook 注册到哪个 agent 的哪个事件）
-     - `--validate` 校验两者一致性：enforcement.md 中注册的 hook 必须在 generator 中有对应配置，反之亦然
-     - 两者不一致时，以 enforcement.md 为准（人工设计意图优先），修复 generator
+   - **Checklist do fluxo de novo hook** - passos completos da necessidade ao deployment:
+     1. Decidir categoria (com a arvore de decisao)
+     2. Escrever script em `hooks/<category>/`, source de `_lib/common.sh`
+     3. Atualizar o registro em enforcement.md
+     4. Atualizar generate_configs.py (incluir o hook na lista do agent correspondente)
+     5. Rodar `python3 scripts/generate_configs.py` para regenerar config
+     6. Rodar `python3 scripts/generate_configs.py --validate` para confirmar consistencia
+     7. Adicionar testes em `tests/hooks/`
+   - **Regras de extensao de _lib/** - novas funcoes compartilhadas (assinatura, documentacao, compatibilidade)
+   - **Padrao de adesao para shadow hooks** - quando um hook pode chamar outro internamente e como anotar isso no registro
+   - **Pontos de extensao de eventos** - os 4 eventos atuais (PreToolUse/PostToolUse/UserPromptSubmit/Stop) + reservas de extensao (ex.: como integrar quando o Kiro adicionar novos eventos como agentSpawn)
+   - **Fluxo de deprecacao de hook** - passos para depreciar/remover:
+     1. Em enforcement.md, marcar como `deprecated`, com motivo e alternativa
+     2. Remover da generate_configs.py (config nao inclui mais o hook)
+     3. Rodar `python3 scripts/generate_configs.py` para regenerar config
+     4. Mover o script para `.trash/` (recuperavel), nunca apagar direto
+     5. Limpar `.trash/` no proximo major release
+   - **Relacao Source of Truth** - relacao entre enforcement.md (doc) e generate_configs.py (codigo):
+     - enforcement.md e a **source of truth de design** (principios, fronteiras, relacao de chamada, regras de extensao)
+     - generate_configs.py e a **source of truth de configuracao** (qual hook esta registrado em qual evento de qual agent)
+     - `--validate` valida consistencia: hooks registrados em enforcement.md tem config correspondente no generator e vice-versa
+     - Em caso de divergencia, vale enforcement.md (intencao humana de design); corrigir o generator
 
-**Step 2: 更新 docs/INDEX.md**
-添加 Hook Architecture Doc 的链接。
+**Step 2: atualizar docs/INDEX.md**
+Incluir o link para o Hook Architecture Doc.
 
 **Verificação:**
 ```bash
@@ -181,22 +181,22 @@ grep -q '## Lifecycle' docs/designs/2026-02-18-hook-architecture.md && \
 grep -q '## Extensibility' docs/designs/2026-02-18-hook-architecture.md
 ```
 
-### Tarefa 6: 代码层固化 - pre-write advisory + generate_configs validate 强制
+### Tarefa 6: fixacao via codigo - advisory em pre-write + obrigatoriedade do validate em generate_configs
 
 **Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
 
-**Step 1: 在 gate_instruction_files 中增加 hooks/ 目录 advisory 提醒**
-修改 `gate_instruction_files()` 函数，增加对 `hooks/` 目录下文件的写入提醒（不阻断）。修改 hook 脚本时，输出 advisory 提醒需要同步更新 enforcement.md 和 generate_configs.py。
+**Step 1: em gate_instruction_files, adicionar advisory para a pasta hooks/**
+Modificar `gate_instruction_files()` para emitir um aviso (sem bloquear) quando o write atinge a pasta `hooks/`. Ao mexer em script de hook, o advisory lembra de atualizar enforcement.md e rodar generate_configs.py --validate.
 
-逻辑：
+Logica:
 ```
 if FILE matches hooks/**/*.sh:
   echo "⚠️ Hook file modified. Remember to update enforcement.md and run generate_configs.py --validate" >&2
   # 不 exit 2 — 真正的强制在 Task 7 的 --validate 中
 ```
 
-~~原方案（/tmp 标记文件检查 enforcement.md 是否被修改）已废弃。原因：agent 可以先随便改一行 enforcement.md 触发标记再改 hook，绕过检查。改为 advisory 提醒 + generate_configs.py validate 双层设计：写时提醒（轻量），生成 config 时强制校验（不可绕过）。~~
+~~A proposta original (flag em /tmp para verificar se enforcement.md foi modificado) foi descartada. Motivo: o agent poderia editar uma linha qualquer de enforcement.md so para acionar a flag e depois mexer no hook, contornando a checagem. Substituida por advisory na escrita (leve) + validate forte no momento de gerar config (intransponivel).~~
 
 **Verificação:**
 ```bash
@@ -204,20 +204,20 @@ if FILE matches hooks/**/*.sh:
 echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangerous.sh","file_text":"test","command":"str_replace"}}' | bash hooks/gate/pre-write.sh 2>&1 | grep -q 'Hook file modified'
 ```
 
-### Tarefa 7: 代码层固化 - generate_configs.py 增加一致性校验
+### Tarefa 7: fixacao via codigo - generate_configs.py com validacao de consistencia
 
 **Arquivos:**
 - Modify: `scripts/generate_configs.py`
 
-**Step 1: 增加 validate 子命令**
-在 generate_configs.py 中增加 `--validate` 模式：
-- 扫描 `hooks/` 目录下所有 `.sh` 文件（排除 `_lib/`）
-- 对比 enforcement.md 的注册表
-- 报告：未注册的 hook 脚本、注册了但文件不存在的条目
-- 非零 exit code 表示不一致
+**Step 1: incluir o subcomando validate**
+Adicionar o modo `--validate` em generate_configs.py:
+- Varre todos os `.sh` em `hooks/` (excluindo `_lib/`)
+- Compara com o registro em enforcement.md
+- Reporta: scripts de hook nao registrados; entradas registradas cujo arquivo nao existe
+- Exit code nao zero indica inconsistencia
 
-**Step 2: 在生成 config 时自动运行校验**
-每次 `python3 scripts/generate_configs.py` 生成 config 前，先运行一致性校验。不一致则拒绝生成。
+**Step 2: rodar a validacao automaticamente ao gerar config**
+Cada `python3 scripts/generate_configs.py` roda a validacao antes de gerar; se inconsistente, recusa gerar.
 
 **Verificação:**
 ```bash
@@ -225,15 +225,15 @@ echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangero
 python3 scripts/generate_configs.py --validate
 ```
 
-### Tarefa 8: 修复 reviewer 质量 - reviewer-prompt.md 增加 show-your-work 要求
+### Tarefa 8: melhorar qualidade do reviewer - reviewer-prompt.md com requisito de mostrar a analise
 
 **Arquivos:**
 - Modify: `agents/reviewer-prompt.md`
 
-**Step 1: 在 Output Structure 中增加 Evidence of Analysis 要求**
-在 reviewer-prompt.md 的 `## Output Structure` 中，在 Findings 之前增加 `**Analysis trace:**` 段，要求 reviewer 展示分析过程而不只是结论。
+**Step 1: em Output Structure, incluir o bloco Evidence of Analysis**
+Em `## Output Structure` de reviewer-prompt.md, antes de Findings, incluir uma secao `**Analysis trace:**` para o reviewer mostrar o raciocinio em vez de apenas a conclusao.
 
-具体增加的规则：
+Regras a adicionar:
 ```markdown
 ## Output Quality Rules
 
@@ -252,8 +252,8 @@ python3 scripts/generate_configs.py --validate
    table with prose. The template IS the minimum acceptable output.
 ```
 
-**Step 2: 强化 "What I checked" section**
-将 Output Structure 中的 `**What I checked and found no issues:**` 改为必填，且要求至少列出 3 个具体检查点（不是泛泛的"checked code quality"）。
+**Step 2: reforcar a secao "What I checked"**
+Em Output Structure, transformar `**What I checked and found no issues:**` em obrigatorio, com pelo menos 3 pontos verificados especificos (nao "checked code quality" generico).
 
 **Verificação:**
 ```bash
@@ -261,13 +261,13 @@ python3 scripts/generate_configs.py --validate
 grep -q 'Show your work' agents/reviewer-prompt.md && grep -q 'Per-item analysis' agents/reviewer-prompt.md
 ```
 
-### Tarefa 9: 修复 reviewer 质量 - planning skill angle descriptions 增加 output format 要求
+### Tarefa 9: melhorar qualidade do reviewer - planning skill descreve formato de output dos angles
 
 **Arquivos:**
 - Modify: `skills/planning/SKILL.md`
 
-**Step 1: 给 Verify Correctness angle 增加 required output format**
-在 planning skill 的 Fixed angles 表中，Verify Correctness 的 Mission 改为预填表格模板 + 填空式要求：
+**Step 1: prescrever formato obrigatorio para o angle Verify Correctness**
+Na tabela Fixed angles da planning skill, mudar a Mission de Verify Correctness para template prefixado + preenchimento obrigatorio:
 ```
 For each checklist verify command, you MUST copy this table and fill in EVERY cell:
 
@@ -281,10 +281,10 @@ Rules:
 - If you skip a row or write "all sound" without per-row traces, your review is REJECTED
 - Only flag commands where correct and broken give the SAME exit code
 ```
-关键改进：从"请输出表格"改为"复制这个表格并填空"，降低 reviewer 偷懒的可能性。
+Ganho central: passar de "produza a tabela" para "copie a tabela e preencha", reduzindo a margem do reviewer cortar atalhos.
 
-**Step 1b: 给 Goal Alignment angle 增加填空式模板**
-同样改为预填模板：
+**Step 1b: prescrever template para Goal Alignment**
+Mesma logica de template prefixado:
 ```
 Copy and fill this table for EVERY task:
 
@@ -300,16 +300,16 @@ Then copy and fill the coverage matrix:
 | [phrase 1] | [list] |
 ```
 
-**Step 2: 给 Completeness angle 增加 scope guard**
-在 Completeness angle 的 Mission 中增加：
+**Step 2: scope guard para Completeness**
+Na Mission do angle Completeness, incluir:
 ```
 SCOPE: Only analyze functions/branches in files that the plan MODIFIES (listed in Files: fields). 
 Do NOT flag functions in files the plan merely reads or references. The plan is not obligated to 
 test every function in every file it touches — only the functions it changes.
 ```
 
-**Step 3: 给所有 random angles 增加 Non-Goals reminder**
-在 Random pool 表的表头下方增加一行通用规则：
+**Step 3: lembrete sobre Non-Goals para todos os random angles**
+Abaixo do header da tabela do Random pool, incluir uma regra geral:
 ```
 **All angles:** Before writing any finding, verify it is within the plan's stated Goal and 
 NOT in Non-Goals. Findings outside scope are noise — discard silently.
@@ -321,13 +321,13 @@ NOT in Non-Goals. Findings outside scope are noise — discard silently.
 grep -q 'Exit code (correct impl)' skills/planning/SKILL.md && grep -q 'SCOPE:' skills/planning/SKILL.md
 ```
 
-### Tarefa 10: 更新 knowledge 索引
+### Tarefa 10: atualizar o indice de knowledge
 
 **Arquivos:**
 - Modify: `knowledge/INDEX.md`
 
-**Step 1: 添加 Hook Architecture 路由**
-在 INDEX.md 的 Routing Table 中添加 Hook Architecture 相关的路由条目。
+**Step 1: incluir o roteamento de Hook Architecture**
+Na Routing Table de INDEX.md, adicionar entradas relacionadas a Hook Architecture.
 
 **Verificação:**
 ```bash
@@ -348,12 +348,12 @@ grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md
 | Completeness | ~~REQUEST CHANGES~~ → Rejected | Flagged "zero coverage" for existing hook functions (gate_check, gate_brainstorm etc.) — outside Non-Goals scope. Plan is governance/audit, not rewrite/test-all |
 | Clarity | APPROVE | All 8 tasks implementable from description alone |
 
-**Calibration:** Completeness reviewer's findings rejected — plan explicitly states Non-Goals include "不重构 pre-write.sh". Testing existing function logic is a separate work item.
+**Calibration:** Completeness reviewer's findings rejected - plan explicitly states Non-Goals include "Sem refatorar pre-write.sh". Testing existing function logic is a separate work item.
 
 **Review quality note:** Verify Correctness reviewer gave blanket APPROVE without per-command exit code traces. Goal Alignment was mechanical. Future rounds should demand structured evidence.
 
 **Post-review additions:**
-- Goal updated to include extensibility ("保证新 hook 的接入有清晰流程")
+- Goal updated to include extensibility ("garantindo um fluxo claro para integrar hooks novos")
 - Task 5 expanded with extensibility design: classification decision tree, new hook checklist, _lib extension rules, event extension points
 - Task 8-9 added: reviewer quality fixes (show-your-work requirement, verify output format, scope guard)
 - Checklist updated: +3 items for reviewer quality, +1 for extensibility section
@@ -375,50 +375,50 @@ grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md
 | Technical Feasibility | APPROVE | ✅ Good — dependency table, 5 specific check points, no false findings | Structured output format worked |
 | Testability | APPROVE with findings | ✅ Best — per-item false-negative analysis, found Task 6 advisory weakness | Over-flagged (all 13 "WEAK" assumes adversarial agent) but analysis method correct |
 
-**Key insight from Round 2:** "请输出表格" is ignored, "复制这个表格并填空每个 cell" works. Verify Correctness needs pre-filled template approach (Task 9 strengthened). reviewer-prompt.md needs "Fill the template" rule (Task 8 strengthened).
+**Key insight from Round 2:** "produza a tabela" e ignorado; "copie a tabela e preencha cada celula" funciona. Verify Correctness precisa do template prefixado (Tarefa 9 reforcada). reviewer-prompt.md precisa da regra "Fill the template" (Tarefa 8 reforcada).
 
 **Testability finding calibration:** All 13 verify marked "WEAK" because adversarial agent could create fake files. Rejected — verify commands assume honest execution, not adversarial bypass. But Task 6 advisory weakness is valid and already addressed by Socratic self-check (real enforcement is Task 7 validate).
 
 **Verdict: APPROVE (with post-review enhancements)**
 
-### Round 3 (2026-02-18) — 预填模板 + 填空式
+### Round 3 (2026-02-18) - template prefixado + preenchimento
 
 **Angles:** Goal Alignment + Verify Correctness + Security + Compatibility & Rollback
 
 | Reviewer | Verdict | Quality | Key Findings |
 |----------|---------|---------|-------------|
-| Goal Alignment | APPROVE | ⬆️ 中 — 识别 Task 5/7 为 single point of failure，但仍未完整填表 | 可接受 |
-| Verify Correctness | REQUEST CHANGES | ✅✅ 优 — 逐条 trace 13 个 verify，发现 #4 sort -nu false negative | **真实 bug，已修复** |
-| Security | REQUEST CHANGES | ✅ 良 — data flow trace，2 findings | P0 rejected（enforcement.md 非外部输入），P1 Nit |
-| Compatibility & Rollback | APPROVE | ✅✅ 优 — 逐文件搜索 tests/，填完整表格 | 质量最好 |
+| Goal Alignment | APPROVE | ⬆️ medio - identificou Task 5/7 como single point of failure, mas a tabela ainda nao foi totalmente preenchida | aceitavel |
+| Verify Correctness | REQUEST CHANGES | ✅✅ otimo - tracou os 13 verify item a item; detectou false negative em #4 com sort -nu | **bug real, ja corrigido** |
+| Security | REQUEST CHANGES | ✅ bom - data flow trace; 2 findings | P0 rejected (enforcement.md nao e entrada externa); P1 Nit |
+| Compatibility & Rollback | APPROVE | ✅✅ otimo - busca por arquivo em tests/, preencheu a tabela completa | maior qualidade |
 
-**Verify Correctness finding 处理：**
-- ✅ #4 sort -nu false negative → 已修复：去掉 -u，增加重复检查
-- ❌ #8 validate 未实现 → Rejected：Task 7 就是要实现它，verify 在实现后运行
+**Tratamento dos findings de Verify Correctness:**
+- ✅ #4 false negative com sort -nu -> corrigido: removido o -u; verificacao de duplicatas adicionada
+- ❌ #8 validate nao implementado -> Rejected: a Tarefa 7 e justamente implementar; o verify roda apos a implementacao
 
-**Security finding 处理：**
-- ❌ P0 enforcement.md command injection → Rejected：enforcement.md 是人工维护的项目内文件，非外部输入，Python string matching 不会 shell eval
-- ❌ P1 path ANSI injection → Nit：FILE 来自 jq 提取，不存在实际注入路径
+**Tratamento dos findings de Security:**
+- ❌ P0 command injection em enforcement.md -> Rejected: enforcement.md e arquivo interno mantido por humanos, nao e entrada externa; o string matching em Python nao executa shell
+- ❌ P1 path ANSI injection -> Nit: FILE vem de jq, nao ha caminho real para injecao
 
-**Review 质量总结：** 预填模板方式显著提升了 Verify Correctness 质量（从 blanket APPROVE 到发现真实 bug）。Compatibility & Rollback 质量最好（逐文件搜索 + 完整表格）。Goal Alignment 仍有提升空间但可接受。
+**Resumo da qualidade da review:** o uso de template prefixado elevou bastante a qualidade do angle Verify Correctness (do blanket APPROVE a descoberta de bug real). Compatibility & Rollback teve a maior qualidade (busca por arquivo + tabela completa). Goal Alignment ainda tem espaco para melhorar, mas e aceitavel.
 
 **Verdict: APPROVE**
 
 ## Checklist
 
-- [x] llm-eval.sh 已移到 .trash | `test ! -f hooks/_lib/llm-eval.sh && test -f .trash/llm-eval.sh`
-- [x] enforcement.md 包含所有 15 个 hook | `test $(grep -c '| .hooks/' .kiro/rules/enforcement.md) -ge 15`
-- [x] settings.json 包含 enforce-ralph-loop | `jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-loop'`
-- [x] pre-write.sh Phase 编号连续且无重复 | `grep -oE 'Phase [0-9]+' hooks/gate/pre-write.sh | awk '{print $2}' | sort -n | awk 'NR>1{if($1!=prev+1 || $1==prev){exit 1}}{prev=$1}'`
-- [x] session-init.sh 无 delegation reminder | `! grep -q 'Delegation:' hooks/feedback/session-init.sh`
-- [x] Hook Architecture Doc 存在且完整 | `test -f docs/designs/2026-02-18-hook-architecture.md && grep -q '## Design Principles' docs/designs/2026-02-18-hook-architecture.md && grep -q '## Hook Registry' docs/designs/2026-02-18-hook-architecture.md && grep -q '## Lifecycle' docs/designs/2026-02-18-hook-architecture.md && grep -q '## Extensibility' docs/designs/2026-02-18-hook-architecture.md`
-- [x] hooks/ 目录修改有 advisory 提醒 | `echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangerous.sh","file_text":"test","command":"str_replace"}}' | bash hooks/gate/pre-write.sh 2>&1 | grep -q 'Hook file modified'`
-- [x] generate_configs.py --validate 通过 | `python3 scripts/generate_configs.py --validate`
-- [x] docs/INDEX.md 包含 hook architecture 路由 | `grep -qi 'hook.*architecture\|hook.*design' docs/INDEX.md`
-- [x] knowledge/INDEX.md 包含 hook architecture 路由 | `grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md`
-- [x] reviewer-prompt.md 包含 show-your-work 规则 | `grep -q 'Show your work' agents/reviewer-prompt.md && grep -q 'Per-item analysis' agents/reviewer-prompt.md`
-- [x] planning skill 包含 verify output format | `grep -q 'Exit code (correct impl)' skills/planning/SKILL.md`
-- [x] planning skill Completeness angle 有 scope guard | `grep -q 'SCOPE:' skills/planning/SKILL.md`
+- [x] llm-eval.sh movido para .trash | `test ! -f hooks/_lib/llm-eval.sh && test -f .trash/llm-eval.sh`
+- [x] enforcement.md contem todos os 15 hooks | `test $(grep -c '| .hooks/' .kiro/rules/enforcement.md) -ge 15`
+- [x] settings.json contem enforce-ralph-loop | `jq -r '.. | .command? // empty' .claude/settings.json | grep -q 'enforce-ralph-loop'`
+- [x] numeracao das Phases em pre-write.sh contigua e sem repeticoes | `grep -oE 'Phase [0-9]+' hooks/gate/pre-write.sh | awk '{print $2}' | sort -n | awk 'NR>1{if($1!=prev+1 || $1==prev){exit 1}}{prev=$1}'`
+- [x] session-init.sh sem delegation reminder | `! grep -q 'Delegation:' hooks/feedback/session-init.sh`
+- [x] Hook Architecture Doc existe e completo | `test -f docs/designs/2026-02-18-hook-architecture.md && grep -q '## Design Principles' docs/designs/2026-02-18-hook-architecture.md && grep -q '## Hook Registry' docs/designs/2026-02-18-hook-architecture.md && grep -q '## Lifecycle' docs/designs/2026-02-18-hook-architecture.md && grep -q '## Extensibility' docs/designs/2026-02-18-hook-architecture.md`
+- [x] alteracoes em hooks/ disparam advisory | `echo '{"tool_name":"fs_write","tool_input":{"path":"hooks/security/block-dangerous.sh","file_text":"test","command":"str_replace"}}' | bash hooks/gate/pre-write.sh 2>&1 | grep -q 'Hook file modified'`
+- [x] generate_configs.py --validate passa | `python3 scripts/generate_configs.py --validate`
+- [x] docs/INDEX.md contem o roteamento de hook architecture | `grep -qi 'hook.*architecture\|hook.*design' docs/INDEX.md`
+- [x] knowledge/INDEX.md contem o roteamento de hook architecture | `grep -qi 'hook.*architecture\|hook.*design' knowledge/INDEX.md`
+- [x] reviewer-prompt.md contem as regras Show your work | `grep -q 'Show your work' agents/reviewer-prompt.md && grep -q 'Per-item analysis' agents/reviewer-prompt.md`
+- [x] planning skill define o formato de output do verify | `grep -q 'Exit code (correct impl)' skills/planning/SKILL.md`
+- [x] angle Completeness da planning skill tem scope guard | `grep -q 'SCOPE:' skills/planning/SKILL.md`
 
 ## Errors
 

@@ -71,7 +71,7 @@ Diagnostic Evidence:
 
 **Gate:** Sem Diagnostic Evidence, NÃO prossiga para o Estágio 3.
 
-**完成后:** Atualize o documento de investigação, adicione as evidências de diagnóstico L0 à Evidence Table e atualize o Status Overview com as descobertas e próximos passos.
+**Apos concluir:** Atualize o documento de investigação, adicione as evidências de diagnóstico L0 à Evidence Table e atualize o Status Overview com as descobertas e próximos passos.
 
 ## Estágio 3: Análise de padrões e hipótese
 
@@ -92,7 +92,7 @@ Anexe ao scratch:
 
 **Gate:** A hipótese deve ser confirmada antes de prosseguir para o Estágio 4.
 
-**完成后:** Atualize o documento de investigação, registre a hipótese e os resultados do teste no Decision Log, adicione experimentos ao Experiment Log e atualize o Status Overview.
+**Apos concluir:** Atualize o documento de investigação, registre a hipótese e os resultados do teste no Decision Log, adicione experimentos ao Experiment Log e atualize o Status Overview.
 
 ## Estágio 4: Fix e Verify
 
@@ -107,7 +107,7 @@ Siga `skills/omk-debugging/SKILL.md` Phase 4 + `references/implementation-fix.md
 
 **Regra de 3 strikes:** Se 3 tentativas de fix falharem → PARE, questione a arquitetura, discuta com o usuário.
 
-**完成后:** Atualize o documento de investigação, atualize o Status Overview para o estado final (🟢 Resolved ou 🟡 Partial) e registre a decisão final no Decision Log.
+**Apos concluir:** Atualize o documento de investigação, atualize o Status Overview para o estado final (🟢 Resolved ou 🟡 Partial) e registre a decisão final no Decision Log.
 
 ## Estágio 5: Reporte
 

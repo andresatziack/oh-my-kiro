@@ -1,6 +1,6 @@
 ## Iteração 1 - 2026-02-21
 
-- **Tarefa:** PTY runner 输出无缓冲 - created `scripts/lib/pty_runner.py` and `tests/ralph-loop/test_pty_runner.py`
+- **Tarefa:** PTY runner saida sem buffer - created `scripts/lib/pty_runner.py` and `tests/ralph-loop/test_pty_runner.py`
 - **Arquivos alterados:** `scripts/lib/pty_runner.py` (new), `tests/ralph-loop/test_pty_runner.py` (new), `docs/plans/2026-02-21-ralph-idle-watchdog.md` (review section filled + checklist updated)
 - **Aprendizados:** Plan review section was empty (only HTML comment) - pre-write hook requires ≥3 lines with alpha content in `## Review`. Had to fill it before creating source files. Stale `.ralph-loop.lock` caused idle watchdog test to pass trivially (exit immediately with "already running") - tests need `lock_path.unlink(missing_ok=True)` in setup.
 - **Status:** concluído

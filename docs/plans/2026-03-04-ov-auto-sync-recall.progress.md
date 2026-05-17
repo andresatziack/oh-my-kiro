@@ -2,7 +2,7 @@
 
 ## Iteração 1 - 2026-03-04T16:15
 
-- **Tarefa:** session-init 启动时自动启动 OV daemon（如未运行）
+- **Tarefa:** session-init inicia o OV daemon automaticamente quando ele nao esta rodando
 - **Arquivos alterados:** `hooks/feedback/session-init.sh`
 - **Aprendizados:**
   - `ov-init.sh` already provides `ov_init`, `ov_add`, `_ov_check_overlay` — no new lib code needed

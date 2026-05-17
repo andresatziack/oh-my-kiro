@@ -4,9 +4,9 @@ description: "Systematic debugging: reproduce → hypothesize → verify → fix
 ---
 
 ## Trigger Examples
-- "这个测试跑不过"
+- "esse teste nao passa"
 - "why is this returning null?"
-- "报错了，帮我看看"
+- "deu erro, da uma olhada pra mim"
 - "build fails with exit code 1"
 - "investigate why the hook isn't firing"
 
@@ -54,7 +54,7 @@ O documento de investigação (`docs/investigations/{date}-{topic}.md`) é o reg
 | Status Overview | **Sobrescrever** | Atualize após cada conclusão de Stage, deve refletir o estado atual o tempo todo |
 | Evidence Table | **Append-only** | Nunca delete ou edite entradas existentes, apenas adicione novas linhas |
 | Investigation Tree | **Sobrescrever** | Atualize status dos ramos (⬜→✅/❌) conforme a investigação avança |
-| Decision Log | **Append-only** | Decisões superseded permanecem, marque o status como "❌ 被 D{n} 取代" |
+| Decision Log | **Append-only** | Decisões superseded permanecem, marque o status como "❌ substituida por D{n}" |
 | Experiment Log | **Append-only** | Cada experimento recebe um ID único EXP-{n} para referência cruzada |
 | Ruled Out | **Append-only** | Direções eliminadas permanecem permanentemente para evitar reinvestigação |
 | Timeline | **Append-only** | Marcos cronológicos, nunca reescritos |
@@ -65,7 +65,7 @@ Estas regras impedem que novas sessões desfaçam o progresso prévio da investi
 
 1. **Para sobrepor fatos 🔒 L0**: Requer evidência L0 mais forte (nova saída de comando ou experimento). É preciso registrar evidência antiga e nova na Evidence Table com comparação explícita.
 2. **Para contestar observações 👤 L1**: Requer evidência L0 que contradiga a observação. É preciso documentar a justificativa do questionamento na Timeline.
-3. **Para revisar inferências 🤖 L2**: Livre para revisar. Marque a inferência antiga ~~struck~~ (não delete). A nova inferência deve indicar "取代 I{n}".
+3. **Para revisar inferências 🤖 L2**: Livre para revisar. Marque a inferência antiga ~~struck~~ (não delete). A nova inferência deve indicar "substitui I{n}".
 4. **Decision Log**: Decisões rejeitadas devem incluir justificativa de rejeição. Novas sessões NÃO devem retentar uma abordagem rejeitada, exceto se nova evidência L0 invalidar o motivo da rejeição.
 5. **Ruled Out**: Direções de investigação eliminadas NÃO devem ser reinvestigadas, exceto se surgir nova evidência L0 não disponível quando a direção foi descartada.
 

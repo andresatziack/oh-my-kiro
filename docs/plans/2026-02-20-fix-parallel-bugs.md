@@ -1,8 +1,8 @@
-> **ABANDONED** — 未执行，已关闭
+> **ABANDONED** - nao executado, ja fechado
 
 # ~~Corrigir Bugs de Execução Paralela do Ralph Loop~~ (OBSOLETE)
 
-> **⚠️ OBSOLETE** — 废弃于 2026-02-21。原因：plan 创建后 ralph_loop.py/plan.py/worktree.py 累计改动 338 行，行号引用和函数签名全部过时。Bug 描述仍有效，需基于当前代码重新规划。
+> **⚠️ OBSOLETO** - descontinuado em 2026-02-21. Motivo: apos a criacao do plano, ralph_loop.py/plan.py/worktree.py acumularam 338 linhas alteradas; referencias de linha e assinaturas de funcoes ficaram desatualizadas. A descricao dos bugs continua valida e precisa ser replanejada com base no codigo atual.
 
 
 **Objetivo:** Fix six bugs in ralph_loop.py parallel worktree execution: (1) orphan worker processes surviving after ralph exits, (2) unchecked_tasks() returning completed tasks when task:checklist ratio is not 1:1, (3) worker prompt lacking checklist state causing wasted iterations, (4) no rate-limit awareness causing all workers to fail simultaneously, (5) verify_and_check_all() writes to plan file but doesn't git commit, so subsequent merges overwrite the checked-off items, (6) --no-ff merge creates noisy merge commits polluting git history.
@@ -219,13 +219,13 @@ Task 6 added after analyzing commit history pollution: 28 commits for a 6-task p
 **Final verdict: APPROVE (Round 1 substantive issues fixed; Round 2 rejections are procedural; Task 5 added with full root cause analysis)**
 
 ## Checklist
-- [ ] 孤儿进程清理：worker PID 跟踪 + cleanup handler 覆盖 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_workers_killed_on_exit -v`
-- [ ] unchecked_tasks N:M 映射正确 | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_many_to_many -v`
-- [ ] worker prompt 包含 checklist 状态 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_includes_checklist_state -v`
-- [ ] 并行 worker 数量可配置 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_max_parallel_workers_env -v`
-- [ ] checklist 勾选在 merge 后持久化 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_checklist_persists_after_merge -v`
-- [ ] squash merge 无 merge commit | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_squash_merge_no_merge_commit -v`
-- [ ] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [ ] limpeza de processos orfaos: rastreio de PID dos workers + cobertura do cleanup handler | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_workers_killed_on_exit -v`
+- [ ] mapeamento N:M de unchecked_tasks correto | `python3 -m pytest tests/ralph-loop/test_plan.py::test_unchecked_tasks_many_to_many -v`
+- [ ] worker prompt inclui estado da checklist | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_worker_prompt_includes_checklist_state -v`
+- [ ] numero de workers paralelos configuravel | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_max_parallel_workers_env -v`
+- [ ] marcas de checklist persistem apos merge | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_parallel_checklist_persists_after_merge -v`
+- [ ] squash merge sem merge commit | `python3 -m pytest tests/ralph-loop/test_worktree.py::test_squash_merge_no_merge_commit -v`
+- [ ] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 

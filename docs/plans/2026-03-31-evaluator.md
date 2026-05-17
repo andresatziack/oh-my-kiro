@@ -9,17 +9,17 @@
 ## Decisões de Design
 
 ### Why separate from Reviewer
-- Reviewer evaluates **plans** (未写的代码) — logic, completeness, verify commands
-- Evaluator evaluates **implementations** (已写的代码) — quality, security, alignment
+- Reviewer evaluates **plans** (codigo nao escrito) - logic, completeness, verify commands
+- Evaluator evaluates **implementations** (codigo ja escrito) - quality, security, alignment
 - Different inputs, different criteria, different personas
 - Sharing would dilute both roles
 
 ### Why 4 parallel subagents (not 1 serial)
 - Matches existing plan review pattern (4 parallel reviewers)
-- Each subagent has fresh context — no self-evaluation bias
+- Each subagent has fresh context - no self-evaluation bias
 - Fits kiro's 4-subagent parallel limit
 
-### Why mandatory tables (anti-走过场)
+### Why mandatory tables (anti-formalidade)
 - Anthropic found evaluators "identify issues then talk themselves into approving anyway"
 - Mandatory tables force concrete evidence (file:line citations)
 - Empty/missing rows = REJECTED, re-dispatch
@@ -131,7 +131,7 @@ Test the evaluator integration in ralph_loop.py:
 - [x] Evaluator extracted as testable function | `grep -q 'def run_evaluator' scripts/ralph_loop.py`
 - [x] Regression tests exist | `test -f tests/ralph-loop/test_evaluator.py`
 - [x] Evaluator tests pass | `cd /Users/wanshao/project/gtm/worktrees/omk-evaluator && python3 -m pytest tests/ralph-loop/test_evaluator.py -v`
-- [x] 回归测试通过 | `cd /Users/wanshao/project/gtm/worktrees/omk-evaluator && python3 -m pytest tests/ralph-loop/ -v`
+- [x] testes de regressao passam | `cd /Users/wanshao/project/gtm/worktrees/omk-evaluator && python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 

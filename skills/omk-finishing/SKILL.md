@@ -4,9 +4,9 @@ description: "Branch completion workflow: verify tests → present 4 options (me
 ---
 
 ## Trigger Examples
-- "代码写完了，帮我合并"
+- "terminei o codigo, me ajude a fazer merge"
 - "push and create a PR"
-- "这个分支可以收了"
+- "essa branch ja pode ser fechada"
 - "wrap up this feature branch"
 - "discard this work, start over"
 

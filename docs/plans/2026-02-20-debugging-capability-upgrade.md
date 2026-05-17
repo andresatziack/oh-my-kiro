@@ -1,13 +1,13 @@
 # Upgrade de Capacidade de Debugging - Inteligência Diagnóstica Dirigida por LSP
 
-**Objetivo:** 重写 debugging skill，嵌入 LSP 工具链和诊断证据机制，通过 hook 自动提醒和 rule 强制约束，使 agent 调试从"grep+猜测"升级为"语义分析+证据驱动"。
-**Não-Objetivos:** 不新建 subagent；不引入外部工具（只用已有 LSP/code tool）；不改 ralph_loop.py。
-**Arquitetura:** 三层保障--Skill 教方法 + Rule 强制工具选择 + Hook 自动提醒。修改 5 个文件，新建 0 个文件。Hook 无法观测 agent 工具调用，因此不做验证闭环；强制力来自 rule 层（agent 内化规则）。
+**Objetivo:** Reescrever a debugging skill, embutindo a toolchain de LSP e um mecanismo de evidencia diagnostica; usar lembretes automaticos via hook e regras obrigatorias para evoluir o debugging do agent de "grep + chute" para "analise semantica + evidencia".
+**Não-Objetivos:** Nao criar novo subagent; nao introduzir ferramenta externa (apenas as ferramentas LSP/code ja disponiveis); nao alterar ralph_loop.py.
+**Arquitetura:** Tres camadas de garantia: skill ensina o metodo + rule obriga a escolha de ferramenta + hook lembra automaticamente. Modificar 5 arquivos, criar 0. Hook nao consegue observar a chamada de ferramenta do agent, entao nao ha closed loop de verificacao; a coercao vem da camada de rule (agent internaliza a regra).
 **Tech Stack:** Bash (hooks), Markdown (skill/rules)
 
 ## Tarefas
 
-### Tarefa 1: 重写 debugging skill - 嵌入 LSP 工具链
+### Tarefa 1: reescrever a debugging skill - embutir a toolchain LSP
 
 **Arquivos:**
 - Modify: `skills/debugging/SKILL.md`
@@ -88,7 +88,7 @@ Expected: PASS
 
 **Step 5: Commit**
 
-### Tarefa 2: 升级 debugging rules - LSP-first 硬规则
+### Tarefa 2: atualizar regras de debugging - LSP-first como regra dura
 
 **Arquivos:**
 - Modify: `.claude/rules/debugging.md`
@@ -128,12 +128,12 @@ Expected: FAIL
 
 **Step 3: Write minimal implementation**
 Upgrade `.claude/rules/debugging.md` — add rules 4-7:
-4. 调试代码问题必须先用 LSP 工具（get_diagnostics, search_symbols, find_references, goto_definition, get_hover）做语义分析。grep 仅用于注释/字符串/配置。
-5. 修 bug 前必须产出诊断证据：用了哪些 LSP 工具、发现了什么、根因判断。无证据不修复。
-6. 修复后必须 get_diagnostics 验证，新增 diagnostics 为 0 才算完成。
-7. 不熟悉的代码：先 goto_definition 理解实现 → find_references 理解使用 → 再动手改。
+4. Para debugar problema de codigo, primeiro use as ferramentas LSP (get_diagnostics, search_symbols, find_references, goto_definition, get_hover) para fazer analise semantica. grep so para comentarios, strings ou configuracao.
+5. Antes de corrigir um bug, e obrigatorio produzir Diagnostic Evidence: quais ferramentas LSP foram usadas, o que foi encontrado e qual a causa raiz. Sem evidencia, sem fix.
+6. Apos a correcao, get_diagnostics e obrigatorio para validar; so se conta concluido se as novas diagnostics estiverem em 0.
+7. Codigo desconhecido: primeiro goto_definition para entender a implementacao -> find_references para entender o uso -> so depois alterar.
 
-Upgrade `.kiro/rules/code-analysis.md` — 新增调试段落，明确 debugging 时 get_diagnostics 为首选工具。
+Upgrade `.kiro/rules/code-analysis.md` - acrescentar paragrafo de debugging deixando claro que get_diagnostics e a primeira ferramenta a ser usada.
 
 **Step 4: Run test — verify it passes**
 Run: `python3 -m pytest tests/test_debugging_rules.py -v`
@@ -141,7 +141,7 @@ Expected: PASS
 
 **Step 5: Commit**
 
-### Tarefa 3: Hook 自动触发 - context-enrichment 检测调试场景
+### Tarefa 3: gatilho de hook - context-enrichment detecta cenario de debugging
 
 **Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
@@ -197,7 +197,7 @@ Run: `python3 -m pytest tests/test_debug_hook_trigger.py -v`
 Expected: FAIL
 
 **Step 3: Write minimal implementation**
-在 context-enrichment.sh 的 Research reminder 之后添加：
+Apos o Research reminder de context-enrichment.sh, adicionar:
 ```bash
 # Debugging skill reminder + flag
 if echo "$USER_MSG" | grep -qE '(报错|bug|调试|修复.*错误|测试失败|不工作了)'; then
@@ -216,38 +216,38 @@ Expected: PASS
 
 ## Checklist
 
-- [x] debugging skill 包含 Tool Decision Matrix | `grep -q 'Tool Decision Matrix' skills/debugging/SKILL.md`
-- [x] debugging skill Phase 1 引用 LSP 工具 | `python3 -c "t=open('skills/debugging/SKILL.md').read(); p1=t[t.index('### Phase 1'):t.index('### Phase 2')]; assert all(x in p1 for x in ['get_diagnostics','search_symbols','find_references'])"`
-- [x] debugging skill 要求诊断证据 | `grep -q 'Diagnostic Evidence' skills/debugging/SKILL.md`
-- [x] debugging skill 包含三铁律 | `grep -q 'goto_definition' skills/debugging/SKILL.md && grep -q 'find_references' skills/debugging/SKILL.md`
-- [x] reference.md 包含工具 recipes | `python3 -c "t=open('skills/debugging/reference.md').read(); assert all(x in t for x in ['search_symbols','goto_definition','find_references','get_hover','get_diagnostics'])"`
-- [x] debugging rules 包含 LSP 要求 | `grep -q 'get_diagnostics' .claude/rules/debugging.md && grep -qE '(LSP|lsp)' .claude/rules/debugging.md`
-- [x] kiro code-analysis 覆盖调试场景 | `grep -qE '(调试|debug)' .kiro/rules/code-analysis.md && grep -q 'get_diagnostics' .kiro/rules/code-analysis.md`
-- [x] context-enrichment 检测中文调试 | `echo '{"prompt":"测试报错了"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q '🐛'`
-- [x] context-enrichment 检测英文调试 | `echo '{"prompt":"tests are failing"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q '🐛'`
-- [x] context-enrichment 不误触发 | `! echo '{"prompt":"帮我写个新功能"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q '🐛'`
-- [x] 全部测试通过 | `python3 -m pytest tests/test_debugging_skill.py tests/test_debugging_rules.py tests/test_debug_hook_trigger.py -v`
+- [x] debugging skill contem Tool Decision Matrix | `grep -q 'Tool Decision Matrix' skills/debugging/SKILL.md`
+- [x] Phase 1 da debugging skill referencia ferramentas LSP | `python3 -c "t=open('skills/debugging/SKILL.md').read(); p1=t[t.index('### Phase 1'):t.index('### Phase 2')]; assert all(x in p1 for x in ['get_diagnostics','search_symbols','find_references'])"`
+- [x] debugging skill exige Diagnostic Evidence | `grep -q 'Diagnostic Evidence' skills/debugging/SKILL.md`
+- [x] debugging skill traz as tres iron laws | `grep -q 'goto_definition' skills/debugging/SKILL.md && grep -q 'find_references' skills/debugging/SKILL.md`
+- [x] reference.md tem recipes das ferramentas | `python3 -c "t=open('skills/debugging/reference.md').read(); assert all(x in t for x in ['search_symbols','goto_definition','find_references','get_hover','get_diagnostics'])"`
+- [x] regras de debugging exigem LSP | `grep -q 'get_diagnostics' .claude/rules/debugging.md && grep -qE '(LSP|lsp)' .claude/rules/debugging.md`
+- [x] kiro code-analysis cobre debugging | `grep -qE '(调试|debug)' .kiro/rules/code-analysis.md && grep -q 'get_diagnostics' .kiro/rules/code-analysis.md`
+- [x] context-enrichment detecta debugging em chines | `echo '{"prompt":"测试报错了"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q '🐛'`
+- [x] context-enrichment detecta debugging em ingles | `echo '{"prompt":"tests are failing"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q '🐛'`
+- [x] context-enrichment sem disparo equivocado | `! echo '{"prompt":"帮我写个新功能"}' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q '🐛'`
+- [x] todos os testes passam | `python3 -m pytest tests/test_debugging_skill.py tests/test_debugging_rules.py tests/test_debug_hook_trigger.py -v`
 
 ## Review
 
 ### Round 1 (4 reviewers)
 
-- **Goal Alignment:** REQUEST CHANGES — Task 4 只提供软警告，不是硬拦截，与目标"强制诊断证据机制"和"验证闭环"不符。建议：要么升级为硬拦截，要么调整目标措辞。Task 1-3 与目标对齐良好，执行顺序无依赖问题，non-goals 均被尊重。
-- **Verify Correctness:** REQUEST CHANGES — 3 个问题：(1) Checklist "不误触发"项用 `grep -qv '🐛'`，多行输出时永远 pass（false positive），应改为 `! grep -q '🐛'`；(2) Checklist "stop hook 检查 LSP 使用"引用 `tests/verify_debug_stop_hook.sh` 但该文件不存在且不在 plan 文件列表中；(3) verify-completion.sh 有 early exit 路径（stop_hook_active=true 或有 unchecked items），Task 4 的 debug 验证代码可能永远不执行。
-- **Completeness:** REQUEST CHANGES — 3 个问题：(1) 现有 SKILL.md 200+ 行丰富内容（Red Flags、Common Rationalizations、Quick Reference 等），测试只检查关键词存在，rewrite 可能丢失有价值内容；(2) "investigate" 同时出现在 research 和 debug 检测 grep 中，会双重触发；(3) 4 个测试文件未纳入 CI 配置。
-- **Technical Feasibility:** REQUEST CHANGES — 2 个 blocker：(1) verify-log 没有写入端——没有任何组件记录 LSP 工具使用到 verify-log，Task 4 的检查永远告警（架构级缺陷）；(2) grep 'error'/'fail' 误触发率极高（"error handling"、"fail-safe" 等正常讨论都会触发）。另外 flag 文件基于 workspace hash 而非 session，多次调试覆盖问题。
+- **Goal Alignment:** REQUEST CHANGES - a Tarefa 4 oferece apenas warning suave, nao bloqueio forte; isso destoa do objetivo "mecanismo obrigatorio de evidencia diagnostica" e "verification closed loop". Sugestao: ou promover para bloqueio forte ou ajustar o texto do objetivo. Tarefas 1-3 estao alinhadas, sem dependencia ruim de ordem; non-goals respeitados.
+- **Verify Correctness:** REQUEST CHANGES - 3 problemas: (1) o item da checklist "sem trigger equivocado" usa `grep -qv '🐛'`; com saida de varias linhas isso passa sempre (false positive); deve mudar para `! grep -q '🐛'`; (2) o item "stop hook checa uso de LSP" referencia `tests/verify_debug_stop_hook.sh`, que nao existe e nao esta na lista de arquivos do plan; (3) verify-completion.sh tem caminhos de early exit (stop_hook_active=true ou itens unchecked); o trecho de validacao de debug da Tarefa 4 pode nunca ser executado.
+- **Completeness:** REQUEST CHANGES - 3 problemas: (1) o SKILL.md atual tem 200+ linhas de conteudo rico (Red Flags, Common Rationalizations, Quick Reference etc.); o teste so checa keywords e o rewrite pode descartar conteudo valioso; (2) "investigate" aparece em ambos os greps de research e debug, gerando duplo trigger; (3) os 4 arquivos de teste nao estao registrados no CI.
+- **Technical Feasibility:** REQUEST CHANGES - 2 blockers: (1) verify-log nao tem produtor; nenhum componente registra uso de LSP no verify-log, entao a checagem da Tarefa 4 sempre alerta (defeito arquitetural); (2) grep com 'error'/'fail' tem altissima taxa de falso positivo ("error handling", "fail-safe" etc. caem nele). Alem disso, o flag file e por workspace hash em vez de session, sobrescrevendo entre debugs.
 
 ### Round 2 fixes applied
 
 | Issue | Fix |
 |-------|-----|
-| Task 4 verify-log 无写入端（架构不可行） | 删除 Task 4。Goal 从"验证闭环"降级为"hook 自动提醒 + rule 强制约束"。Hook 无法观测 agent 工具调用，强制力来自 rule 层 |
-| grep 'error'/'fail' 误触发 | 收紧英文模式为 `test.*(fail\|brok)\|traceback\|exception.*thrown\|crash\|not working\|fix.*bug\|is broken\|\\bbug\\b`，排除 "error handling"/"debug logging" 等正常讨论 |
-| `grep -qv` false positive | 改为 `! grep -q` |
-| `tests/verify_debug_stop_hook.sh` 不存在 | 删除该 checklist 项（Task 4 已删除） |
-| SKILL.md rewrite 可能丢失内容 | 添加 PRESERVE 指令 + 内容保留测试（Red Flags, Common Rationalizations, Quick Reference, 4 Phases） |
-| "investigate" 与 research 检测重叠 | 收紧英文模式已排除 investigate |
-| flag 文件无用（Task 4 已删除） | 删除 flag 文件写入 |
+| Tarefa 4 sem produtor de verify-log (arquitetura inviavel) | Remover Tarefa 4. Reduzir o objetivo de "verification closed loop" para "lembrete automatico via hook + obrigacao via rule". Hook nao observa chamadas de ferramenta; coercao vem da camada de rule |
+| grep 'error'/'fail' com falso positivo | Apertar a pattern em ingles para `test.*(fail\|brok)\|traceback\|exception.*thrown\|crash\|not working\|fix.*bug\|is broken\|\\bbug\\b`, excluindo discussoes legitimas como "error handling" e "debug logging" |
+| `grep -qv` com falso positivo | Trocar para `! grep -q` |
+| `tests/verify_debug_stop_hook.sh` inexistente | Remover esse item da checklist (Tarefa 4 ja foi removida) |
+| Reescrever SKILL.md pode perder conteudo | Adicionar diretiva PRESERVE + teste de retencao de conteudo (Red Flags, Common Rationalizations, Quick Reference, 4 Phases) |
+| "investigate" sobrepoe deteccao de research | A pattern apertada em ingles ja exclui investigate |
+| Flag file deixa de ser util (Tarefa 4 removida) | Remover a escrita do flag file |
 
 ### Round 2 re-review (2 reviewers)
 

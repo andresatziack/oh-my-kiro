@@ -1,0 +1,15 @@
+  ❌ E1-per-section-recall: some sections not recalled
+  ❌ E2-mixed-language: missing: JSON = jq
+  ❌ E3-injection-completeness: missing: JSON = jq
+  ❌ E3-injection-completeness: missing: stat -f
+  ❌ E4-no-false-positive: missing: Rules .general.
+
+╔══════════════════════════════════════════╗
+║         KNOWLEDGE TEST SUMMARY           ║
+╠══════════════════════════════════════════╣
+║  Scripts: 1 pass / 3 total              ║
+╚══════════════════════════════════════════╝
+
+Failed scripts:
+  ❌ l1-rules-injection
+  ❌ l1-corruption-recall

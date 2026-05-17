@@ -1,34 +1,35 @@
 # Code Analysis
 
-代码阅读、分析、导航场景必须优先使用 LSP 工具（search_symbols, find_references, goto_definition, get_hover 等），而非 grep/fs_read 逐行搜索。
+Em cenarios de leitura, analise e navegacao de codigo, use de preferencia ferramentas LSP (search_symbols, find_references, goto_definition, get_hover etc.) em vez de busca linha a linha com grep/fs_read.
 
-理由：LSP 提供语义级分析（类型、引用链、定义跳转），grep 只做文本匹配，容易漏掉或误匹配。
+Motivo: o LSP fornece analise no nivel semantico (tipos, cadeia de referencias, salto para definicao); grep faz apenas correspondencia de texto e tende a perder ou casar errado.
 
-适用：
-- 查找符号定义/引用 → search_symbols + find_references
-- 理解类型/签名 → get_hover
-- 文件结构概览 → get_document_symbols
-- 架构理解 → generate_codebase_overview
-- 调试/debug → get_diagnostics 为首选工具，获取编译器错误和警告后再用 search_symbols + find_references 定位根因
+Aplicacao:
+- Encontrar definicao/referencias de simbolos -> search_symbols + find_references
+- Entender tipo/assinatura -> get_hover
+- Visao geral da estrutura do arquivo -> get_document_symbols
+- Compreensao de arquitetura -> generate_codebase_overview
+- Debug -> get_diagnostics e a ferramenta preferencial; depois de obter erros e avisos do compilador, use search_symbols + find_references para localizar a causa raiz
 
-冷启动：
-- 进入代码密集项目（含 .py/.ts/.rs 等）时，先执行 initialize_workspace 初始化 LSP，确保后续工具可用
+Cold start:
+- Ao entrar em um projeto denso em codigo (com .py/.ts/.rs etc.), execute primeiro initialize_workspace para inicializar o LSP e garantir que as demais ferramentas funcionem
 
-探索阶段：
-- 深入具体文件前，先用 generate_codebase_overview 获取项目全貌
+Fase de exploracao:
+- Antes de mergulhar em arquivos especificos, use generate_codebase_overview para obter a visao geral do projeto
 
-结构化搜索：
-- 查找代码模式（如所有错误处理、所有 API 调用）→ pattern_search，而非 grep
-- pattern_search 基于 AST，能匹配结构而非文本
+Busca estruturada:
+- Para procurar padroes de codigo (por exemplo, todo tratamento de erro, todas as chamadas de API) -> pattern_search, em vez de grep
+- pattern_search e baseado em AST e casa estrutura, nao texto
 
-安全代码变换：
-- 结构化代码替换 → pattern_rewrite（先 dry_run 预览），替代 sed
-- 动机：sed 操作 JSON/代码易破坏结构（block-sed-json.sh hook 会拦截）
+Transformacao segura de codigo:
+- Substituicao estrutural de codigo -> pattern_rewrite (rode dry_run para preview), substituindo sed
+- Motivacao: sed em JSON/codigo quebra a estrutura facilmente (o hook block-sed-json.sh intercepta)
 
-python pattern 注意事项：
-- `def $FUNC($$$):` 不工作，需写成 `def $FUNC($$$ARGS): $$$BODY`
-- python 的 ast-grep pattern 必须包含函数体占位符
+Cuidados com pattern em python:
+- `def $FUNC($$$):` nao funciona; escreva como `def $FUNC($$$ARGS): $$$BODY`
+- O pattern ast-grep para python precisa incluir um placeholder para o corpo da funcao
 
-例外：
-- 搜索注释/字符串中的文本 → grep
-- 读取非代码文件（markdown、config）→ fs_read
+Excecoes:
+- Buscar texto em comentarios/strings -> grep
+- Ler arquivos que nao sao codigo (markdown, config) -> fs_read
+

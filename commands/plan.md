@@ -31,7 +31,7 @@ Se o verdict do reviewer for REQUEST CHANGES ou REJECT:
   - Repita até obter APPROVE
 
 ## Step 6: Confirmação do usuário
-Mostre o plan final com o verdict do reviewer. O usuário confirma dizendo `@execute` (que também dispara a execução) ou apenas "确认"/"confirm".
+Mostre o plan final com o verdict do reviewer. O usuário confirma dizendo `@execute` (que também dispara a execução) ou apenas "confirm" / "confirmar".
 
 ## Step 7: Hand-off para Execute
 Após a confirmação do usuário (incluindo via `@execute`):

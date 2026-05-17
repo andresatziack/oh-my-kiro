@@ -192,13 +192,13 @@ Round 2 (2 fixed angles, verifying fix):
 
 ## Checklist
 
-- [x] distill.sh 蒸馏引擎通过单元测试 | `bash tests/knowledge/test-distill.sh`
-- [x] severity 追踪通过测试 | `bash tests/knowledge/test-severity-tracking.sh`
-- [x] context-enrichment v2 通过测试 | `bash tests/knowledge/test-enrichment-v2.sh`
-- [x] 端到端集成测试通过 | `bash tests/knowledge/test-integration.sh`
-- [x] 现有知识库测试不回归 | `bash tests/knowledge/l1-rules-injection.sh && bash tests/knowledge/l1-corruption-recall.sh`
-- [x] hook 兼容性测试通过 | `bash tests/hooks/test-kiro-compat.sh`
-- [x] review 质量改进写入 skill 文件 | `grep -q 'Specific Questions' skills/planning/SKILL.md && grep -q 'Source Reading Canary' skills/planning/SKILL.md && grep -q 'pre-review' skills/reviewing/SKILL.md`
+- [x] motor de destilacao distill.sh passa nos testes unitarios | `bash tests/knowledge/test-distill.sh`
+- [x] rastreio de severity passa nos testes | `bash tests/knowledge/test-severity-tracking.sh`
+- [x] context-enrichment v2 passa nos testes | `bash tests/knowledge/test-enrichment-v2.sh`
+- [x] testes de integracao end-to-end passam | `bash tests/knowledge/test-integration.sh`
+- [x] testes existentes da knowledge base sem regressao | `bash tests/knowledge/l1-rules-injection.sh && bash tests/knowledge/l1-corruption-recall.sh`
+- [x] testes de compatibilidade de hook passam | `bash tests/hooks/test-kiro-compat.sh`
+- [x] melhorias de qualidade do review aplicadas aos arquivos de skill | `grep -q 'Specific Questions' skills/planning/SKILL.md && grep -q 'Source Reading Canary' skills/planning/SKILL.md && grep -q 'pre-review' skills/reviewing/SKILL.md`
 
 ## Errors
 

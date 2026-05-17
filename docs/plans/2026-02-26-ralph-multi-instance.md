@@ -285,7 +285,7 @@ Expected: ALL PASS
 - [x] context-enrichment emits work_dir for @execute | `bash -c 'WS_HASH=$(pwd | shasum 2>/dev/null | cut -c1-8); echo 0 > /tmp/ctx-enrich-${WS_HASH}.ts; echo '"'"'{"prompt":"@execute"}'"'"' | bash hooks/feedback/context-enrichment.sh 2>/dev/null | grep -q "ralph_loop"'`
 - [x] execute.md documents Work Dir flow | `grep -q 'Work Dir' commands/execute.md`
 - [x] enforce-work-dir.sh registered in hook config | `cat .kiro/agents/pilot.json | grep -q 'enforce-work-dir'`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`
 
 ## Errors
 

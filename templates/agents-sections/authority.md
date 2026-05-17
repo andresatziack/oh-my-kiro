@@ -1,10 +1,11 @@
 <!-- BEGIN OMK AUTHORITY -->
 ## Authority Matrix
-- Agent 自主：读文件、跑测试、探索代码、web search
-- 需用户确认：改 plan 方向、跳过 skill 流程、git push
-- 仅人操作：修改 CLAUDE.md / .kiro/rules/（hook enforced）
+- Agent autonomo: ler arquivos, rodar testes, explorar codigo, web search
+- Precisa de confirmacao do usuario: alterar direcao do plan, pular fluxo de skill, git push
+- Apenas operacao humana: editar CLAUDE.md / .kiro/rules/ (hook enforced)
 
 ## Enforcement
-- 硬拦截规则见 hooks/gate/ 和 hooks/security/
-- 详细规则见 .kiro/rules/ 或 .kiro/rules/
+- Regras de bloqueio rigido em hooks/gate/ e hooks/security/
+- Regras detalhadas em .kiro/rules/ ou .kiro/rules/
 <!-- END OMK AUTHORITY -->
+

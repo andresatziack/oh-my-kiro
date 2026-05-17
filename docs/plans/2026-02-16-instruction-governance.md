@@ -13,7 +13,7 @@ Key findings from deep research (Anthropic official docs + community + GitHub is
 1. **CLAUDE.md is advisory, hooks are deterministic** — Anthropic official. Source: docs.anthropic.com/en/docs/claude-code/best-practices
 2. **CLAUDE.md < 500 lines** — "Bloated CLAUDE.md files cause Claude to ignore your actual instructions"
 3. **Context decay is a known problem** — GitHub issues #18660 #23696 #15331 #21119. Model drifts from instructions as conversation grows.
-4. **"没有 hook 强制的步骤 agent 就会跳过"** — Already in knowledge/rules.md, confirmed by research.
+4. **"sem hook que force a execucao, o agent vai pular o passo"** — Already in knowledge/rules.md, confirmed by research.
 5. **Skill loading**: descriptions always loaded (low cost), full content on-demand. `disable-model-invocation: true` = zero cost until invoked.
 6. **Authority Matrix pattern** (Yuki Capital): three-tier permission system for agent autonomy boundaries.
 7. **Hook cost**: zero context, but has execution time and maintenance overhead. Only use for high-frequency violations with serious consequences.
@@ -35,7 +35,7 @@ All changes are file-level (markdown + shell scripts). Rollback = `git checkout 
 
 ### Tarefa 1: Write Protection Hook for Instruction Files
 
-**⚠️ Execution order dependency:** Task 1 的 hook 生效后会拦截 Task 2-3 对 CLAUDE.md 和 `.claude/rules/` 的修改。执行 Task 2-3 时需要 `touch .skip-instruction-guard`，完成后 `rm .skip-instruction-guard`。
+**⚠️ Execution order dependency:** depois que o hook da Tarefa 1 entra em vigor, ele intercepta as alteracoes em CLAUDE.md e `.claude/rules/` realizadas pelas Tarefas 2-3. Para executar as Tarefas 2-3 e necessario `touch .skip-instruction-guard`; ao terminar, `rm .skip-instruction-guard`.
 
 **Arquivos:**
 - Modify: `hooks/gate/pre-write.sh`
@@ -310,7 +310,7 @@ echo "Results: $PASS passed, $FAIL failed"; [ "$FAIL" -eq 0 ]
 **Step 1:** Update generate-platform-configs.sh to register 3 userPromptSubmit hooks in this order: `correction-detect.sh` → `session-init.sh` → `context-enrichment.sh` (order matters: correction detection first, then session init with flag, then lightweight enrichment)
 **Step 2:** Update enforcement.md Hook Registry with new hooks (instruction guard, brainstorm gate, split scripts)
 **Step 3:** Update INDEX.md routing table to reflect new `.claude/rules/` files
-**Step 4:** Add "调研后沉淀 checkpoint" step to research skill
+**Step 4:** Add "checkpoint de consolidacao apos research" step to research skill
 
 **Verificação:** `bash scripts/generate-platform-configs.sh && grep -q 'instruction' .kiro/rules/enforcement.md && grep -q 'shell.md' knowledge/INDEX.md && grep -q '沉淀' skills/research/SKILL.md`
 

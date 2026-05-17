@@ -1,5 +1,6 @@
 <!-- BEGIN OMK SELF-LEARNING -->
 ## Self-Learning
-- 检测到纠正 → 写入 episodes.md
-- 输出: `📝 Learning captured: '[preview]' → [target file]`
+- Correcao detectada -> grave em episodes.md
+- Saida: `📝 Learning captured: '[preview]' → [target file]`
 <!-- END OMK SELF-LEARNING -->
+

@@ -34,4 +34,4 @@ Dispara o fluxo de compactação:
 
 ## Language Matching
 
-Agent 必须使用与用户相同的语言回复。用户用中文就回中文，用英文就回英文。
+O agent deve responder no idioma do usuario. Se o usuario falar portugues, responda em portugues; se falar ingles, responda em ingles; se falar chines, responda em chines.

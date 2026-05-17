@@ -4,11 +4,11 @@ description: "Fetch current library/framework documentation via Context7. Trigge
 ---
 
 ## Trigger Examples
-- "Next.js 15 的 middleware 怎么配？"
+- "como configurar o middleware do Next.js 15?"
 - "show me the Prisma query syntax for upsert"
-- "React 19 有什么新 API？"
+- "que APIs novas o React 19 tem?"
 - "how do I set up Supabase auth?"
-- "Tailwind 的 grid 怎么用？"
+- "como usar o grid do Tailwind?"
 
 Quando o usuário perguntar sobre libraries, frameworks ou precisar de exemplos de código, use o Context7 para buscar documentação atual em vez de confiar em training data.
 

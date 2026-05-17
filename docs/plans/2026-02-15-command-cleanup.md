@@ -1,12 +1,12 @@
 # Limpeza de Commands - Sync, Trim, Auto-trigger
 
-**Objetivo:** 删除无用命令、同步 README 命令表、通过 context-enrichment 自动触发 debugging/research skill。
-**Arquitetura:** 删 commands/debug.md，改 README/AGENTS.md 命令表，rules.md 加 debugging section，context-enrichment.sh 加 research 关键词检测。
+**Objetivo:** Remover commands sem uso, sincronizar a tabela de commands no README e disparar automaticamente as skills de debugging/research via context-enrichment.
+**Arquitetura:** Apagar commands/debug.md; atualizar a tabela de commands em README/AGENTS.md; adicionar uma secao de debugging em rules.md; adicionar deteccao de palavras-chave de research em context-enrichment.sh.
 **Tech Stack:** Markdown, Bash (hook)
 
 ## Tarefas
 
-### Tarefa 1: 删除 @debug 命令
+### Tarefa 1: remover o command @debug
 
 **Arquivos:**
 - Delete: `commands/debug.md`
@@ -16,12 +16,12 @@
 ! test -f commands/debug.md
 ```
 
-### Tarefa 2: Debugging 核心原则写入 rules.md
+### Tarefa 2: registrar princípios principais de debugging em rules.md
 
 **Arquivos:**
 - Modify: `knowledge/rules.md`
 
-在文件末尾追加新 keyword section：
+Acrescentar ao fim do arquivo a nova secao por keyword:
 
 ```markdown
 ## [debugging, bug, error, failure, fix, broken]
@@ -35,12 +35,12 @@
 grep -q '## \[debugging' knowledge/rules.md
 ```
 
-### Tarefa 3: Context-enrichment 加 research 关键词检测
+### Tarefa 3: adicionar deteccao de keywords de research em context-enrichment
 
 **Arquivos:**
 - Modify: `hooks/feedback/context-enrichment.sh`
 
-在 correction detection 的 `fi` 之后（约第 42 行 `touch ... .flag` 之后）、`# 2. Unfinished task resume` 注释之前，插入：
+Apos o `fi` da deteccao de correction (~linha 42, apos `touch ... .flag`) e antes do comentario `# 2. Unfinished task resume`, insira:
 
 ```bash
 # Research skill reminder
@@ -56,16 +56,16 @@ fi
 grep -q 'Research detected' hooks/feedback/context-enrichment.sh
 ```
 
-### Tarefa 4: 更新 AGENTS.md
+### Tarefa 4: atualizar AGENTS.md
 
 **Arquivos:**
 - Modify: `AGENTS.md`
 
-Skill routing 表中，将：
+Na tabela de skill routing, mude:
 ```
 | 调试 | debugging | `@debug` 命令 |
 ```
-改为：
+para:
 ```
 | 调试 | debugging | rules.md 自动注入 |
 ```
@@ -75,24 +75,24 @@ Skill routing 表中，将：
 ! grep -q '@debug' AGENTS.md && grep -q 'rules.md 自动注入' AGENTS.md
 ```
 
-### Tarefa 5: 更新 README 命令表
+### Tarefa 5: atualizar tabela de commands no README
 
 **Arquivos:**
 - Modify: `README.md`
 
-3 处修改：
+3 mudancas:
 
-**Line 27** — L1 Commands 行，改为：
+**Linha 27** - linha de L1 Commands, mudar para:
 ```
 | L1 Commands | `@plan` `@execute` `@research` `@review` `@reflect` `@cpu` `@skill` | 100% — user triggers full workflow |
 ```
 
-**Line 56** — 架构图命令行，改为：
+**Linha 56** - linha de comandos no diagrama de arquitetura, mudar para:
 ```
 │  @plan · @execute · @research · @review · @reflect · @cpu · @skill  │
 ```
 
-**Lines 86-91** — 命令表格，删除 @debug 行（line 88），新增 @reflect 和 @cpu 行：
+**Linhas 86-91** - tabela de commands; remova a linha de @debug (linha 88) e adicione as linhas @reflect e @cpu:
 ```
 | `@plan` | brainstorming → write plan (with checklist) → reviewer challenge → fix until APPROVE → user confirm |
 | `@execute` | load approved plan → Ralph Loop: bash outer loop checks checklist → fresh Kiro instance per iteration → no stops until all items checked off |
@@ -125,14 +125,14 @@ Skill routing 表中，将：
 
 ## Checklist
 
-- [x] commands/debug.md 已删除 | `! test -f commands/debug.md`
-- [x] rules.md 有 debugging keyword section | `grep -q '## \[debugging' knowledge/rules.md`
-- [x] debugging rules 包含根因原则 | `grep -q 'ROOT CAUSE' knowledge/rules.md`
-- [x] context-enrichment 有 research 检测 | `grep -q 'Research detected' hooks/feedback/context-enrichment.sh`
-- [x] research 检测覆盖中英文 | `grep -q '调研' hooks/feedback/context-enrichment.sh && grep -qi 'research' hooks/feedback/context-enrichment.sh`
-- [x] AGENTS.md 无 @debug 引用 | `! grep -q '@debug' AGENTS.md`
-- [x] AGENTS.md debugging 触发方式已更新 | `grep -q 'rules.md 自动注入' AGENTS.md`
-- [x] README 无 @debug | `! grep -q '@debug' README.md`
-- [x] README 有 @reflect | `grep -q '@reflect' README.md`
-- [x] README 有 @cpu | `grep -q '@cpu' README.md`
-- [x] hook 语法正确 | `bash -n hooks/feedback/context-enrichment.sh`
+- [x] commands/debug.md removido | `! test -f commands/debug.md`
+- [x] rules.md tem secao por keyword de debugging | `grep -q '## \[debugging' knowledge/rules.md`
+- [x] regras de debugging incluem principio de causa raiz | `grep -q 'ROOT CAUSE' knowledge/rules.md`
+- [x] context-enrichment tem deteccao de research | `grep -q 'Research detected' hooks/feedback/context-enrichment.sh`
+- [x] deteccao de research cobre chines e ingles | `grep -q '调研' hooks/feedback/context-enrichment.sh && grep -qi 'research' hooks/feedback/context-enrichment.sh`
+- [x] AGENTS.md sem referencias a @debug | `! grep -q '@debug' AGENTS.md`
+- [x] forma de trigger de debugging atualizada em AGENTS.md | `grep -q 'rules.md 自动注入' AGENTS.md`
+- [x] README sem @debug | `! grep -q '@debug' README.md`
+- [x] README com @reflect | `grep -q '@reflect' README.md`
+- [x] README com @cpu | `grep -q '@cpu' README.md`
+- [x] sintaxe do hook correta | `bash -n hooks/feedback/context-enrichment.sh`

@@ -217,13 +217,13 @@ Expected: All pass
 
 ## Checklist
 
-- [x] PlanFile.progress_path 返回 plan-scoped 路径 | `python3 -c "from scripts.lib.plan import PlanFile; from pathlib import Path; p=PlanFile(Path('docs/plans/2026-02-19-ralph-loop-context-optimization.md')); assert p.progress_path.name == '2026-02-19-ralph-loop-context-optimization.progress.md'"`
-- [x] PlanFile.findings_path 返回 plan-scoped 路径 | `python3 -c "from scripts.lib.plan import PlanFile; from pathlib import Path; p=PlanFile(Path('docs/plans/2026-02-19-ralph-loop-context-optimization.md')); assert p.findings_path.name == '2026-02-19-ralph-loop-context-optimization.findings.md'"`
-- [x] build_prompt 使用 plan.progress_path | `grep -q 'plan\.progress_path\|plan\.findings_path' scripts/ralph_loop.py`
-- [x] build_batch_prompt parallel 分支使用 scoped paths | `python3 -c "import scripts.ralph_loop as rl; src=open('scripts/ralph_loop.py').read(); assert 'plan.progress_path' in src and 'plan.findings_path' in src and src.count('plan.progress_path') >= 2"`
-- [x] detect_test_command 识别 pytest | `python3 -c "from scripts.lib.precheck import detect_test_command; from pathlib import Path; assert 'pytest' in detect_test_command(Path('.'))"`
-- [x] run_precheck 可执行 | `python3 -c "from scripts.lib.precheck import run_precheck; from pathlib import Path; ok, _ = run_precheck(Path('.')); print('ok' if isinstance(ok, bool) else 'FAIL')"`
-- [x] build_prompt 包含环境状态 | `grep -qE 'precheck|Environment' scripts/ralph_loop.py`
-- [x] build_init_prompt 存在 | `grep -q 'def build_init_prompt' scripts/ralph_loop.py`
-- [x] iteration 1 使用 init prompt | `grep -q 'build_init_prompt' scripts/ralph_loop.py`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] PlanFile.progress_path retorna caminho com escopo do plano | `python3 -c "from scripts.lib.plan import PlanFile; from pathlib import Path; p=PlanFile(Path('docs/plans/2026-02-19-ralph-loop-context-optimization.md')); assert p.progress_path.name == '2026-02-19-ralph-loop-context-optimization.progress.md'"`
+- [x] PlanFile.findings_path retorna caminho com escopo do plano | `python3 -c "from scripts.lib.plan import PlanFile; from pathlib import Path; p=PlanFile(Path('docs/plans/2026-02-19-ralph-loop-context-optimization.md')); assert p.findings_path.name == '2026-02-19-ralph-loop-context-optimization.findings.md'"`
+- [x] build_prompt usa plan.progress_path | `grep -q 'plan\.progress_path\|plan\.findings_path' scripts/ralph_loop.py`
+- [x] branch paralelo de build_batch_prompt usa scoped paths | `python3 -c "import scripts.ralph_loop as rl; src=open('scripts/ralph_loop.py').read(); assert 'plan.progress_path' in src and 'plan.findings_path' in src and src.count('plan.progress_path') >= 2"`
+- [x] detect_test_command identifica pytest | `python3 -c "from scripts.lib.precheck import detect_test_command; from pathlib import Path; assert 'pytest' in detect_test_command(Path('.'))"`
+- [x] run_precheck executavel | `python3 -c "from scripts.lib.precheck import run_precheck; from pathlib import Path; ok, _ = run_precheck(Path('.')); print('ok' if isinstance(ok, bool) else 'FAIL')"`
+- [x] build_prompt inclui estado do ambiente | `grep -qE 'precheck|Environment' scripts/ralph_loop.py`
+- [x] build_init_prompt existe | `grep -q 'def build_init_prompt' scripts/ralph_loop.py`
+- [x] iteracao 1 usa init prompt | `grep -q 'build_init_prompt' scripts/ralph_loop.py`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`

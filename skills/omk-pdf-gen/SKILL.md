@@ -10,9 +10,9 @@ description: >
 # Skill de Geração de PDF
 
 ## Trigger Examples
-- "帮我生成一个报价 PDF"
-- "把这个内容导出成 PDF"
-- "PDF 中文乱码怎么办"
+- "me ajude a gerar um PDF de proposta"
+- "exporta esse conteudo como PDF"
+- "como resolver o texto chines embaralhado no PDF"
 - "generate a comparison PDF for this customer"
 - "create a budget proposal PDF"
 
@@ -21,7 +21,7 @@ description: >
 Use o pipeline **HTML + CSS → weasyprint**. NÃO use reportlab para documentos com texto CJK.
 
 Por quê:
-- As CID fonts do reportlab (STSong-Light) têm cobertura incompleta de glifos, símbolos como `•` viram lixo (ex.: "煉")
+- As CID fonts do reportlab (STSong-Light) têm cobertura incompleta de glifos, símbolos como `•` viram lixo (caracteres CJK trocados aleatoriamente)
 - O reportlab não consegue ler fontes TTC protegidas pelo SIP do macOS (PingFang etc.)
 - A API `canvas` do reportlab exige posicionamento manual por coordenadas, frágil e feio
 - O weasyprint usa o fontconfig do sistema, resolução de fontes correta de saída
@@ -106,7 +106,7 @@ Referência: `tools/gen-73strings-pdfs.py`, bom exemplo de reportlab platypus pa
 
 | Não faça | Por quê | Faça em vez disso |
 |-------|-----|-----------|
-| reportlab + STSong-Light para CJK | `•` → "煉", glifos incompletos | weasyprint + fontes do sistema |
+| reportlab + STSong-Light para CJK | `•` vira glifo aleatorio, cobertura incompleta | weasyprint + fontes do sistema |
 | Posicionamento manual com `canvas` do reportlab | Coordenadas frágeis, texto desalinhado | weasyprint ou `platypus` do reportlab |
 | CSS `font-family: -apple-system` | weasyprint não consegue resolver | Use `"Hiragino Sans GB"` |
 | CSS `font-family: "PingFang SC"` | fontconfig costuma falhar em encontrar | Use `"Hiragino Sans GB"` |

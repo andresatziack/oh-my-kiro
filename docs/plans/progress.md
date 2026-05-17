@@ -135,7 +135,7 @@
 
 ## Iteração 20 - 2026-02-15T23:55
 
-- **Tarefa:** Updated AGENTS.md skill routing table: debugging trigger changed from `@debug` to `rules.md 自动注入`
+- **Tarefa:** Updated AGENTS.md skill routing table: debugging trigger changed from `@debug` to `injecao automatica via rules.md`
 - **Arquivos alterados:** `AGENTS.md`
 - **Aprendizados:** None new.
 - **Status:** concluído
@@ -233,7 +233,7 @@
 
 ## Iteração 34 - 2026-02-16T04:48
 
-- **Tarefa:** Task 6 - Updated config generation (3 userPromptSubmit hooks), enforcement.md (hook registry + new hooks), INDEX.md (routing table for .claude/rules/), research skill (沉淀 checkpoint).
+- **Tarefa:** Task 6 - Updated config generation (3 userPromptSubmit hooks), enforcement.md (hook registry + new hooks), INDEX.md (routing table for .claude/rules/), research skill (checkpoint de consolidacao).
 - **Arquivos alterados:** `scripts/generate-platform-configs.sh`, `.kiro/rules/enforcement.md`, `knowledge/INDEX.md`, `skills/research/SKILL.md`, `.claude/settings.json` (regenerated), `.kiro/agents/default.json` (regenerated)
 - **Aprendizados:** None new.
 - **Status:** concluído
@@ -458,10 +458,10 @@
 ## Iteração 66 - 2026-02-18T01:10
 
 - **Tarefa:** Tasks 1-4 of hook-governance plan - parallel dispatch via 4 executor subagents (Strategy D)
-  - Task 1: 修复注册表 drift + 清理死代码 (enforcement.md + llm-eval.sh → .trash/)
-  - Task 2: 修复 settings.json drift (generate_configs.py + regenerate)
-  - Task 3: 修复 pre-write.sh Phase 编号 (renumber 0-6 sequential)
-  - Task 4: 清理 session-init.sh 低价值输出 (remove delegation reminder)
+  - Task 1: corrige drift do registro + remove codigo morto (enforcement.md + llm-eval.sh -> .trash/)
+  - Task 2: corrige drift do settings.json (generate_configs.py + regenerate)
+  - Task 3: corrige numeracao de Phase em pre-write.sh (renumber 0-6 sequential)
+  - Task 4: remove saidas de baixo valor em session-init.sh (remove delegation reminder)
 - **Arquivos alterados:** `.kiro/rules/enforcement.md` (rewritten - 15 hooks, L0 security layer), `hooks/_lib/llm-eval.sh` → `.trash/llm-eval.sh` (moved), `scripts/generate_configs.py` (added enforce-ralph-loop + require-regression to CC settings), `.claude/settings.json` (regenerated), `.kiro/agents/*.json` (regenerated), `hooks/gate/pre-write.sh` (phase renumbering), `hooks/feedback/session-init.sh` (removed delegation reminder)
 - **Aprendizados:** Checklist verify command `grep -c '| hooks/'` didn't match because enforcement.md uses backtick-wrapped paths (`\`hooks/...\``). Fixed verify to use `'| \`hooks/'`. Also: checklist gate requires each verify command run as standalone bash execution with exact hash match - combined commands in a single bash call don't satisfy individual item hashes.
 - **Status:** concluído

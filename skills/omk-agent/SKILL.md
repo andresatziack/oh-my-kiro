@@ -6,11 +6,11 @@ disable-model-invocation: true
 ---
 
 ## Trigger Examples
-- "@agent 所有 JSON 操作必须用 jq"
+- "@agent todas as operacoes JSON devem usar jq"
 - "add this as a permanent rule"
 - "enforce: never skip tests"
-- "把这个原则写进规则"
-- "@agent submodule 修改必须走 worktree"
+- "transforme esse principio numa regra"
+- "@agent alteracoes em submodule devem passar por worktree"
 
 # Agent - Distilar princípio de topo
 

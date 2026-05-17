@@ -5,15 +5,15 @@
 > Seções criadas automaticamente por distill.sh. Máximo de 5 regras por seção.
 
 ## [memory,formation,hot-path,background]
-🟡 1. 记忆形成两种时机: hot-path(对话中实时,即时生效但增加延迟)适合关键纠正; background(对话后异步,不影响响应)适合模式发现和规则蒸馏. 当前auto-capture=hot-path, session-init=background, 组合合理但缺background阶段的自动蒸馏. 来源: langchain-ai.github.io/langmem concepts
+🟡 1. Formacao de memoria tem dois timings: hot-path (em tempo real durante a conversa, efeito imediato mas aumenta latencia) serve para correcoes criticas; background (assincrono apos a conversa, sem impacto na resposta) serve para descoberta de padroes e destilacao de regras. Hoje auto-capture=hot-path, session-init=background, a combinacao faz sentido mas falta destilacao automatica na fase de background. Fonte: langchain-ai.github.io/langmem concepts
 ## [cc,macos,timeout,compatibility]
-🔴 1. macOS没有`timeout`命令(GNU coreutils). Plan里写`timeout 60s`在macOS上会command not found. 替代: `gtimeout`(brew install coreutils)或`perl -e 'alarm(N); exec @ARGV'`. 所有跨平台bash脚本不能假设timeout存在
+🔴 1. macOS nao tem o comando `timeout` (GNU coreutils). Plans escritos com `timeout 60s` no macOS dao command not found. Substitutos: `gtimeout` (brew install coreutils) ou `perl -e 'alarm(N); exec @ARGV'`. Nenhum script bash cross-platform pode supor que timeout exista
 ## [research,socratic,depth,compaction]
-🔴 1. 调研复杂问题(long-running agent优化)时跳过苏格拉底自检直接输出6个优化方向. 根因: 调研后进入"拿锤子找钉子"模式——看到论文说X是问题就认为框架也有X问题, 没先验证现有方案是否已覆盖(Ralph Loop iteration重启=最强compaction, 被误判为"缺失"). 机制修复: 调研产出的每个"建议/差距"在写入findings前必须过苏格拉底三层: ①这个问题在当前框架里真的存在吗(检查现有方案) ②在目标平台上可行吗(Kiro/CC约束) ③收益>维护成本吗. 触发条件: "调研结论输出"本身就是关键决策点, 不只是"设计/方案选择"才触发
+🔴 1. Ao pesquisar problemas complexos (otimizacao de long-running agent), pulou o auto-check socratico e jogou direto 6 direcoes de otimizacao. Causa raiz: depois da pesquisa, entrou em modo "martelo procurando prego", viu o paper dizer que X e problema e assumiu que o framework tambem tem X, sem verificar primeiro se a solucao atual ja cobria (o reinicio de iteration do Ralph Loop = compaction mais forte, foi confundido como "ausente"). Correcao no mecanismo: cada "sugestao/gap" que sai de uma pesquisa precisa passar pelas 3 camadas socraticas antes de entrar em findings: (1) esse problema realmente existe no framework atual (verificar a solucao existente); (2) e viavel na plataforma alvo (restricoes Kiro/CC); (3) o ganho > custo de manutencao. Gatilho: "saida de conclusao de pesquisa" ja e um ponto de decisao chave, nao apenas "escolha de design/solucao"
 ## [principle,reform,timid,optimization]
-🟡 1. 优化方案分析时因"副作用多""改动大"而退缩到小幅优化(3-9%提升), 回避架构级改革(多进程并行+worktree隔离). 用户纠正: 顶层纲领"Bold reform over timid patches"要求效果为王, 不怕麻烦. 副作用不是回避的理由而是要解决的工程问题. DO: 先定义最优效果目标, 再解决实现中的副作用. DON'T: 因为副作用多就降低目标选凑合方案
+🟡 1. Na analise de solucoes de otimizacao, recuou para otimizacoes pequenas (3-9% de ganho) por achar "muitos efeitos colaterais" e "mudanca grande", evitando reforma a nivel de arquitetura (paralelismo multi-processo + isolamento por worktree). Correcao do usuario: a diretriz de topo "Bold reform over timid patches" exige resultado em primeiro lugar, sem medo de trabalhao. Efeito colateral nao e desculpa para evitar, e problema de engenharia para resolver. DO: defina primeiro o objetivo de melhor resultado e depois resolva os efeitos colaterais da implementacao. DON'T: rebaixar o objetivo e escolher solucao porca por causa dos efeitos colaterais
 ## [refactor,capability]
-🟡 1. 重构过度聚焦新功能, 差点丢失旧框架核心能力
+🟡 1. Refatoracao com foco excessivo em features novas quase perdeu a capacidade central do framework antigo
 
 ## [fs_write,kiro,tool,revert,modify]
-🔴 1. Kiro的fs_write工具会在两次tool call之间恢复被修改的文件到原始状态. 所有源码修改必须在单个execute_bash调用中完成(Python脚本批量修改), 并在同一调用中git commit持久化. 不要用fs_write修改源码后期望下一个tool call能看到变更
+🔴 1. A tool fs_write do Kiro restaura o arquivo modificado ao estado original entre duas tool calls. Toda modificacao de source code precisa ser feita em uma unica chamada execute_bash (script Python alterando em lote) e persistida com git commit na mesma chamada. Nao use fs_write para alterar source code esperando que o proximo tool call enxergue a mudanca

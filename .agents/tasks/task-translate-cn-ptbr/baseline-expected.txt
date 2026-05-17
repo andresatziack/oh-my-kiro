@@ -1,0 +1,12 @@
+Expected baseline test counts (must NOT regress during this CN -> PT-BR pass):
+
+- pytest (with documented ignore set): 60 passed / 8 failed
+- bash tests/test-agents-template.sh: 27 passed / 1 failed (pre-existing 'OMK SECTIONS' mismatch on coding.md)
+- bash tests/knowledge/run.sh: 1 pass / 3 total scripts (l1-rules-injection + l1-corruption-recall pre-existing failures)
+
+Documented pytest ignore set:
+  --ignore=tests/test_generate_configs.py
+  --ignore=tests/test_debugging_skill.py
+  --ignore=tests/ralph-loop/test_evaluator.py
+  --ignore=tests/ralph-loop/test_pty_runner.py
+  --ignore=tests/ralph-loop/test_ralph_loop.py

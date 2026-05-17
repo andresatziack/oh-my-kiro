@@ -4,11 +4,11 @@ description: "Evidence before claims — run verification commands before any co
 ---
 
 ## Trigger Examples
-- "我觉得改好了" → 先跑验证
-- "tests should pass now" → 先跑验证
-- "准备提 PR 了" → 先跑验证
-- "this fix looks correct" → 先跑验证
-- "done, moving to next task" → 先跑验证
+- "acho que ja arrumei" -> rode a verificacao primeiro
+- "tests should pass now" -> rode a verificacao primeiro
+- "ja vou abrir o PR" -> rode a verificacao primeiro
+- "this fix looks correct" -> rode a verificacao primeiro
+- "done, moving to next task" -> rode a verificacao primeiro
 
 # Verificação antes da conclusão
 

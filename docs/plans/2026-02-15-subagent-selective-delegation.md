@@ -123,7 +123,7 @@ Verify: `bash scripts/generate-platform-configs.sh && jq '.hooks.preToolUse | le
 
 **Arquivos:** Modify `knowledge/episodes.md`
 
-Append: `2026-02-15 | active | subagent,delegation,context | subagent选择性委派: 能力不降级/结果自包含/任务独立, 需要code/grep/web工具的不委派`
+Append: `2026-02-15 | active | subagent,delegation,context | Delegacao seletiva de subagent: capacidade nao degrada / resultado autocontido / tarefa independente; nao delegue tarefas que precisam de code/grep/web tools`
 
 Verify: `grep -c 'subagent' knowledge/episodes.md` ≥ 1
 

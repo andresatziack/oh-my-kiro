@@ -6,14 +6,14 @@ description: "Enforces coding best practices: deep-read before modify, LSP-first
 # Coding - Escrever código do jeito certo
 
 ## Trigger Examples
-- "帮我实现这个功能"
+- "me ajude a implementar essa funcionalidade"
 - "fix this bug in the auth module"
-- "重构一下这段代码"
-- "修复 PR review 发现的问题"
-- "改一下这个 hook 的逻辑"
+- "refatore esse trecho de codigo"
+- "corrija os problemas apontados no PR review"
+- "ajuste a logica desse hook"
 - "apply the review feedback"
-- "优化这段代码的性能"
-- "加个字段到这个 model 里"
+- "otimize a performance desse trecho"
+- "adicione um campo nesse model"
 
 ## Visão geral
 

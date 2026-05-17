@@ -3,7 +3,7 @@
 **Objetivo:** Integrate OMCC framework into the existing gtm project via git submodule, giving gtm access to OMCC's hooks, skills, config generation, and self-learning capabilities - without breaking gtm's existing knowledge base, AGENTS.md business content, or operational workflows.
 
 **Não-Objetivos:**
-- Rewriting gtm's AGENTS.md business sections (identity, roles, 四种角色, 客户优先级, 邮件规则 etc.)
+- Rewriting gtm's AGENTS.md business sections (identity, roles, four roles, customer priority, email rules etc.)
 - Modifying gtm's knowledge/ directory content
 - Migrating gtm's 103 third-party skills out of `.agents/skills/`
 - Adding git-lfs or other large-file handling
@@ -116,12 +116,12 @@ Expected: `OK`
 **What to implement:**
 
 Insert 4 OMCC shared sections into gtm's AGENTS.md using `<!-- BEGIN/END OMCC -->` markers:
-- PRINCIPLES — after section 0 (纲领自审), before section 1 (身份与语言)
-- WORKFLOW — after section 7 (工作流), augmenting with OMCC's Skill Routing table
-- SELF-LEARNING — replace section 9 (自学习 kiro-reflect) with OMCC's standardized version
-- AUTHORITY — after section 8 (Kiro 特殊处理)
+- PRINCIPLES - apos a secao 0 (autoavaliacao do framework), antes da secao 1 (identidade e idioma)
+- WORKFLOW - apos a secao 7 (workflow), complementando com a Skill Routing table do OMCC
+- SELF-LEARNING - substitui a secao 9 (self-learning kiro-reflect) pela versao padronizada do OMCC
+- AUTHORITY - apos a secao 8 (tratamento especial do Kiro)
 
-Preserve ALL gtm-specific content: identity, 四种角色, 客户优先级, 邮件规则, 复利原则, 三大铁律, 第四铁律, 工作流 SOP, 自定义命令, 更新日志.
+Preserve ALL gtm-specific content: identity, four roles, customer priority, email rules, compounding principles, three iron rules, fourth iron rule, workflow SOP, custom commands, changelog.
 
 **Verificação:**
 ```bash

@@ -6,11 +6,11 @@ disable-model-invocation: true
 ---
 
 ## Trigger Examples
-- "@know macOS stat 用 -f 不用 -c"
-- "记一下这个坑"
+- "@know macOS stat usa -f e nao -c"
+- "anota essa pegadinha pra mim"
 - "capture this lesson"
 - "note: this API requires auth header"
-- "@know HubSpot API 有 rate limit 100/10s"
+- "@know o HubSpot API tem rate limit de 100/10s"
 
 # Know - Captura de conhecimento
 

@@ -45,14 +45,14 @@ Add a `pattern_search` recipe section after the existing LSP recipes. Show how t
 
 ## Checklist
 
-- [x] code-analysis.md 包含 initialize_workspace 指令 | `grep -q 'initialize_workspace' .kiro/rules/code-analysis.md`
-- [x] code-analysis.md 包含 generate_codebase_overview 指令 | `grep -q 'generate_codebase_overview' .kiro/rules/code-analysis.md`
-- [x] code-analysis.md 包含 pattern_search 指令 | `grep -q 'pattern_search' .kiro/rules/code-analysis.md`
-- [x] code-analysis.md 包含 pattern_rewrite 指令 | `grep -q 'pattern_rewrite' .kiro/rules/code-analysis.md`
-- [x] code-analysis.md 记录 python pattern 注意事项 | `grep -q 'python' .kiro/rules/code-analysis.md`
-- [x] planning SKILL.md Phase 0 Step 1 包含 codebase overview | `grep -q 'generate_codebase_overview' skills/planning/SKILL.md`
-- [x] debugging reference 包含 pattern_search recipe | `grep -q 'pattern_search' skills/debugging/reference.md`
-- [x] 所有修改文件语法正确（无 broken markdown） | `for f in .kiro/rules/code-analysis.md skills/planning/SKILL.md skills/debugging/reference.md; do test -f "$f" && grep -qm1 '^# ' "$f" || exit 1; done`
+- [x] code-analysis.md inclui a instrucao initialize_workspace | `grep -q 'initialize_workspace' .kiro/rules/code-analysis.md`
+- [x] code-analysis.md inclui a instrucao generate_codebase_overview | `grep -q 'generate_codebase_overview' .kiro/rules/code-analysis.md`
+- [x] code-analysis.md inclui a instrucao pattern_search | `grep -q 'pattern_search' .kiro/rules/code-analysis.md`
+- [x] code-analysis.md inclui a instrucao pattern_rewrite | `grep -q 'pattern_rewrite' .kiro/rules/code-analysis.md`
+- [x] code-analysis.md documenta cuidados com pattern em python | `grep -q 'python' .kiro/rules/code-analysis.md`
+- [x] planning SKILL.md Phase 0 Step 1 inclui codebase overview | `grep -q 'generate_codebase_overview' skills/planning/SKILL.md`
+- [x] debugging reference inclui o recipe de pattern_search | `grep -q 'pattern_search' skills/debugging/reference.md`
+- [x] todos os arquivos modificados estao com sintaxe correta (sem markdown quebrado) | `for f in .kiro/rules/code-analysis.md skills/planning/SKILL.md skills/debugging/reference.md; do test -f "$f" && grep -qm1 '^# ' "$f" || exit 1; done`
 
 ## Errors
 

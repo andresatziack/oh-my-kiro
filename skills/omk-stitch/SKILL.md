@@ -15,8 +15,8 @@ metadata:
 
 ## Trigger Examples
 - "Pull my Stitch designs into code"
-- "用 Stitch 做个落地页"
-- "把这个截图的风格用到我的网站上"
+- "monte uma landing page com o Stitch"
+- "use o estilo desse screenshot no meu site"
 - "Export design.md from my Stitch project"
 - "Convert Stitch design to ShadCN components"
 

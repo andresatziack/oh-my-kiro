@@ -160,10 +160,10 @@ git commit -m "feat(cpu): add worktree support with auto-merge/PR flow"
 
 ## Checklist
 
-- [x] cpu.md 包含 worktree 检测逻辑 | `grep -q 'git rev-parse --git-common-dir' commands/cpu.md`
-- [x] cpu.md 包含 branch protection 检测 | `grep -q 'protection' commands/cpu.md`
-- [x] cpu.md 包含无保护时本地 merge 流程 | `grep -q 'git merge --no-ff' commands/cpu.md`
-- [x] cpu.md 包含有保护时 PR 创建流程 | `grep -q 'gh pr create' commands/cpu.md`
-- [x] cpu.md 包含 worktree 清理 | `grep -q 'git worktree remove' commands/cpu.md`
-- [x] cpu.md 包含 merge 冲突回退到 PR | `grep -q 'merge --abort' commands/cpu.md`
-- [x] cpu.md 包含主 worktree dirty 检查 | `grep -q 'porcelain' commands/cpu.md`
+- [x] cpu.md contem logica de deteccao de worktree | `grep -q 'git rev-parse --git-common-dir' commands/cpu.md`
+- [x] cpu.md contem deteccao de branch protection | `grep -q 'protection' commands/cpu.md`
+- [x] cpu.md contem fluxo de merge local quando sem protecao | `grep -q 'git merge --no-ff' commands/cpu.md`
+- [x] cpu.md contem fluxo de criacao de PR quando ha protecao | `grep -q 'gh pr create' commands/cpu.md`
+- [x] cpu.md contem limpeza de worktree | `grep -q 'git worktree remove' commands/cpu.md`
+- [x] cpu.md contem fallback para PR em caso de conflito de merge | `grep -q 'merge --abort' commands/cpu.md`
+- [x] cpu.md contem checagem de dirty no worktree principal | `grep -q 'porcelain' commands/cpu.md`

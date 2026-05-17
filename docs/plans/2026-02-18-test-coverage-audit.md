@@ -214,8 +214,8 @@ If a table has N tasks, your output must have N rows. Missing rows = review REJE
 - [x] auto-capture tests exist and pass | `bash tests/hooks/test-auto-capture.sh`
 - [x] post-bash verify-log write tested | `bash tests/hooks/test-kiro-compat.sh 2>&1 | grep -q 'PASS.*post-bash.*verify-log'`
 - [x] English correction detection tested | `bash tests/context-enrichment/test-split.sh 2>&1 | grep -q 'PASS.*English\|English.*PASS'`
-- [x] 既有测试无回归 | `python3 -m pytest tests/ralph-loop/ tests/test_generate_configs.py -q && bash tests/hooks/test-kiro-compat.sh 2>&1 | tail -1 | grep -q '0 failed' && bash tests/hooks/test-cc-compat.sh 2>&1 | tail -1 | grep -q '0 failed'`
-- [x] reviewer prompt 加 verdict 强制 + source reading mandate + goal alignment 具体化 | `grep -q 'Verdict is mandatory' agents/reviewer-prompt.md && grep -q 'Mandatory Source Reading' skills/planning/SKILL.md && grep -q 'Missing rows = review REJECTED' skills/planning/SKILL.md`
+- [x] testes existentes sem regressao | `python3 -m pytest tests/ralph-loop/ tests/test_generate_configs.py -q && bash tests/hooks/test-kiro-compat.sh 2>&1 | tail -1 | grep -q '0 failed' && bash tests/hooks/test-cc-compat.sh 2>&1 | tail -1 | grep -q '0 failed'`
+- [x] reviewer prompt: verdict obrigatorio + source reading mandate + goal alignment detalhado | `grep -q 'Verdict is mandatory' agents/reviewer-prompt.md && grep -q 'Mandatory Source Reading' skills/planning/SKILL.md && grep -q 'Missing rows = review REJECTED' skills/planning/SKILL.md`
 
 ## Errors
 

@@ -4,8 +4,8 @@ description: "Multi-level research: built-in knowledge → web search → Tavily
 ---
 
 ## Trigger Examples
-- "@research AutoMQ vs Confluent 对比"
-- "帮我调研一下这个库怎么用"
+- "@research comparar AutoMQ vs Confluent"
+- "me ajude a pesquisar como usar essa biblioteca"
 - "find out how competitors handle this"
 - "what's the best practice for X in 2026?"
 - "compare these three approaches"
@@ -95,7 +95,7 @@ Suportados: `numbered` (default), `mla`, `apa`, `chicago`
 ./scripts/research.sh '{"input": "climate impacts", "citation_format": "apa"}'
 ```
 
-## Checkpoint pós-pesquisa 沉淀
+## Checkpoint pós-pesquisa (consolidacao)
 
 Após concluir a pesquisa, antes de escrever findings ou recomendações:
 

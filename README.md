@@ -244,7 +244,7 @@ You say "别用 sed 改 JSON，用 jq"
 
 **Não é só memória, é sistema imune.** O agente não apenas "lembra" da sua correção. Ele constrói anticorpos:
 
-1. **Detecção em tempo real** - `correction-detect.sh` casa 30+ padrões de correção em chinês e inglês ("你错了", "不是这样", "wrong approach", "try again"). Sem tagging manual.
+1. **Detecção em tempo real** - `correction-detect.sh` casa 30+ padrões de correção em chinês e inglês ("wrong approach", "try again", "that's wrong"). Sem tagging manual.
 
 2. **Gates de qualidade** - Nem toda correção vale persistência. `auto-capture.sh` filtra perguntas, reclamações vagas e duplicatas. Só sobrevivem correções acionáveis com keywords extraíveis.
 
@@ -260,7 +260,7 @@ You say "别用 sed 改 JSON，用 jq"
 
 Após 3 correções sobre compatibilidade com macOS, o sistema promoveu automaticamente esta regra:
 
-> 🔴 macOS 没有 `timeout` 命令 (GNU coreutils). Plan 里写 `timeout 60s` 在 macOS 上会 command not found. 替代: `gtimeout` (brew install coreutils). 所有跨平台 bash 脚本不能假设 timeout 存在.
+> 🔴 macOS nao tem o comando `timeout` (GNU coreutils). Escrever `timeout 60s` no plan resulta em command not found no macOS. Alternativa: `gtimeout` (brew install coreutils). Nenhum script bash cross-platform pode assumir que timeout existe.
 
 Agora, toda vez que o agente escreve um script bash, essa regra é injetada. O erro não acontece de novo.
 

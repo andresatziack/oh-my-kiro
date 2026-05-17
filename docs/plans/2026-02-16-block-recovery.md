@@ -1,12 +1,12 @@
-# Block Recovery — 危险命令阻断后自愈与兜底跳过
+# Block Recovery - autorrecuperacao apos bloqueio de comando perigoso, com fallback de skip
 
-**Objetivo:** 当 security hook 阻断危险命令时，agent 能利用 hook 提供的替代建议自动重试，重试失败后自动 SKIP，不卡死 plan 执行。
-**Arquitetura:** 两层防御：(1) 所有 security blocking hook 共享的计数+重试指引逻辑，抽取到 `_lib/block-recovery.sh`，各 hook 调用（带 fallback）；(2) ralph-loop prompt 加兜底规则。
+**Objetivo:** Quando um security hook bloqueia um comando perigoso, o agent usa a sugestao alternativa fornecida pelo hook para tentar de novo automaticamente; apos falhas repetidas, marca SKIP e nao trava a execucao do plan.
+**Arquitetura:** Duas camadas de defesa: (1) logica compartilhada de contagem + orientacao de retry para todos os security blocking hooks, extraida para `_lib/block-recovery.sh`, chamada por cada hook (com fallback); (2) prompt do ralph-loop ganha regra de fallback.
 **Tech Stack:** Bash (hook), Markdown (prompt)
 
 ## Tarefas
 
-### Tarefa 1: 新增共享 block-recovery 库函数
+### Tarefa 1: nova biblioteca compartilhada block-recovery
 
 **Arquivos:**
 - Create: `hooks/_lib/block-recovery.sh`
@@ -65,7 +65,7 @@ hook_block_with_recovery() {
 bash -n hooks/_lib/block-recovery.sh
 ```
 
-### Tarefa 2: 修改所有 security blocking hook 使用 block-recovery（带 fallback）
+### Tarefa 2: ajustar todos os security blocking hooks para usar block-recovery (com fallback)
 
 **Arquivos:**
 - Modify: `hooks/security/block-dangerous.sh`
@@ -73,21 +73,22 @@ bash -n hooks/_lib/block-recovery.sh
 - Modify: `hooks/security/block-secrets.sh`
 - Modify: `hooks/security/block-sed-json.sh`
 
-每个文件的改动：
+Mudancas em cada arquivo:
 
-1. 在已有 source 行后加（带 fallback）：
+1. Apos a linha de source ja existente, adicione (com fallback):
 ```bash
 if ! source "$(dirname "$0")/../_lib/block-recovery.sh" 2>/dev/null; then
   hook_block_with_recovery() { hook_block "$1"; }
 fi
 ```
-这样如果 `block-recovery.sh` 缺失或有语法错误，`hook_block_with_recovery` 退回到 `hook_block`，安全阻断不受影响。
+Assim, se `block-recovery.sh` estiver ausente ou tiver erro de sintaxe, `hook_block_with_recovery` faz fallback para `hook_block` e o bloqueio de seguranca continua intacto.
 
-2. 将所有 `hook_block "..."` 调用替换为 `hook_block_with_recovery "..." "$CMD"`
+2. Substitua todas as chamadas de `hook_block "..."` por `hook_block_with_recovery "..." "$CMD"`
 
-各 hook 的 key 参数：
+Parametros key de cada hook:
+
 - `block-dangerous.sh`: `$CMD`
-- `block-outside-workspace.sh`: fs_write 分支用 `$FILE`，bash 分支用 `$CMD`
+- `block-outside-workspace.sh`: branch fs_write usa `$FILE`, branch bash usa `$CMD`
 - `block-secrets.sh`: `$CMD`
 - `block-sed-json.sh`: `$CMD`
 
@@ -96,12 +97,12 @@ fi
 bash -n hooks/security/block-dangerous.sh && bash -n hooks/security/block-outside-workspace.sh && bash -n hooks/security/block-secrets.sh && bash -n hooks/security/block-sed-json.sh
 ```
 
-### Tarefa 3: ralph-loop prompt 加兜底规则
+### Tarefa 3: regra de fallback no prompt do ralph-loop
 
 **Arquivos:**
 - Modify: `scripts/ralph-loop.sh`
 
-在 PROMPT 的 Rules 第 7 条后追加：
+Adicione, apos a regra 7 das Rules do PROMPT:
 ```
 8. If a command is blocked by a security hook, read the suggested alternative and retry with the safe command. If blocked 3+ times on the same item, mark it as '- [SKIP] blocked by security hook' and continue.
 ```
@@ -111,7 +112,7 @@ bash -n hooks/security/block-dangerous.sh && bash -n hooks/security/block-outsid
 grep -q 'blocked.*security hook' scripts/ralph-loop.sh
 ```
 
-### Tarefa 4: 集成测试
+### Tarefa 4: testes de integracao
 
 **Arquivos:**
 - Create: `tests/block-recovery/test-block-recovery.sh`
@@ -181,35 +182,35 @@ bash tests/block-recovery/test-block-recovery.sh
 
 ## Checklist
 
-- [x] _lib/block-recovery.sh 语法正确 | `bash -n hooks/_lib/block-recovery.sh`
-- [x] 所有 security hook 语法正确 | `bash -n hooks/security/block-dangerous.sh && bash -n hooks/security/block-outside-workspace.sh && bash -n hooks/security/block-secrets.sh && bash -n hooks/security/block-sed-json.sh`
-- [x] 首次阻断输出含 RETRY | `rm -f /tmp/block-count-*.jsonl; OUTPUT=$(echo '{"tool_name":"execute_bash","tool_input":{"command":"rm -rf /tmp/test"}}' | bash hooks/security/block-dangerous.sh 2>&1 || true); echo "$OUTPUT" | grep -q 'RETRY'`
-- [x] 3 次阻断后输出含 SKIP | `rm -f /tmp/block-count-*.jsonl; for i in 1 2; do echo '{"tool_name":"execute_bash","tool_input":{"command":"rm -rf /tmp/test"}}' | bash hooks/security/block-dangerous.sh 2>&1 || true; done; OUTPUT=$(echo '{"tool_name":"execute_bash","tool_input":{"command":"rm -rf /tmp/test"}}' | bash hooks/security/block-dangerous.sh 2>&1 || true); echo "$OUTPUT" | grep -q 'SKIP'`
-- [x] ralph-loop prompt 包含兜底规则 | `grep -q 'blocked.*security hook' scripts/ralph-loop.sh`
-- [x] 集成测试通过 | `bash tests/block-recovery/test-block-recovery.sh`
+- [x] _lib/block-recovery.sh com sintaxe correta | `bash -n hooks/_lib/block-recovery.sh`
+- [x] todos os security hooks com sintaxe correta | `bash -n hooks/security/block-dangerous.sh && bash -n hooks/security/block-outside-workspace.sh && bash -n hooks/security/block-secrets.sh && bash -n hooks/security/block-sed-json.sh`
+- [x] primeira ocorrencia de bloqueio inclui RETRY | `rm -f /tmp/block-count-*.jsonl; OUTPUT=$(echo '{"tool_name":"execute_bash","tool_input":{"command":"rm -rf /tmp/test"}}' | bash hooks/security/block-dangerous.sh 2>&1 || true); echo "$OUTPUT" | grep -q 'RETRY'`
+- [x] apos 3 bloqueios a saida inclui SKIP | `rm -f /tmp/block-count-*.jsonl; for i in 1 2; do echo '{"tool_name":"execute_bash","tool_input":{"command":"rm -rf /tmp/test"}}' | bash hooks/security/block-dangerous.sh 2>&1 || true; done; OUTPUT=$(echo '{"tool_name":"execute_bash","tool_input":{"command":"rm -rf /tmp/test"}}' | bash hooks/security/block-dangerous.sh 2>&1 || true); echo "$OUTPUT" | grep -q 'SKIP'`
+- [x] prompt do ralph-loop contem regra de fallback | `grep -q 'blocked.*security hook' scripts/ralph-loop.sh`
+- [x] testes de integracao passam | `bash tests/block-recovery/test-block-recovery.sh`
 
 ## Review
 
 ### Round 1 (Completeness / Testability / Technical Feasibility / Clarity)
-- **Completeness**: REQUEST CHANGES — 只覆盖 block-dangerous.sh，需覆盖所有 4 个 hook → ✅ Fixed
-- **Testability**: REQUEST CHANGES — stderr 捕获问题，workspace hash 未测试 → ✅ Fixed
+- **Completeness**: REQUEST CHANGES - cobre apenas block-dangerous.sh; precisa cobrir os 4 hooks -> ✅ Fixed
+- **Testability**: REQUEST CHANGES - captura de stderr, hash do workspace nao testado -> ✅ Fixed
 - **Technical Feasibility**: APPROVE
-- **Clarity**: REQUEST CHANGES — Task 1 自相矛盾 → ✅ Fixed (rewritten)
+- **Clarity**: REQUEST CHANGES - Tarefa 1 contraditoria -> ✅ Fixed (rewritten)
 
 ### Round 2 (Completeness / Testability / Compatibility & Rollback / Security)
-- **Completeness**: REQUEST CHANGES — 缺少 source fallback、/tmp 清理 → ✅ Fixed
-- **Testability**: REQUEST CHANGES — 只测 2/4 hooks → ✅ Fixed (now tests 3 hooks)
-- **Compatibility & Rollback**: REQUEST CHANGES — block-recovery.sh 缺失会导致所有 hook 失败 → ✅ Fixed (fallback to hook_block)
+- **Completeness**: REQUEST CHANGES - faltava source fallback e cleanup de /tmp -> ✅ Fixed
+- **Testability**: REQUEST CHANGES - so testava 2/4 hooks -> ✅ Fixed (now tests 3 hooks)
+- **Compatibility & Rollback**: REQUEST CHANGES - falta de block-recovery.sh quebraria todos os hooks -> ✅ Fixed (fallback to hook_block)
 - **Security**: APPROVE
 
 ### Round 3 (Completeness / Testability / Performance / Clarity)
-- **Completeness**: REQUEST CHANGES — race condition + error propagation → Dismissed: local dev tool has no concurrent hook execution; ralph-loop reads checklist state, doesn't need hook exit code differentiation
-- **Testability**: REQUEST CHANGES — "test file doesn't exist" → Dismissed: Task 4 creates it, verify runs after task execution
+- **Completeness**: REQUEST CHANGES - race condition + propagacao de erro -> Dismissed: ferramenta de dev local nao executa hooks concorrentes; ralph-loop le o estado da checklist e nao precisa diferenciar exit code do hook
+- **Testability**: REQUEST CHANGES - "test file doesn't exist" -> Dismissed: Task 4 cria, verify roda apos a execucao da tarefa
 - **Performance**: APPROVE
-- **Clarity**: REQUEST CHANGES — "missing file paths/key params/rule text" → Dismissed: all present in full plan (reviewer received summary only)
+- **Clarity**: REQUEST CHANGES - "missing file paths/key params/rule text" -> Dismissed: tudo presente no plano completo (reviewer recebeu apenas o resumo)
 
 ### Round 4 (Completeness / Testability / Compatibility & Rollback / Clarity)
-- **Completeness**: REJECT — "fallback syntax error" → Dismissed: `bash -c` 实测通过; "test file doesn't exist" → Dismissed: Task 4 创建它
+- **Completeness**: REJECT - "fallback syntax error" -> Dismissed: `bash -c` testado e passa; "test file doesn't exist" -> Dismissed: Task 4 cria
 - **Testability**: APPROVE
 - **Compatibility & Rollback**: APPROVE
 - **Clarity**: APPROVE

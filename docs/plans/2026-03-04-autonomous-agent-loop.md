@@ -215,4 +215,4 @@ Expected: ALL PASS (87 existing + 4 new)
 - [x] normal prompt has autonomous problem-solving instructions | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_normal_prompt_has_autonomous_instructions -v`
 - [x] prompt includes codebase patterns consolidation instruction | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_prompt_instructs_patterns_consolidation -v`
 - [x] main() passes stale_rounds, log_path, reverted to build_prompt | `python3 -c "import ast; tree=ast.parse(open('scripts/ralph_loop.py').read()); calls=[n for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id=='build_prompt']; kws={kw.arg for c in calls for kw in c.keywords}; assert 'stale_rounds' in kws and 'log_path' in kws, f'missing kwargs in build_prompt calls: {kws}'"`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -v`

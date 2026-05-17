@@ -270,19 +270,19 @@ Add this line to the PROMPT:
 
 ## Checklist
 
-- [x] executor.json 存在且结构完整 | `jq -e '.name == "executor" and (.hooks.postToolUse | length > 0) and .includeMcpJson == true and (.toolsSettings.shell.deniedCommands | any(test("git commit")))' .kiro/agents/executor.json`
-- [x] executor 在 config generator 中 | `grep -c 'executor' scripts/generate-platform-configs.sh | xargs test 2 -le`
-- [x] executor 在 availableAgents 中 | `jq -e '.toolsSettings.subagent.availableAgents | index("executor")' .kiro/agents/default.json`
-- [x] executor 在 trustedAgents 中 | `jq -e '.toolsSettings.subagent.trustedAgents | index("executor")' .kiro/agents/default.json`
-- [x] enforce-ralph-loop 在 config generator 中 | `grep -c 'enforce-ralph-loop' scripts/generate-platform-configs.sh | xargs test 1 -le`
-- [x] enforce-ralph-loop 在 default.json preToolUse 中 | `jq -e '[.hooks.preToolUse[] | select(.command | contains("enforce-ralph-loop"))] | length == 2' .kiro/agents/default.json`
-- [x] enforce-ralph-loop 有 subagent 兼容注释 | `grep -q 'subagent' hooks/gate/enforce-ralph-loop.sh`
-- [x] Strategy D 在 planning SKILL.md Phase 2 中 | `sed -n '/^## Phase 2/,/^## Phase 3/p' skills/planning/SKILL.md | grep -q 'Strategy D: Parallel Fan-out'`
-- [x] Strategy Selection 表包含 D | `sed -n '/Strategy Selection/,/^### Strategy A/p' skills/planning/SKILL.md | grep -q 'Fan-out'`
-- [x] ralph-loop prompt 包含 executor 并行指令 | `grep -q 'executor' scripts/ralph-loop.sh`
-- [x] ralph-loop NEXT_ITEMS 用 head -5 | `grep -q 'head -5' scripts/ralph-loop.sh`
-- [x] subagent.md 包含 executor 规则 | `grep -q 'executor.*plan.*commit' .claude/rules/subagent.md`
-- [x] 所有 agent JSON 语法正确 | `for f in .kiro/agents/*.json; do jq -e . "$f" > /dev/null || exit 1; done`
+- [x] executor.json existe e tem estrutura completa | `jq -e '.name == "executor" and (.hooks.postToolUse | length > 0) and .includeMcpJson == true and (.toolsSettings.shell.deniedCommands | any(test("git commit")))' .kiro/agents/executor.json`
+- [x] executor presente no config generator | `grep -c 'executor' scripts/generate-platform-configs.sh | xargs test 2 -le`
+- [x] executor presente em availableAgents | `jq -e '.toolsSettings.subagent.availableAgents | index("executor")' .kiro/agents/default.json`
+- [x] executor presente em trustedAgents | `jq -e '.toolsSettings.subagent.trustedAgents | index("executor")' .kiro/agents/default.json`
+- [x] enforce-ralph-loop presente no config generator | `grep -c 'enforce-ralph-loop' scripts/generate-platform-configs.sh | xargs test 1 -le`
+- [x] enforce-ralph-loop presente em default.json preToolUse | `jq -e '[.hooks.preToolUse[] | select(.command | contains("enforce-ralph-loop"))] | length == 2' .kiro/agents/default.json`
+- [x] enforce-ralph-loop tem comentario de compatibilidade com subagent | `grep -q 'subagent' hooks/gate/enforce-ralph-loop.sh`
+- [x] Strategy D presente em planning SKILL.md Phase 2 | `sed -n '/^## Phase 2/,/^## Phase 3/p' skills/planning/SKILL.md | grep -q 'Strategy D: Parallel Fan-out'`
+- [x] tabela Strategy Selection contem D | `sed -n '/Strategy Selection/,/^### Strategy A/p' skills/planning/SKILL.md | grep -q 'Fan-out'`
+- [x] prompt do ralph-loop inclui instrucao paralela do executor | `grep -q 'executor' scripts/ralph-loop.sh`
+- [x] ralph-loop NEXT_ITEMS usa head -5 | `grep -q 'head -5' scripts/ralph-loop.sh`
+- [x] subagent.md contem regra do executor | `grep -q 'executor.*plan.*commit' .claude/rules/subagent.md`
+- [x] sintaxe JSON correta em todos os agent JSONs | `for f in .kiro/agents/*.json; do jq -e . "$f" > /dev/null || exit 1; done`
 
 ## Errors
 

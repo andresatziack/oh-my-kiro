@@ -4,11 +4,11 @@ description: "Agent self-learning: promote recurring episodes to rules, capture 
 ---
 
 ## Trigger Examples
-- "记住，以后都要这样做"
+- "lembre disso, sempre fazer assim daqui pra frente"
 - "always use jq for JSON, never sed"
-- "@reflect 把这个教训沉淀一下"
+- "@reflect consolide essa licao aprendida"
 - "I told you this before, capture it"
-- "这个错误犯了好几次了，升级成规则"
+- "esse erro ja se repetiu varias vezes, vira regra"
 
 # Self-Reflect - Sistema de auto-aprendizagem do agent
 

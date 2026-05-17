@@ -196,10 +196,10 @@ def _cleanup_handler(signum=None, frame=None):
 
 ## Checklist
 
-- [x] precheck pytest 命令包含 --ignore=tests/ralph-loop | `python3 -c "from scripts.lib.precheck import detect_test_command; from pathlib import Path; cmd = detect_test_command(Path('.')); assert '--ignore=tests/ralph-loop' in cmd, cmd"`
-- [x] 递归守卫阻止嵌套 ralph | `_RALPH_LOOP_RUNNING=1 python3 scripts/ralph_loop.py 2>&1; test $? -eq 1`
-- [x] 杀 ralph 后子进程不残留 | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_no_orphan_after_ralph_killed -v`
-- [x] 回归测试通过 | `python3 -m pytest tests/ralph-loop/ -m 'not slow' -q`
+- [x] comando pytest do precheck contem --ignore=tests/ralph-loop | `python3 -c "from scripts.lib.precheck import detect_test_command; from pathlib import Path; cmd = detect_test_command(Path('.')); assert '--ignore=tests/ralph-loop' in cmd, cmd"`
+- [x] guarda de recursao bloqueia ralph aninhado | `_RALPH_LOOP_RUNNING=1 python3 scripts/ralph_loop.py 2>&1; test $? -eq 1`
+- [x] processos filhos nao sobrevivem apos matar ralph | `python3 -m pytest tests/ralph-loop/test_ralph_loop.py::test_no_orphan_after_ralph_killed -v`
+- [x] testes de regressao passam | `python3 -m pytest tests/ralph-loop/ -m 'not slow' -q`
 
 ## Errors
 
